@@ -3,6 +3,7 @@ import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
+import { PublisherGithub } from '@electron-forge/publisher-github';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
@@ -10,7 +11,9 @@ import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-nati
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: true,
+    asar: {
+      unpack: '**/*.node', // Native binaries cannot be loaded from inside an ASAR
+    },
     icon: './OrbitDMX.icns'
   },
   rebuildConfig: {
@@ -24,6 +27,36 @@ const config: ForgeConfig = {
     new MakerRpm({}),
     new MakerDeb({}),
   ],
+  publishers: [
+    new PublisherGithub({
+      repository: {
+        owner: 'Akashic-Trance-Machines',
+        name: 'OrbitDMX'
+      },
+      prerelease: false,
+      draft: true // Set to true so you can review releases before making them public
+    })
+  ],
+  hooks: {
+    /**
+     * After Forge copies the app into the staging directory (but before ASAR
+     * creation), copy the production node_modules into the .vite/build folder
+     * so that native/external requires (serialport, usb, etc.) are resolvable
+     * at runtime inside the packaged app.
+     */
+    packageAfterCopy: async (_config, buildPath) => {
+      const fs = await import('fs');
+      const path = await import('path');
+
+      const src = path.join(__dirname, 'node_modules');
+      const dest = path.join(buildPath, 'node_modules');
+
+      if (!fs.existsSync(dest)) {
+        console.log(`[forge] Copying node_modules → ${dest}`);
+        fs.cpSync(src, dest, { recursive: true });
+      }
+    },
+  },
   plugins: [
     // Automatically unpacks native .node modules from the ASAR (required for serialport)
     new AutoUnpackNativesPlugin({}),

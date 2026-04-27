@@ -1,5 +1,5 @@
 #!/bin/bash
-cp "/Users/toonnelissen/.gemini/antigravity/brain/775052ea-e2d4-470e-a4a8-a64a6fbc422e/dmx_icon_concept_2_1777281652397.png" icon.png
+cp "/Users/toonnelissen/.gemini/antigravity/brain/abce309f-f019-438d-b6e5-f3777950f5dd/orbit_star_icon_1777285003075.png" icon.png
 mkdir -p OrbitDMX.iconset
 sips -s format png -z 16 16     icon.png --out OrbitDMX.iconset/icon_16x16.png
 sips -s format png -z 32 32     icon.png --out OrbitDMX.iconset/icon_16x16@2x.png

@@ -29,9 +29,6 @@ const createWindow = () => {
     },
   });
 
-  // Register all IPC handlers, passing a getter for the current webContents
-  registerIpcHandlers(engine, () => mainWindow?.webContents ?? null);
-
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     mainWindow.webContents.openDevTools();
@@ -46,7 +43,14 @@ const createWindow = () => {
   });
 };
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+  // Register IPC handlers once for the lifetime of the app.
+  // Must NOT be called inside createWindow — on macOS the window can be
+  // closed and recreated (activate event), which would try to register the
+  // same channels twice and throw.
+  registerIpcHandlers(engine, () => mainWindow?.webContents ?? null);
+  createWindow();
+});
 
 // Safety: blackout and disconnect serial before the process exits
 app.on('before-quit', async () => {
