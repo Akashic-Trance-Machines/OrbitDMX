@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── Design tokens ───────────────────────────────────────────────────────── */
+:root {
+  --color-bg:          #0f0f14;
+  --color-surface:     #17171f;
+  --color-surface-2:   #1e1e2a;
+  --color-surface-3:   #252535;
+  --color-border:      #2a2a3d;
+  --color-border-dim:  #1f1f2e;
+
+  --color-accent:      #7c6af7;
+  --color-accent-dim:  #5a4ed6;
+  --color-accent-glow: rgba(124, 106, 247, 0.25);
+
+  --color-red:         #f74f6a;
+  --color-green:       #4fd97a;
+  --color-blue:        #4fa8f7;
+
+  --color-text:        #e8e8f0;
+  --color-text-dim:    #9090b0;
+  --color-text-muted:  #5a5a7a;
+
+  --color-warning:     #f7a04f;
+  --color-danger:      #f74f4f;
+  --color-success:     #4fd97a;
+
+  --radius-sm:         6px;
+  --radius-md:         10px;
+  --radius-lg:         16px;
+
+  --shadow-glow: 0 0 20px var(--color-accent-glow);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ── Reset ───────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* Prevent text selection on drag */
+  user-select: none;
+}
+
+/* Allow text selection in inputs */
+input, textarea {
+  user-select: text;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-surface-3); }
+
+/* ── Typography ──────────────────────────────────────────────────────────── */
+h1 { font-size: 22px; font-weight: 700; }
+h2 { font-size: 17px; font-weight: 600; }
+h3 { font-size: 14px; font-weight: 600; }
+
+/* ── Utilities ───────────────────────────────────────────────────────────── */
+.mono { font-family: var(--font-mono); }
+.text-dim { color: var(--color-text-dim); }
+.text-muted { color: var(--color-text-muted); }
+.text-accent { color: var(--color-accent); }
+.text-success { color: var(--color-success); }
+.text-danger { color: var(--color-danger); }
+.text-warning { color: var(--color-warning); }

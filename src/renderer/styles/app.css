@@ -1,0 +1,18 @@
+/* App shell layout */
+.app-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "sidebar main"
+    "sidebar statusbar";
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-main {
+  grid-area: main;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

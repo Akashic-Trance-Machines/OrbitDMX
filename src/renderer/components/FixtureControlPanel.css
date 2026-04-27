@@ -1,0 +1,287 @@
+/* ── Fixture Control Panel ────────────────────────────────────────────── */
+
+.fixture-control-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+/* Header */
+.fcp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  flex-shrink: 0;
+}
+
+.fcp-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fcp-header-left h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fcp-header-meta {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.fcp-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.fcp-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-3);
+  color: var(--color-text-dim);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.fcp-btn:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-accent-dim);
+  color: var(--color-text);
+}
+
+.fcp-btn-accent {
+  background: var(--color-accent-glow);
+  border-color: var(--color-accent-dim);
+  color: var(--color-accent);
+}
+
+.fcp-btn-accent:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.fcp-close {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.fcp-close:hover {
+  background: rgba(247, 79, 79, 0.1);
+  color: var(--color-danger);
+}
+
+/* Body */
+.fcp-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Sections */
+.fcp-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 12px;
+}
+
+/* ── Colour controls ─────────────────────────────────────────────── */
+
+.fcp-color-master {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-dim);
+}
+
+.fcp-color-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-dim);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.fcp-color-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fcp-color-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s;
+}
+
+.fcp-color-input:hover {
+  border-color: var(--color-accent-dim);
+}
+
+.fcp-color-input::-webkit-color-swatch-wrapper {
+  padding: 3px;
+}
+
+.fcp-color-input::-webkit-color-swatch {
+  border: none;
+  border-radius: calc(var(--radius-md) - 4px);
+}
+
+.fcp-color-preview {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
+  transition: background 0.1s;
+}
+
+.fcp-color-hex {
+  font-size: 12px;
+  color: var(--color-text-dim);
+}
+
+/* Per-LED grid */
+.fcp-color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.fcp-color-led {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-dim);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Channel sliders ─────────────────────────────────────────────── */
+
+.fcp-slider-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fcp-slider {
+  display: grid;
+  grid-template-columns: 100px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+}
+
+.fcp-slider-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fcp-slider-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fcp-slider-value {
+  font-size: 12px;
+  color: var(--color-text-dim);
+  text-align: right;
+}
+
+/* Range input styling */
+.fcp-slider-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.fcp-slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-text);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+  transition: transform 0.12s;
+}
+
+.fcp-slider-input::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.fcp-slider-input:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+
+/* In compact mode (inside LED cards) */
+.fcp-color-led .fcp-slider {
+  grid-template-columns: 56px 1fr 36px;
+  gap: 6px;
+}
+
+.fcp-color-led .fcp-slider-label {
+  font-size: 11px;
+}
+
+.fcp-color-led .fcp-slider-value {
+  font-size: 11px;
+}

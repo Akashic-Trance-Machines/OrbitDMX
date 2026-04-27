@@ -1,0 +1,117 @@
+/* ── VU Meter ───────────────────────────────────────────────────────────────── */
+
+.vu-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vu-meter-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--color-text-muted);
+}
+
+.vu-meter-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  flex-shrink: 0;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.vu-meter-dot.listening {
+  background: var(--color-success);
+  box-shadow: 0 0 6px var(--color-success);
+  animation: vuPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes vuPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.6; }
+}
+
+.vu-meter-title {
+  flex: 1;
+}
+
+.vu-meter-db {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transition: color 0.1s;
+}
+
+.vu-meter-db.triggered {
+  color: var(--color-accent);
+}
+
+/* ── Track ──────────────────────────────────────────────────────────────────── */
+
+.vu-meter-track {
+  position: relative;
+  height: 12px;
+  background: var(--color-surface-3);
+  border-radius: 6px;
+  overflow: visible;
+  border: 1px solid var(--color-border-dim);
+}
+
+.vu-meter-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 6px 0 0 6px;
+  transition: width 60ms linear;
+  min-width: 2px;
+}
+
+.vu-meter-fill.triggering {
+  box-shadow: 0 0 8px rgba(124, 100, 255, 0.4);
+}
+
+/* ── Threshold marker ──────────────────────────────────────────────────────── */
+
+.vu-meter-threshold {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  transform: translateX(-1px);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.vu-meter-threshold-line {
+  width: 2px;
+  height: 100%;
+  background: var(--color-accent);
+  box-shadow: 0 0 4px var(--color-accent-glow);
+  border-radius: 1px;
+}
+
+.vu-meter-threshold-label {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+  letter-spacing: 0;
+}
+
+/* ── Hint ───────────────────────────────────────────────────────────────────── */
+
+.vu-meter-hint {
+  font-size: 10px;
+  text-align: center;
+  padding: 2px 0;
+}

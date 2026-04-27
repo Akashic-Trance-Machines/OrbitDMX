@@ -1,0 +1,154 @@
+.fixture-card {
+  display: flex;
+  align-items: stretch;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  cursor: pointer;
+}
+
+.fixture-card:hover {
+  border-color: var(--color-surface-3);
+  box-shadow: var(--shadow-card);
+}
+
+.fixture-card.selected {
+  border-color: var(--color-accent-dim);
+  background: rgba(124, 106, 247, 0.06);
+  box-shadow: 0 0 16px var(--color-accent-glow);
+}
+
+.fixture-card-accent {
+  width: 4px;
+  flex-shrink: 0;
+}
+
+.fixture-card-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+}
+
+.fixture-card-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.fixture-card-label {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fixture-card-meta {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.fixture-card-address {
+  font-size: 12px;
+  color: var(--color-text-dim);
+  background: var(--color-surface-3);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Live LED colour dots */
+.fixture-card-leds {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.fixture-card-led {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  transition: background 0.1s;
+}
+
+.fixture-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Test button */
+.fixture-btn-test {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fixture-btn-test:hover:not(:disabled) {
+  background: var(--color-accent-glow);
+  border-color: var(--color-accent);
+}
+
+.fixture-btn-test.testing {
+  background: var(--color-surface);
+  cursor: default;
+  border-color: var(--color-border);
+}
+
+.testing-dots {
+  display: flex;
+  gap: 2px;
+  font-size: 9px;
+  animation: colorCycle 1.65s steps(1) infinite;
+}
+
+@keyframes colorCycle {
+  0%   { opacity: 1; }
+  33%  { opacity: 0.6; }
+  66%  { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* Remove button */
+.fixture-btn-remove {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fixture-btn-remove:hover {
+  background: rgba(247, 79, 79, 0.1);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}

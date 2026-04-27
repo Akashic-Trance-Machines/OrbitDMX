@@ -1,0 +1,101 @@
+/* ── Scene picker modal ─────────────────────────────────────────────────────── */
+
+.scene-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: confirmFadeIn 0.15s ease-out;
+}
+
+.scene-picker-modal {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px 24px;
+  min-width: 420px;
+  max-width: 520px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-card), 0 0 60px rgba(0, 0, 0, 0.4);
+  animation: confirmSlideUp 0.2s ease-out;
+}
+
+.scene-picker-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.scene-picker-desc {
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.scene-picker-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.scene-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border-dim);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.scene-picker-item:hover {
+  border-color: var(--color-accent);
+  background: rgba(124, 100, 255, 0.06);
+}
+
+.scene-picker-name {
+  font-weight: 500;
+}
+
+.scene-picker-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.scene-picker-fixture-group {
+  display: flex;
+  gap: 2px;
+}
+
+.scene-picker-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.scene-picker-empty {
+  padding: 32px 0;
+  text-align: center;
+}
+
+.scene-picker-actions {
+  display: flex;
+  justify-content: flex-end;
+}

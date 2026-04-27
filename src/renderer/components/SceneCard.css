@@ -1,0 +1,142 @@
+/* ── Scene Card ──────────────────────────────────────────────────── */
+
+.scene-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-dim);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-sans);
+  transition: background 0.15s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+
+.scene-card:hover {
+  background: var(--color-surface-3);
+  border-color: var(--color-border);
+  transform: translateY(-1px);
+}
+
+.scene-card:active {
+  transform: translateY(0);
+}
+
+/* Active / selected state */
+.scene-card-active {
+  border-color: var(--color-accent);
+  background: rgba(124, 106, 247, 0.08);
+  box-shadow: 0 0 20px rgba(124, 106, 247, 0.15), inset 0 0 0 1px rgba(124, 106, 247, 0.2);
+}
+
+.scene-card-active:hover {
+  background: rgba(124, 106, 247, 0.12);
+  border-color: var(--color-accent);
+}
+
+/* Info side (name + dots) */
+.scene-card-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
+}
+
+.scene-card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 80px;
+}
+
+.scene-card-active .scene-card-name {
+  color: var(--color-accent);
+}
+
+/* Colour dots — grouped by fixture */
+.scene-card-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.scene-card-fixture-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.scene-card-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  transition: transform 0.12s, box-shadow 0.15s;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.scene-card:hover .scene-card-dot {
+  transform: scale(1.1);
+}
+
+/* Actions */
+.scene-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.scene-card:hover .scene-card-actions {
+  opacity: 1;
+}
+
+/* Always show on active cards */
+.scene-card-active .scene-card-actions {
+  opacity: 0.7;
+}
+
+.scene-card-active:hover .scene-card-actions {
+  opacity: 1;
+}
+
+.scene-card-btn {
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-3);
+  color: var(--color-text-dim);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.scene-card-btn:hover {
+  color: var(--color-text);
+}
+
+.scene-card-btn-save:hover {
+  background: var(--color-accent-glow);
+  border-color: var(--color-accent-dim);
+  color: var(--color-accent);
+}
+
+.scene-card-btn-delete:hover {
+  background: rgba(247, 79, 79, 0.1);
+  border-color: rgba(247, 79, 79, 0.4);
+  color: var(--color-danger);
+}
