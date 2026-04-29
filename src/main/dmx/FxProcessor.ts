@@ -95,9 +95,6 @@ export class FxProcessor {
         output[led.g - 1] = Math.round(output[led.g - 1] * dimFactor);
         output[led.b - 1] = Math.round(output[led.b - 1] * dimFactor);
       }
-      for (const addr of this.dimmerAddresses) {
-        output[addr - 1] = Math.round(output[addr - 1] * dimFactor);
-      }
     }
     // When isOn, output stays as-is (scene colours)
   }
@@ -123,11 +120,6 @@ export class FxProcessor {
         output[led.r - 1] = Math.round(origR + (cr - origR) * flashFactor);
         output[led.g - 1] = Math.round(origG + (cg - origG) * flashFactor);
         output[led.b - 1] = Math.round(origB + (cb - origB) * flashFactor);
-      }
-      // Scale dimmers toward full by intensity
-      for (const addr of this.dimmerAddresses) {
-        const orig = output[addr - 1];
-        output[addr - 1] = Math.round(orig + (255 - orig) * flashFactor);
       }
     }
     // When off, output stays as-is (scene colours show through)

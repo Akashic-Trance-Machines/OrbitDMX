@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { useFxStore } from '../store/useFxStore';
+import { useRoomStore } from '../store/useRoomStore';
 import type { FxType } from '../../shared/types';
 import './FxView.css';
 
@@ -44,6 +45,7 @@ export default function FxView() {
   const amount = useFxStore((s) => s.amount);
   const setAmount = useFxStore((s) => s.setAmount);
   const stopFx = useFxStore((s) => s.stopFx);
+  const fixtures = useRoomStore((s) => s.fixtures);
 
   const selectedDef = FX_DEFS.find((d) => d.type === selectedType) ?? null;
 

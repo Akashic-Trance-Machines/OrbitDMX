@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { SerialPortInfo } from '../../shared/types';
 import { useSerialStore } from '../store/useSerialStore';
+import { useMidiStore } from '../store/useMidiStore';
 import './SettingsView.css';
 
 export default function SettingsView() {
@@ -208,6 +209,36 @@ export default function SettingsView() {
           )}
         </section>
 
+        {/* MIDI Devices section */}
+        <section className="settings-section" id="section-midi">
+          <div className="settings-section-header">
+            <h2>MIDI Devices</h2>
+            <p className="settings-section-desc">
+              Connected MIDI input devices for the Controls page.
+            </p>
+          </div>
+
+          <MidiDeviceList />
+        </section>
+
+        {/* Show file section */}
+        <section className="settings-section" id="section-show-file">
+          <div className="settings-section-header">
+            <h2>Show File</h2>
+            <p className="settings-section-desc">
+              Export or import a portable <code>.orbitshow</code> bundle containing all fixtures, scenes, playlists, controls, and rig definitions.
+            </p>
+          </div>
+          <div className="port-selector-row">
+            <button className="btn-primary" onClick={() => window.dispatchEvent(new CustomEvent('menu:export-show'))}>
+              📦 Export Show…
+            </button>
+            <button className="btn-primary" onClick={() => window.dispatchEvent(new CustomEvent('menu:import-show'))}>
+              📂 Import Show…
+            </button>
+          </div>
+        </section>
+
         {/* About section */}
         <section className="settings-section" id="section-about">
           <div className="settings-section-header">
@@ -228,6 +259,54 @@ export default function SettingsView() {
         </section>
 
       </div>
+    </div>
+  );
+}
+
+/* ── MIDI Device List sub-component ───────────────────────────────────────── */
+
+function MidiDeviceList() {
+  const devices = useMidiStore((s) => s.devices);
+  const isListening = useMidiStore((s) => s.isListening);
+  const lastMessage = useMidiStore((s) => s.lastMessage);
+
+  return (
+    <div>
+      <div className={`connection-status ${isListening ? 'status-connected' : 'status-disconnected'}`}>
+        <span className="status-dot" />
+        <span className="status-label">
+          {isListening
+            ? `Listening — ${devices.length} device(s) found`
+            : 'Web MIDI not available'}
+        </span>
+      </div>
+
+      {devices.length > 0 && (
+        <div className="port-list">
+          {devices.map((d) => (
+            <div key={d.id} className="port-card connected" style={{ cursor: 'default' }}>
+              <div className="port-card-icon">🎹</div>
+              <div className="port-card-info">
+                <span className="port-card-path">{d.name}</span>
+                <span className="port-card-meta mono">{d.id}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {devices.length === 0 && isListening && (
+        <div className="ports-empty">
+          <span>No MIDI input devices detected.</span>
+          <span className="text-muted">Connect a MIDI controller via USB.</span>
+        </div>
+      )}
+
+      {lastMessage && (
+        <div style={{ marginTop: 8, fontSize: 11, color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)' }}>
+          Last: CH {lastMessage.channel} / CC {lastMessage.cc} = {lastMessage.value}
+        </div>
+      )}
     </div>
   );
 }

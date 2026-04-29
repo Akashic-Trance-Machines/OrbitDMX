@@ -18,6 +18,11 @@ export const IPC = {
   DMX_SET_DIMMER_ADDRESSES: 'dmx:set-dimmer-addresses',
   DMX_SET_FX: 'dmx:set-fx',
   DMX_SET_FX_LED_ADDRESSES: 'dmx:set-fx-led-addresses',
+  DMX_SET_CHANNEL_BATCH: 'dmx:set-channel-batch',
+  DMX_SET_COLOR_SHIFT: 'dmx:set-color-shift',
+  DMX_CLEAR_COLOR_SHIFT: 'dmx:clear-color-shift',
+  DMX_SET_LED_DIMMER: 'dmx:set-led-dimmer',
+  DMX_CLEAR_LED_DIMMER: 'dmx:clear-led-dimmer',
 
   // Scene runner
   RUNNER_PLAY_SCENE: 'runner:play-scene',
@@ -47,6 +52,10 @@ export const IPC = {
   ROOM_FILE_GET_DEFAULT_PATH: 'room-file:get-default-path',
   ROOM_FILE_GET_LAST_PATH: 'room-file:get-last-path',
   ROOM_FILE_SET_LAST_PATH: 'room-file:set-last-path',
+
+  // Show file I/O (.orbitshow)
+  SHOW_FILE_EXPORT: 'show-file:export',
+  SHOW_FILE_IMPORT: 'show-file:import',
 
   // Main → Renderer (push events via webContents.send)
   PUSH_UNIVERSE_UPDATE: 'push:universe-update',

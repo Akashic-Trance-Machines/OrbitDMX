@@ -4,6 +4,7 @@ import type { FixtureInstance, FloorPlanDimensions } from '../../shared/types';
 interface RoomStore {
   fixtures: FixtureInstance[];
   floorPlan: FloorPlanDimensions;
+  roomDimmer: number; // 0–255, persists across page navigation
 
   addFixture: (fixture: FixtureInstance) => void;
   removeFixture: (id: string) => void;
@@ -11,6 +12,7 @@ interface RoomStore {
   /** Bulk-replace all fixtures (used by undo/redo and file load). */
   setFixtures: (fixtures: FixtureInstance[]) => void;
   setFloorPlan: (dims: FloorPlanDimensions) => void;
+  setRoomDimmer: (value: number) => void;
 
   /** Returns true if the given address range overlaps an existing fixture (optionally excluding one by id). */
   hasAddressConflict: (startAddress: number, channelCount: number, excludeId?: string) => boolean;
@@ -21,6 +23,7 @@ interface RoomStore {
 export const useRoomStore = create<RoomStore>()((set, get) => ({
   fixtures: [],
   floorPlan: { widthM: 10, depthM: 8 },
+  roomDimmer: 255,
 
   addFixture: (fixture) =>
     set((state) => ({ fixtures: [...state.fixtures, fixture] })),
@@ -38,6 +41,13 @@ export const useRoomStore = create<RoomStore>()((set, get) => ({
   setFixtures: (fixtures) => set({ fixtures }),
 
   setFloorPlan: (floorPlan) => set({ floorPlan }),
+
+  setRoomDimmer: (value) => {
+    set({ roomDimmer: Math.max(0, Math.min(255, Math.round(value))) });
+    if (typeof window.dmx !== 'undefined') {
+      window.dmx.setRoomDimmer(value);
+    }
+  },
 
   hasAddressConflict: (startAddress, channelCount, excludeId) =>
     get().getConflicts(startAddress, channelCount, excludeId).length > 0,

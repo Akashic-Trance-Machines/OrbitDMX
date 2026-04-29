@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { FixtureInstance, Scene, Playlist, FloorPlanDimensions } from '../../shared/types';
+import type { FixtureInstance, Scene, Playlist, FloorPlanDimensions, ControlWidget } from '../../shared/types';
 
 /** A serializable snapshot of the room state for undo/redo. */
 export interface RoomSnapshot {
@@ -7,6 +7,7 @@ export interface RoomSnapshot {
   scenes: Scene[];
   playlists: Playlist[];
   floorPlan: FloorPlanDimensions;
+  controls?: ControlWidget[];
 }
 
 const MAX_HISTORY = 50;

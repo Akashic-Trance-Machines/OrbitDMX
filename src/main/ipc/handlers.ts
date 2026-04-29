@@ -150,6 +150,56 @@ export function registerIpcHandlers(engine: DmxEngine, webContents: () => WebCon
     }
   });
 
+  ipcMain.handle(IPC.DMX_SET_CHANNEL_BATCH, async (_event, updates: Array<{ address: number; value: number }>): Promise<IpcResponse> => {
+    try {
+      engine.setChannelBatch(updates);
+      return { success: true };
+    } catch (e) {
+      console.error('[IPC] set-channel-batch error:', e);
+      return { success: false, error: String(e) };
+    }
+  });
+
+  ipcMain.handle(IPC.DMX_SET_COLOR_SHIFT, async (_event, id: string, addresses: any[], degrees: number): Promise<IpcResponse> => {
+    try {
+      engine.setColorShift(id, addresses, degrees);
+      return { success: true };
+    } catch (e) {
+      console.error('[IPC] set-color-shift error:', e);
+      return { success: false, error: String(e) };
+    }
+  });
+
+  ipcMain.handle(IPC.DMX_CLEAR_COLOR_SHIFT, async (_event, id: string): Promise<IpcResponse> => {
+    try {
+      engine.clearColorShift(id);
+      return { success: true };
+    } catch (e) {
+      console.error('[IPC] clear-color-shift error:', e);
+      return { success: false, error: String(e) };
+    }
+  });
+
+  ipcMain.handle(IPC.DMX_SET_LED_DIMMER, async (_event, id: string, addresses: number[], factor: number): Promise<IpcResponse> => {
+    try {
+      engine.setLedDimmer(id, addresses, factor);
+      return { success: true };
+    } catch (e) {
+      console.error('[IPC] set-led-dimmer error:', e);
+      return { success: false, error: String(e) };
+    }
+  });
+
+  ipcMain.handle(IPC.DMX_CLEAR_LED_DIMMER, async (_event, id: string): Promise<IpcResponse> => {
+    try {
+      engine.clearLedDimmer(id);
+      return { success: true };
+    } catch (e) {
+      console.error('[IPC] clear-led-dimmer error:', e);
+      return { success: false, error: String(e) };
+    }
+  });
+
   // ── Runner ──────────────────────────────────────────────────────────────────
 
   ipcMain.handle(IPC.RUNNER_PLAY_SCENE, async (_event, scene: Scene, fadeDurationMs: number): Promise<IpcResponse> => {

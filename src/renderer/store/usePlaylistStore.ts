@@ -51,7 +51,11 @@ export const usePlaylistStore = create<PlaylistStore>()((set) => ({
     })),
 
   selectPlaylist: (id) =>
-    set({ activePlaylistId: id, playbackState: 'stopped', currentCueIndex: 0 }),
+    set((state) => {
+      if (id === state.activePlaylistId) return {};
+      // Selecting a different playlist — stop current playback
+      return { activePlaylistId: id, playbackState: 'stopped', currentCueIndex: 0 };
+    }),
 
   addCue: (playlistId, cue) =>
     set((state) => ({

@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-04-29
+
+### Added
+- **Type-Driven Controls Page**: New Controls page with 18 control types across 4 categories (Channels, Global & Effects, FX Triggers, Actions). The control type automatically determines the widget (slider, button, or color wheel).
+- **DMX Post-Processing Pipeline**: New signal chain in the DMX engine: `Base → Color Shift → LED Dimmer → FX → Room Dimmer → Output`.
+- **Color Shift**: Rotates the hue of current RGB values through the spectrum for targeted LEDs, applied as a post-processing effect.
+- **LED Dimmer**: Proportional scaling of R, G, B, W, Amber, and UV channels for targeted LEDs.
+- **MIDI Learn & Auto-Link**: Controls support MIDI CC mapping with an auto-link mode that captures the first incoming CC message.
+- **Playlist Control Buttons**: Playlists can be triggered via dedicated control buttons (and MIDI).
+- **FX Control Buttons**: FX effects (strobe, breath, fire, candle, twinkle) can be triggered from the Controls page with per-button targeting.
+- **Fixture Target Selector**: Include/Exclude mode with per-LED sub-filtering for fine-grained control over which LEDs are affected.
+- **Expanded Rig Library**: Added 15+ new fixture profiles including Ayra Armageddon, Compar variants, DanceFX, ERO moving heads, and LED tri-bar.
+
+### Changed
+- **Room Dimmer**: Changed from dimmer-channel-only to a true master fader that scales all 512 DMX channels.
+- **FX Targeting**: Removed the target selector from the FX page — targeting is now handled per-control on the Controls page.
+- **Playlist Playback**: Collapsing the playlist sidebar no longer stops playback. Play controls are now visible on collapsed playlist cards.
+- **FX Mutual Exclusion**: Only one FX can run at a time — activating a new FX automatically deactivates the previous one and updates all button states.
+
+### Fixed
+- **Room Dimmer Persistence**: The room dimmer slider no longer resets to 100% when navigating away from the Room page.
+- **Target Mode Reset**: Switching the target selector to "All" now properly clears stale include/exclude selections.
+- **Control Cleanup**: Changing a control's type or deleting it now clears its engine-side effects (room dimmer, LED dimmer, color shift, FX).
+- **Strobe LED Bleed**: Strobe FX no longer affects the shared dimmer channel, preventing untargeted LEDs from partially flashing.
+- **Playlist/FX State Sync**: Control button states now stay synchronized when playback is started/stopped from the Playlists or FX pages.
+
 ## [1.1.0] - 2026-04-29
 
 ### Added

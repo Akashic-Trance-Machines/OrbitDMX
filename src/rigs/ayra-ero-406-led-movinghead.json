@@ -1,0 +1,247 @@
+{
+  "id": "ayra-ero-406-led-movinghead",
+  "brand": "AYRA",
+  "model": "ERO 406",
+  "defaultPersonality": "15CH mode",
+  "personalities": [
+    {
+      "name": "11CH mode",
+      "channelCount": 11,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan position",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Tilt position",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Shutter",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007: Blackout; 008-015: Open; 016-131: Stroboscope mode (slow - fast); 132-139: Open; 140-181: Shutter slow open, close fast (slow - fast); 182-189: Open; 190-231: Shutter slow close, open fast (slow - fast); 232-239: Open; 240-247: Random strobe; 248-255: Open"
+        },
+        {
+          "offset": 3,
+          "name": "Dimmer Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 4,
+          "name": "Dimmer Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 5,
+          "name": "Dimmer Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 6,
+          "name": "Dimmer White",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 7,
+          "name": "Dimmer Amber",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Amber"
+        },
+        {
+          "offset": 8,
+          "name": "Dimmer UV",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% UV"
+        },
+        {
+          "offset": 9,
+          "name": "Dimmer Master",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 10,
+          "name": "Diverse functions",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-199: No function; 200-209: Reset (after 3 seconds within these settings); 210-239: No function; 240-255: Sound-controlled mode"
+        }
+      ]
+    },
+    {
+      "name": "15CH mode",
+      "channelCount": 15,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan position",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Pan position fine",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Tilt position",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Tilt position fine",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Pan/Tilt speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Slow - fast"
+        },
+        {
+          "offset": 5,
+          "name": "Dimmer Master",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 6,
+          "name": "Shutter",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007: Blackout; 008-015: Open; 016-131: Stroboscope mode (slow - fast); 132-139: Open; 140-181: Shutter slow open, close fast (slow - fast); 182-189: Open; 190-231: Shutter slow close, open fast (slow - fast); 232-239: Open; 240-247: Random strobe; 248-255: Open"
+        },
+        {
+          "offset": 7,
+          "name": "Dimmer Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 8,
+          "name": "Dimmer Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 9,
+          "name": "Dimmer Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 10,
+          "name": "Dimmer White",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 11,
+          "name": "Dimmer Amber",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Amber"
+        },
+        {
+          "offset": 12,
+          "name": "Dimmer UV",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% UV"
+        },
+        {
+          "offset": 13,
+          "name": "Colour macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 14,
+          "name": "Diverse functions",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-199: No function; 200-209: Reset (after 3 seconds within this value); 210-239: No function; 240-255: Sound-controlled mode"
+        }
+      ]
+    }
+  ]
+}

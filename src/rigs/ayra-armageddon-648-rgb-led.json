@@ -1,0 +1,161 @@
+{
+  "id": "ayra-armageddon-648-rgb-led",
+  "brand": "AYRA",
+  "model": "Armageddon 648 RGB LED",
+  "defaultPersonality": "7-channel mode",
+  "personalities": [
+    {
+      "name": "3-channel mode",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Red intensity 0-100%"
+        },
+        {
+          "offset": 1,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Green intensity 0-100%"
+        },
+        {
+          "offset": 2,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Blue intensity 0-100%"
+        }
+      ]
+    },
+    {
+      "name": "5-channel mode",
+      "channelCount": 5,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Overall dimmer 0-100%"
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-005: LED ON\n006-015: LED OFF\n016-131: LED Strobe, slow to fast\n132-139: LED ON\n140-181: Fast on, slow off, slow to fast\n182-189: LED ON\n190-231: Slow on, fast off, slow to fast\n232-239: LED ON\n240-247: Random Strobe\n248-255: LED ON"
+        },
+        {
+          "offset": 2,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Red intensity 0-100%"
+        },
+        {
+          "offset": 3,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Green intensity 0-100%"
+        },
+        {
+          "offset": 4,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Blue intensity 0-100%"
+        }
+      ]
+    },
+    {
+      "name": "7-channel mode",
+      "channelCount": 7,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Overall dimmer 0-100%"
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-005: LED ON\n006-015: LED OFF\n016-131: LED Strobe, slow to fast\n132-139: LED ON\n140-181: Fast on, slow off, slow to fast\n182-189: LED ON\n190-231: Slow on, fast off, slow to fast\n232-239: LED ON\n240-247: Random Strobe\n248-255: LED ON"
+        },
+        {
+          "offset": 2,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Red intensity 0-100%"
+        },
+        {
+          "offset": 3,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Green intensity 0-100%"
+        },
+        {
+          "offset": 4,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Blue intensity 0-100%"
+        },
+        {
+          "offset": 5,
+          "name": "Colour Macros / Programs",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-005: No function\n006-013: Colour 1\n014-021: Colour 2\n022-029: Colour 3\n030-037: Colour 4\n038-045: Colour 5\n046-053: Colour 6\n054-061: Colour 7\n062-069: Colour 8\n070-077: Colour 9\n078-085: Colour 10\n086-093: Colour 11\n094-101: Colour 12\n102-109: Colour 13\n110-117: Colour 14\n118-125: Colour 15\n126-192: Colour Jump programme, Stop, slow to fast\n193-255: Colour Fade programme, slow to fast"
+        },
+        {
+          "offset": 6,
+          "name": "Sound Control",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-005: Function Off\n006-255: Sound-controlled mode, sensitivity low to high"
+        }
+      ]
+    }
+  ]
+}

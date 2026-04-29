@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { IPC } from './shared/ipcChannels';
-import type { Scene, SerialPortInfo, SerialStatus, RunnerStatus, ChannelDefinition, FxConfig, LedAddress, RoomFile } from './shared/types';
+import type { Scene, SerialPortInfo, SerialStatus, RunnerStatus, ChannelDefinition, FxConfig, LedAddress, RoomFile, Rig, ShowFile } from './shared/types';
 import type { IpcResponse } from './shared/types';
 
 /**
@@ -55,6 +55,22 @@ contextBridge.exposeInMainWorld('dmx', {
   setFxLedAddresses: (addresses: LedAddress[]): Promise<IpcResponse> =>
     ipcRenderer.invoke(IPC.DMX_SET_FX_LED_ADDRESSES, addresses),
 
+  setChannelBatch: (updates: Array<{ address: number; value: number }>): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.DMX_SET_CHANNEL_BATCH, updates),
+
+  // ── Post-processing modifiers ─────────────────────────────────────────────
+  setColorShift: (id: string, addresses: LedAddress[], degrees: number): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.DMX_SET_COLOR_SHIFT, id, addresses, degrees),
+
+  clearColorShift: (id: string): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.DMX_CLEAR_COLOR_SHIFT, id),
+
+  setLedDimmer: (id: string, addresses: number[], factor: number): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.DMX_SET_LED_DIMMER, id, addresses, factor),
+
+  clearLedDimmer: (id: string): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.DMX_CLEAR_LED_DIMMER, id),
+
   // ── Runner ────────────────────────────────────────────────────────────────
   playScene: (scene: Scene, fadeDurationMs: number): Promise<IpcResponse> =>
     ipcRenderer.invoke(IPC.RUNNER_PLAY_SCENE, scene, fadeDurationMs),
@@ -92,6 +108,13 @@ contextBridge.exposeInMainWorld('dmx', {
   setLastFilePath: (filePath: string | null): Promise<IpcResponse> =>
     ipcRenderer.invoke(IPC.ROOM_FILE_SET_LAST_PATH, filePath),
 
+  // ── Show file I/O (.orbitshow) ─────────────────────────────────────────
+  exportShow: (roomData: RoomFile, rigs: Rig[]): Promise<IpcResponse<string | null>> =>
+    ipcRenderer.invoke(IPC.SHOW_FILE_EXPORT, roomData, rigs),
+
+  importShow: (): Promise<IpcResponse<ShowFile | null>> =>
+    ipcRenderer.invoke(IPC.SHOW_FILE_IMPORT),
+
   // ── Push subscriptions (main → renderer) ──────────────────────────────────
   // Each returns a cleanup function that removes only THIS listener,
   // so multiple concurrent subscribers don't clobber each other.
@@ -118,7 +141,7 @@ contextBridge.exposeInMainWorld('dmx', {
 // ── Menu event forwarding ──────────────────────────────────────────────────
 // The Electron menu sends events via webContents.send. We listen here in
 // the preload and dispatch custom DOM events that the renderer can handle.
-const MENU_EVENTS = ['menu:new-room', 'menu:open-room', 'menu:save-as', 'menu:undo', 'menu:redo'] as const;
+const MENU_EVENTS = ['menu:new-room', 'menu:open-room', 'menu:save-as', 'menu:undo', 'menu:redo', 'menu:export-show', 'menu:import-show'] as const;
 for (const eventName of MENU_EVENTS) {
   ipcRenderer.on(eventName, () => {
     window.dispatchEvent(new CustomEvent(eventName));

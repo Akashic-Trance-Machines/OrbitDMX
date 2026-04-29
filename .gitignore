@@ -90,3 +90,6 @@ typings/
 
 # Electron-Forge
 out/
+
+scripts/manuals/
+scripts/processed manuals/

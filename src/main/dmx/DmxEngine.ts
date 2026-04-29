@@ -36,9 +36,17 @@ export class DmxEngine {
   private fadeDurationMs: number = 0;
 
   // Room dimmer (0–255, default 255 = full brightness)
-  // Applied as a multiplier to dimmer channels right before hardware output.
+  // Applied as a global multiplier to ALL channels before hardware output.
   private roomDimmer: number = 255;
   private dimmerAddresses: Set<number> = new Set();
+
+  // Color shift modifiers (per control id)
+  // Each entry rotates the hue of targeted RGB triplets by N degrees.
+  private colorShiftModifiers: Map<string, { addresses: Array<{ r: number; g: number; b: number }>; degrees: number }> = new Map();
+
+  // LED dimmer modifiers (per control id)
+  // Each entry scales targeted color channels by a factor (0–1).
+  private ledDimmerModifiers: Map<string, { addresses: number[]; factor: number }> = new Map();
 
   // FX processor
   private readonly fxProcessor = new FxProcessor();
@@ -137,6 +145,13 @@ export class DmxEngine {
     this.universe.setChannel(address, value);
   }
 
+  /** Set multiple channels atomically (1-indexed addresses). */
+  setChannelBatch(updates: Array<{ address: number; value: number }>): void {
+    for (const { address, value } of updates) {
+      this.universe.setChannel(address, value);
+    }
+  }
+
   /**
    * Cancel any active crossfade, keeping the current (mid-fade) universe
    * values intact. Called when the user manually adjusts a channel during
@@ -187,6 +202,48 @@ export class DmxEngine {
 
   setFxLedAddresses(addresses: LedAddress[]): void {
     this.fxProcessor.setLedAddresses(addresses);
+  }
+
+  // ── Color shift modifiers ──────────────────────────────────────────────────
+
+  /**
+   * Set a color shift modifier.
+   * Rotates the hue of the given RGB address triplets by `degrees`.
+   * @param id - Control widget id (unique key for this modifier)
+   * @param addresses - RGB address triplets to rotate
+   * @param degrees - Hue rotation in degrees (0–360)
+   */
+  setColorShift(id: string, addresses: LedAddress[], degrees: number): void {
+    if (degrees === 0) {
+      this.colorShiftModifiers.delete(id);
+    } else {
+      this.colorShiftModifiers.set(id, { addresses, degrees });
+    }
+  }
+
+  clearColorShift(id: string): void {
+    this.colorShiftModifiers.delete(id);
+  }
+
+  // ── LED dimmer modifiers ───────────────────────────────────────────────────
+
+  /**
+   * Set an LED dimmer modifier.
+   * Scales all given DMX addresses by `factor` (0–1).
+   * @param id - Control widget id
+   * @param addresses - 1-indexed DMX addresses to scale (RGBW channels)
+   * @param factor - 0 = off, 1 = full
+   */
+  setLedDimmer(id: string, addresses: number[], factor: number): void {
+    if (factor >= 1) {
+      this.ledDimmerModifiers.delete(id);
+    } else {
+      this.ledDimmerModifiers.set(id, { addresses, factor: Math.max(0, Math.min(1, factor)) });
+    }
+  }
+
+  clearLedDimmer(id: string): void {
+    this.ledDimmerModifiers.delete(id);
   }
 
   // ── Callbacks ──────────────────────────────────────────────────────────────
@@ -240,26 +297,48 @@ export class DmxEngine {
         }
       }
 
-      // Build output frame with room dimmer applied to dimmer channels
+      // Build output frame — apply signal chain in order:
+      // 1. Color shift  2. LED dimmer  3. FX  4. Room dimmer (global)
       const rawBuf = this.universe.getRawBuffer();
       const cleanSnapshot = this.universe.getSnapshot(); // unmodified scene values
-      // Always work on a copy so FX + dimmer don't corrupt the universe buffer
+      // Always work on a copy so effects don't corrupt the universe buffer
       const outputBuf = new Uint8Array(rawBuf);
 
-      // Apply room dimmer
-      if (this.roomDimmer < 255 && this.dimmerAddresses.size > 0) {
-        for (const addr of this.dimmerAddresses) {
-          const idx = addr - 1;
-          outputBuf[idx] = Math.round((outputBuf[idx] * this.roomDimmer) / 255);
+      // 1. Apply color shift modifiers (rotate hue of targeted RGB groups)
+      for (const [, mod] of this.colorShiftModifiers) {
+        for (const addr of mod.addresses) {
+          const ri = addr.r - 1;
+          const gi = addr.g - 1;
+          const bi = addr.b - 1;
+          const [h, s, l] = rgbToHsl(outputBuf[ri], outputBuf[gi], outputBuf[bi]);
+          const [nr, ng, nb] = hslToRgb((h + mod.degrees / 360) % 1, s, l);
+          outputBuf[ri] = nr;
+          outputBuf[gi] = ng;
+          outputBuf[bi] = nb;
         }
       }
 
-      // Apply FX on a plain number array (modifies in-place)
+      // 2. Apply LED dimmer modifiers (scale targeted color channels)
+      for (const [, mod] of this.ledDimmerModifiers) {
+        for (const addr of mod.addresses) {
+          const idx = addr - 1;
+          outputBuf[idx] = Math.round(outputBuf[idx] * mod.factor);
+        }
+      }
+
+      // 3. Apply FX on a plain number array (modifies in-place)
       {
         const arr = new Array(outputBuf.length);
         for (let i = 0; i < outputBuf.length; i++) arr[i] = outputBuf[i];
         this.fxProcessor.processTick(arr, cleanSnapshot);
         for (let i = 0; i < outputBuf.length; i++) outputBuf[i] = arr[i];
+      }
+
+      // 4. Apply room dimmer — global master fader on ALL channels
+      if (this.roomDimmer < 255) {
+        for (let i = 0; i < outputBuf.length; i++) {
+          outputBuf[i] = Math.round((outputBuf[i] * this.roomDimmer) / 255);
+        }
       }
 
       // Write to hardware (await ensures frame completes before next iteration)
@@ -295,4 +374,54 @@ export class DmxEngine {
       sceneId: this.currentSceneId,
     });
   }
+}
+
+// ── HSL helpers for color shift ──────────────────────────────────────────────
+
+/** Convert RGB (0–255) to HSL (0–1 each). */
+function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
+  const rn = r / 255;
+  const gn = g / 255;
+  const bn = b / 255;
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
+  const l = (max + min) / 2;
+
+  if (max === min) return [0, 0, l];
+
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+  let h = 0;
+  if (max === rn) h = ((gn - bn) / d + (gn < bn ? 6 : 0)) / 6;
+  else if (max === gn) h = ((bn - rn) / d + 2) / 6;
+  else h = ((rn - gn) / d + 4) / 6;
+
+  return [h, s, l];
+}
+
+/** Convert HSL (0–1 each) to RGB (0–255). */
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+  if (s === 0) {
+    const v = Math.round(l * 255);
+    return [v, v, v];
+  }
+
+  const hue2rgb = (p: number, q: number, t: number) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+    return p;
+  };
+
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+
+  return [
+    Math.round(hue2rgb(p, q, h + 1 / 3) * 255),
+    Math.round(hue2rgb(p, q, h) * 255),
+    Math.round(hue2rgb(p, q, h - 1 / 3) * 255),
+  ];
 }

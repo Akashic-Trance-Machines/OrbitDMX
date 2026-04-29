@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import RoomView from './pages/RoomView';
 import SceneView from './pages/SceneView';
 import PlaylistView from './pages/PlaylistView';
+import ControlsView from './pages/ControlsView';
 import FxView from './pages/FxView';
 import SettingsView from './pages/SettingsView';
 import StatusBar from './components/StatusBar';
@@ -13,38 +14,14 @@ import { useHistoryStore } from './store/useHistoryStore';
 import { useSceneStore } from './store/useSceneStore';
 import { usePlaylistStore } from './store/usePlaylistStore';
 import { usePlaylistRunner } from './hooks/usePlaylistRunner';
+import { useMidiListener } from './hooks/useMidiListener';
 import { useAutosave, loadRoomFromFile, newRoom, buildCurrentRoomFile } from './hooks/useAutosave';
-import { getRigById } from '../rigs';
-import type { FixtureInstance, LedAddress } from '../shared/types';
+import type { FixtureInstance } from '../shared/types';
 import './styles/app.css';
 
-export type AppView = 'room' | 'scenes' | 'playlists' | 'fx' | 'settings';
+export type AppView = 'room' | 'scenes' | 'playlists' | 'controls' | 'fx' | 'settings';
 
-/** Extract all LED RGB address triplets from the fixture list for the FX engine. */
-function collectLedAddresses(fixtures: FixtureInstance[]): LedAddress[] {
-  const addresses: LedAddress[] = [];
-  for (const f of fixtures) {
-    const rig = getRigById(f.rigId);
-    const personality = rig?.personalities.find((p) => p.name === f.personalityName);
-    if (!personality) continue;
-
-    const channels = personality.channels;
-    const reds   = channels.filter((c) => c.type === 'red');
-    const greens = channels.filter((c) => c.type === 'green');
-    const blues  = channels.filter((c) => c.type === 'blue');
-
-    if (reds.length > 0 && reds.length === greens.length && reds.length === blues.length) {
-      for (let i = 0; i < reds.length; i++) {
-        addresses.push({
-          r: f.startAddress + reds[i].offset,
-          g: f.startAddress + greens[i].offset,
-          b: f.startAddress + blues[i].offset,
-        });
-      }
-    }
-  }
-  return addresses;
-}
+import { useFxStore } from './store/useFxStore';
 
 export default function App() {
   const [activeView, setActiveView] = useState<AppView>('room');
@@ -55,6 +32,9 @@ export default function App() {
 
   // ── App-level playlist runner (survives page navigation) ──────────────
   usePlaylistRunner();
+
+  // ── App-level MIDI listener (survives page navigation) ────────────────
+  useMidiListener();
 
   // ── App-level autosave + undo/redo ────────────────────────────────────
   useAutosave();
@@ -81,11 +61,11 @@ export default function App() {
   }, []);
 
   // ── App-level FX LED address sync ─────────────────────────────────────
+  // Re-sync whenever fixtures change or the FX target filter changes
+  const fxTarget = useFxStore((s) => s.target);
   useEffect(() => {
-    if (typeof window.dmx === 'undefined') return;
-    const addrs = collectLedAddresses(fixtures);
-    window.dmx.setFxLedAddresses(addrs);
-  }, [fixtures]);
+    useFxStore.getState().syncLedAddresses(fixtures);
+  }, [fixtures, fxTarget]);
 
   // ── Menu actions via custom DOM events dispatched from preload ──────────
   useEffect(() => {
@@ -123,11 +103,44 @@ export default function App() {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', metaKey: true, shiftKey: true }));
     }
 
+    async function handleMenuExportShow() {
+      if (typeof window.dmx === 'undefined') return;
+      const data = buildCurrentRoomFile();
+      // Gather all referenced rigs
+      const rigIds = new Set(data.room.fixtures.map((f) => f.rigId));
+      const { RIGS } = await import('../rigs');
+      const rigs = RIGS.filter((r) => rigIds.has(r.id));
+      await window.dmx.exportShow(data, rigs);
+    }
+
+    async function handleMenuImportShow() {
+      if (typeof window.dmx === 'undefined') return;
+      const res = await window.dmx.importShow();
+      if (res.success && res.data) {
+        const showFile = res.data as any;
+        // Load room data directly into stores
+        useRoomStore.getState().setFixtures(showFile.room.fixtures ?? []);
+        if (showFile.room.floorPlan) {
+          useRoomStore.getState().setFloorPlan(showFile.room.floorPlan);
+        }
+        useSceneStore.getState().setScenes(showFile.room.scenes ?? []);
+        usePlaylistStore.getState().setPlaylists(showFile.room.playlists ?? []);
+        const { useControlsStore } = await import('./store/useControlsStore');
+        useControlsStore.getState().setControls(showFile.room.controls?.widgets ?? []);
+        useHistoryStore.getState().clear();
+
+        useRoomFileStore.getState().setFileName(showFile.room.name || 'Imported Show');
+        useRoomFileStore.getState().setIsDirty(true);
+      }
+    }
+
     window.addEventListener('menu:new-room', handleMenuNewRoom);
     window.addEventListener('menu:open-room', handleMenuOpenRoom);
     window.addEventListener('menu:save-as', handleMenuSaveAs);
     window.addEventListener('menu:undo', handleMenuUndo);
     window.addEventListener('menu:redo', handleMenuRedo);
+    window.addEventListener('menu:export-show', handleMenuExportShow);
+    window.addEventListener('menu:import-show', handleMenuImportShow);
 
     return () => {
       window.removeEventListener('menu:new-room', handleMenuNewRoom);
@@ -135,6 +148,8 @@ export default function App() {
       window.removeEventListener('menu:save-as', handleMenuSaveAs);
       window.removeEventListener('menu:undo', handleMenuUndo);
       window.removeEventListener('menu:redo', handleMenuRedo);
+      window.removeEventListener('menu:export-show', handleMenuExportShow);
+      window.removeEventListener('menu:import-show', handleMenuImportShow);
     };
   }, []);
 
@@ -150,6 +165,7 @@ export default function App() {
         {activeView === 'room'      && <RoomView />}
         {activeView === 'scenes'    && <SceneView />}
         {activeView === 'playlists' && <PlaylistView />}
+        {activeView === 'controls'  && <ControlsView />}
         {activeView === 'fx'        && <FxView />}
         {activeView === 'settings'  && <SettingsView />}
       </main>

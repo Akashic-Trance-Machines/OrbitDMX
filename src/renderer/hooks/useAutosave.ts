@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useRoomStore } from '../store/useRoomStore';
 import { useSceneStore } from '../store/useSceneStore';
 import { usePlaylistStore } from '../store/usePlaylistStore';
+import { useControlsStore } from '../store/useControlsStore';
 import { useHistoryStore, type RoomSnapshot } from '../store/useHistoryStore';
 import { useRoomFileStore } from '../store/useRoomFileStore';
 import type { RoomFile } from '../../shared/types';
@@ -13,6 +14,7 @@ function buildRoomFile(): RoomFile {
   const { fixtures, floorPlan } = useRoomStore.getState();
   const { scenes } = useSceneStore.getState();
   const { playlists } = usePlaylistStore.getState();
+  const { widgets } = useControlsStore.getState();
   const { fileName } = useRoomFileStore.getState();
 
   return {
@@ -24,6 +26,7 @@ function buildRoomFile(): RoomFile {
       floorPlan,
       scenes,
       playlists,
+      controls: { widgets },
     },
   };
 }
@@ -33,7 +36,8 @@ function buildSnapshot(): RoomSnapshot {
   const { fixtures, floorPlan } = useRoomStore.getState();
   const { scenes } = useSceneStore.getState();
   const { playlists } = usePlaylistStore.getState();
-  return { fixtures, scenes, playlists, floorPlan };
+  const { widgets } = useControlsStore.getState();
+  return { fixtures, scenes, playlists, floorPlan, controls: widgets };
 }
 
 /** Restore a RoomSnapshot to all stores. */
@@ -42,6 +46,7 @@ function restoreSnapshot(snap: RoomSnapshot): void {
   useRoomStore.getState().setFloorPlan(snap.floorPlan);
   useSceneStore.getState().setScenes(snap.scenes);
   usePlaylistStore.getState().setPlaylists(snap.playlists);
+  useControlsStore.getState().setControls(snap.controls ?? []);
 }
 
 /** Serialize a snapshot for deep comparison. */
@@ -51,6 +56,7 @@ function snapshotKey(snap: RoomSnapshot): string {
     s: snap.scenes,
     p: snap.playlists,
     fp: snap.floorPlan,
+    c: snap.controls,
   });
 }
 
@@ -103,6 +109,7 @@ export function useAutosave() {
           }
           useSceneStore.getState().setScenes(roomFile.room.scenes ?? []);
           usePlaylistStore.getState().setPlaylists(roomFile.room.playlists ?? []);
+          useControlsStore.getState().setControls(roomFile.room.controls?.widgets ?? []);
 
           const fileName = lastPath.split('/').pop()?.replace('.orbitdmx', '') ?? 'Untitled Room';
           useRoomFileStore.getState().setFilePath(lastPath);
@@ -179,6 +186,7 @@ export function useAutosave() {
       useRoomStore.subscribe(() => scheduleAutosave()),
       useSceneStore.subscribe(() => scheduleAutosave()),
       usePlaylistStore.subscribe(() => scheduleAutosave()),
+      useControlsStore.subscribe(() => scheduleAutosave()),
     ];
 
     function scheduleAutosave() {
@@ -264,6 +272,7 @@ export async function loadRoomFromFile(filePath: string): Promise<boolean> {
   }
   useSceneStore.getState().setScenes(roomFile.room.scenes ?? []);
   usePlaylistStore.getState().setPlaylists(roomFile.room.playlists ?? []);
+  useControlsStore.getState().setControls(roomFile.room.controls?.widgets ?? []);
 
   const fileName = filePath.split('/').pop()?.replace('.orbitdmx', '') ?? 'Untitled Room';
   useRoomFileStore.getState().setFilePath(filePath);
@@ -282,6 +291,7 @@ export async function newRoom(): Promise<void> {
   useRoomStore.getState().setFloorPlan({ widthM: 10, depthM: 8 });
   useSceneStore.getState().setScenes([]);
   usePlaylistStore.getState().setPlaylists([]);
+  useControlsStore.getState().setControls([]);
   useHistoryStore.getState().clear();
 
   if (typeof window.dmx !== 'undefined') {

@@ -33,11 +33,12 @@ export type RoomViewMode = 'list' | 'floorplan';
 
 export default function RoomView() {
   const fixtures = useRoomStore((s) => s.fixtures);
+  const roomDimmer = useRoomStore((s) => s.roomDimmer);
+  const setRoomDimmer = useRoomStore((s) => s.setRoomDimmer);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingFixtureId, setEditingFixtureId] = useState<string | null>(null);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
-  const [roomDimmer, setRoomDimmer] = useState(255);
   const [universe, setUniverse] = useState<number[]>(() => new Array(512).fill(0));
   const [viewMode, setViewMode] = useState<RoomViewMode>('list');
 
@@ -61,13 +62,8 @@ export default function RoomView() {
 
   // ── Room dimmer → engine ──────────────────────────────────────────────────
   const handleRoomDimmerChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    setRoomDimmer(value);
-    // Send directly — it's just setting an integer in the engine, no serial I/O
-    if (typeof window.dmx !== 'undefined') {
-      window.dmx.setRoomDimmer(value);
-    }
-  }, []);
+    setRoomDimmer(parseInt(e.target.value));
+  }, [setRoomDimmer]);
 
   // ── Blackout ──────────────────────────────────────────────────────────────
   const handleBlackout = useCallback(() => {

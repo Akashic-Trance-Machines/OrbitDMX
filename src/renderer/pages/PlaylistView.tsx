@@ -42,7 +42,9 @@ export default function PlaylistView() {
 
   const runner = usePlaylistControls();
 
-  const activePlaylist = playlists.find((p) => p.id === activePlaylistId) ?? null;
+  // Local UI state: which card is expanded (separate from playback)
+  const [expandedId, setExpandedId] = useState<string | null>(activePlaylistId);
+  const expandedPlaylist = playlists.find((p) => p.id === expandedId) ?? null;
 
   // ── New playlist modal ──────────────────────────────────────────────────
   const [showNewModal, setShowNewModal] = useState(false);
@@ -75,12 +77,12 @@ export default function PlaylistView() {
 
   const handleAddScene = useCallback(
     (scene: Scene) => {
-      if (!activePlaylistId) return;
+      if (!expandedId) return;
       const cue: Cue = { id: crypto.randomUUID(), sceneId: scene.id };
-      addCue(activePlaylistId, cue);
+      addCue(expandedId, cue);
       setShowAddScene(false);
     },
-    [activePlaylistId, addCue],
+    [expandedId, addCue],
   );
 
   // ── Delete confirmation ─────────────────────────────────────────────────
@@ -115,12 +117,12 @@ export default function PlaylistView() {
     e.preventDefault();
     setDragOverIdx(null);
     const fromIdx = dragIdxRef.current;
-    if (fromIdx === null || !activePlaylist) return;
+    if (fromIdx === null || !expandedPlaylist) return;
 
-    const cues = [...activePlaylist.cues];
+    const cues = [...expandedPlaylist.cues];
     const [moved] = cues.splice(fromIdx, 1);
     cues.splice(dropIdx, 0, moved);
-    reorderCues(activePlaylist.id, cues);
+    reorderCues(expandedPlaylist.id, cues);
     dragIdxRef.current = null;
   };
 
@@ -132,16 +134,16 @@ export default function PlaylistView() {
   // ── Settings change handlers ────────────────────────────────────────────
   const handleSettingChange = useCallback(
     (field: keyof Playlist, value: number | string) => {
-      if (!activePlaylistId) return;
-      updatePlaylist(activePlaylistId, { [field]: value } as Partial<Playlist>);
+      if (!expandedId) return;
+      updatePlaylist(expandedId, { [field]: value } as Partial<Playlist>);
     },
-    [activePlaylistId, updatePlaylist],
+    [expandedId, updatePlaylist],
   );
 
   // ── Render ──────────────────────────────────────────────────────────────
 
   return (
-    <div className={`playlist-view ${activePlaylist ? 'has-panel' : ''}`}>
+    <div className={`playlist-view ${expandedPlaylist ? 'has-panel' : ''}`}>
       {/* Left pane: playlist list + cue list */}
       <div className="playlist-list-pane">
         {/* Header */}
@@ -167,26 +169,25 @@ export default function PlaylistView() {
           <div className="playlist-scroll-area">
             <div className="playlist-card-list">
               {playlists.map((pl) => {
-                const isActive = pl.id === activePlaylistId;
-                const isPlaying = isActive && runner.playbackState === 'playing';
-                const isPaused = isActive && runner.playbackState === 'paused';
+                const isExpanded = pl.id === expandedId;
+                const isActivePlayback = pl.id === activePlaylistId;
+                const isPlaying = isActivePlayback && runner.playbackState === 'playing';
+                const isPaused = isActivePlayback && runner.playbackState === 'paused';
 
                 return (
                   <div
                     key={pl.id}
-                    className={`playlist-card ${isActive ? 'active' : ''} ${isPlaying ? 'playing' : ''}`}
+                    className={`playlist-card ${isExpanded ? 'active' : ''} ${isPlaying ? 'playing' : ''}`}
                   >
                     {/* Card header (clickable to select) */}
                     <div
                       className="playlist-card-header"
                       onClick={() => {
-                        if (!isActive) {
-                          if (runner.playbackState !== 'stopped') runner.stop();
-                          selectPlaylist(pl.id);
+                        if (!isExpanded) {
+                          setExpandedId(pl.id);
                         } else {
-                          // Clicking the active card collapses it
-                          if (runner.playbackState !== 'stopped') runner.stop();
-                          selectPlaylist(null);
+                          // Clicking the expanded card collapses it (playback continues)
+                          setExpandedId(null);
                         }
                       }}
                     >
@@ -197,17 +198,23 @@ export default function PlaylistView() {
                         </span>
                       </div>
                       <div className="playlist-card-controls">
-                        {isActive && (
-                          <>
-                            {isPlaying ? (
-                              <button className="playlist-btn" title="Pause" onClick={(e) => { e.stopPropagation(); runner.pause(); }}>⏸</button>
-                            ) : (
-                              <button className="playlist-btn playlist-btn-play" title="Play" onClick={(e) => { e.stopPropagation(); runner.play(); }} disabled={pl.cues.length === 0}>▶</button>
-                            )}
-                            {(isPlaying || isPaused) && (
-                              <button className="playlist-btn" title="Stop" onClick={(e) => { e.stopPropagation(); runner.stop(); }}>⏹</button>
-                            )}
-                          </>
+                        {isPlaying ? (
+                          <button className="playlist-btn" title="Pause" onClick={(e) => { e.stopPropagation(); runner.pause(); }}>⏸</button>
+                        ) : (
+                          <button className="playlist-btn playlist-btn-play" title="Play" onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isActivePlayback) {
+                              // Stop any current playback first
+                              if (runner.playbackState !== 'stopped') runner.stop();
+                              // Select this playlist for playback
+                              selectPlaylist(pl.id);
+                            }
+                            // Directly set playback state — the runner hook picks this up
+                            usePlaylistStore.getState().setPlaybackState('playing');
+                          }} disabled={pl.cues.length === 0}>▶</button>
+                        )}
+                        {(isPlaying || isPaused) && (
+                          <button className="playlist-btn" title="Stop" onClick={(e) => { e.stopPropagation(); runner.stop(); }}>⏹</button>
                         )}
                         <button
                           className="playlist-btn playlist-btn-delete"
@@ -218,12 +225,12 @@ export default function PlaylistView() {
                     </div>
 
                     {/* Collapsible cue list (inside the card) */}
-                    {isActive && (
+                    {isExpanded && (
                       <div className="playlist-cue-section">
                         <div className="playlist-cue-header">
                           <h3 className="playlist-cue-title">
                             Cues
-                            <span className="playlist-cue-count text-dim">{activePlaylist!.cues.length}</span>
+                            <span className="playlist-cue-count text-dim">{expandedPlaylist!.cues.length}</span>
                           </h3>
                           <button
                             className="btn-primary btn-sm"
@@ -234,13 +241,13 @@ export default function PlaylistView() {
                           </button>
                         </div>
 
-                        {activePlaylist!.cues.length === 0 ? (
+                        {expandedPlaylist!.cues.length === 0 ? (
                           <div className="playlist-cue-empty text-dim">
                             No scenes in this playlist yet. Add scenes to start chaining.
                           </div>
                         ) : (
                           <div className="playlist-cue-list">
-                            {activePlaylist!.cues.map((cue, idx) => {
+                            {expandedPlaylist!.cues.map((cue, idx) => {
                               const scene = scenes.find((s) => s.id === cue.sceneId);
                               const isCurrent = runner.playbackState !== 'stopped' && runner.currentCueIndex === idx;
 
@@ -276,7 +283,7 @@ export default function PlaylistView() {
                                   <button
                                     className="playlist-cue-remove"
                                     title="Remove"
-                                    onClick={() => removeCue(activePlaylist!.id, cue.id)}
+                                    onClick={() => removeCue(expandedPlaylist!.id, cue.id)}
                                   >✕</button>
                                 </div>
                               );
@@ -294,17 +301,14 @@ export default function PlaylistView() {
       </div>
 
       {/* Right pane: playlist controls (settings panel) */}
-      {activePlaylist && (
+      {expandedPlaylist && (
         <div className="playlist-control-pane">
           <div className="playlist-panel-header">
-            <h2 className="playlist-panel-title">{activePlaylist.name}</h2>
+            <h2 className="playlist-panel-title">{expandedPlaylist.name}</h2>
             <button
               className="playlist-panel-close"
               title="Close"
-              onClick={() => {
-                if (runner.playbackState !== 'stopped') runner.stop();
-                selectPlaylist(null);
-              }}
+              onClick={() => setExpandedId(null)}
             >✕</button>
           </div>
 
@@ -318,7 +322,7 @@ export default function PlaylistView() {
                   className="playlist-transport-btn playlist-transport-play"
                   onClick={runner.play}
                   title="Play"
-                  disabled={activePlaylist.cues.length === 0}
+                  disabled={expandedPlaylist.cues.length === 0}
                 >▶</button>
               )}
               <button
@@ -329,7 +333,7 @@ export default function PlaylistView() {
               >⏹</button>
               {runner.playbackState !== 'stopped' && (
                 <span className="playlist-transport-indicator mono">
-                  Cue {runner.currentCueIndex + 1} / {activePlaylist.cues.length}
+                  Cue {runner.currentCueIndex + 1} / {expandedPlaylist.cues.length}
                 </span>
               )}
             </div>
@@ -341,7 +345,7 @@ export default function PlaylistView() {
                 {(['auto', 'manual', 'music'] as PlaylistSyncMode[]).map((mode) => (
                   <button
                     key={mode}
-                    className={`playlist-mode-tab ${activePlaylist.syncMode === mode ? 'active' : ''}`}
+                    className={`playlist-mode-tab ${expandedPlaylist.syncMode === mode ? 'active' : ''}`}
                     onClick={() => handleSettingChange('syncMode', mode)}
                   >
                     {MODE_LABELS[mode]}
@@ -357,7 +361,7 @@ export default function PlaylistView() {
                 {(['forward', 'backward', 'random'] as PlayDirection[]).map((dir) => (
                   <button
                     key={dir}
-                    className={`playlist-mode-tab ${activePlaylist.playDirection === dir ? 'active' : ''}`}
+                    className={`playlist-mode-tab ${expandedPlaylist.playDirection === dir ? 'active' : ''}`}
                     onClick={() => handleSettingChange('playDirection', dir)}
                   >
                     {DIRECTION_LABELS[dir].icon} {DIRECTION_LABELS[dir].label}
@@ -370,43 +374,43 @@ export default function PlaylistView() {
             <div className="playlist-settings-section">
               <SliderSetting
                 label="Crossfade"
-                value={activePlaylist.fadeDurationMs}
+                value={expandedPlaylist.fadeDurationMs}
                 min={0}
                 max={10000}
                 step={100}
-                displayValue={`${(activePlaylist.fadeDurationMs / 1000).toFixed(1)}s`}
+                displayValue={`${(expandedPlaylist.fadeDurationMs / 1000).toFixed(1)}s`}
                 onChange={(v) => handleSettingChange('fadeDurationMs', v)}
               />
             </div>
 
             {/* Auto mode settings */}
-            {activePlaylist.syncMode === 'auto' && (
+            {expandedPlaylist.syncMode === 'auto' && (
               <div className="playlist-settings-section">
                 <SliderSetting
                   label="Hold Duration"
-                  value={activePlaylist.holdDurationMs}
+                  value={expandedPlaylist.holdDurationMs}
                   min={500}
                   max={30000}
                   step={500}
-                  displayValue={`${(activePlaylist.holdDurationMs / 1000).toFixed(1)}s`}
+                  displayValue={`${(expandedPlaylist.holdDurationMs / 1000).toFixed(1)}s`}
                   onChange={(v) => handleSettingChange('holdDurationMs', v)}
                 />
-                {activePlaylist.fadeDurationMs > activePlaylist.holdDurationMs && (
+                {expandedPlaylist.fadeDurationMs > expandedPlaylist.holdDurationMs && (
                   <div className="playlist-warning">
-                    ⚠ Crossfade ({(activePlaylist.fadeDurationMs / 1000).toFixed(1)}s) is longer than hold duration ({(activePlaylist.holdDurationMs / 1000).toFixed(1)}s). The next scene will start fading before the current one finishes holding.
+                    ⚠ Crossfade ({(expandedPlaylist.fadeDurationMs / 1000).toFixed(1)}s) is longer than hold duration ({(expandedPlaylist.holdDurationMs / 1000).toFixed(1)}s). The next scene will start fading before the current one finishes holding.
                   </div>
                 )}
               </div>
             )}
 
             {/* Manual mode: next/prev */}
-            {activePlaylist.syncMode === 'manual' && runner.playbackState === 'playing' && (
+            {expandedPlaylist.syncMode === 'manual' && runner.playbackState === 'playing' && (
               <div className="playlist-settings-section">
                 <label className="playlist-setting-label">Navigate</label>
                 <div className="playlist-manual-controls">
                   <button className="playlist-nav-btn" onClick={runner.previous}>◄ Prev</button>
                   <span className="playlist-cue-indicator mono">
-                    {runner.currentCueIndex + 1} / {activePlaylist.cues.length}
+                    {runner.currentCueIndex + 1} / {expandedPlaylist.cues.length}
                   </span>
                   <button className="playlist-nav-btn" onClick={runner.next}>Next ►</button>
                 </div>
@@ -414,34 +418,34 @@ export default function PlaylistView() {
             )}
 
             {/* Music mode: gain + threshold + VU meter */}
-            {activePlaylist.syncMode === 'music' && (
+            {expandedPlaylist.syncMode === 'music' && (
               <div className="playlist-settings-section">
-                <VuMeter threshold={(activePlaylist.audioThreshold ?? 50) / 100} />
+                <VuMeter threshold={(expandedPlaylist.audioThreshold ?? 50) / 100} />
                 <SliderSetting
                   label="Audio Gain"
-                  value={activePlaylist.audioGain}
+                  value={expandedPlaylist.audioGain}
                   min={0}
                   max={100}
                   step={1}
-                  displayValue={`${activePlaylist.audioGain}%`}
+                  displayValue={`${expandedPlaylist.audioGain}%`}
                   onChange={(v) => handleSettingChange('audioGain', v)}
                 />
                 <SliderSetting
                   label="Threshold"
-                  value={activePlaylist.audioThreshold}
+                  value={expandedPlaylist.audioThreshold}
                   min={5}
                   max={100}
                   step={1}
-                  displayValue={`${activePlaylist.audioThreshold}%`}
+                  displayValue={`${expandedPlaylist.audioThreshold}%`}
                   onChange={(v) => handleSettingChange('audioThreshold', v)}
                 />
                 <SliderSetting
                   label="Cooldown"
-                  value={activePlaylist.audioCooldown ?? 300}
+                  value={expandedPlaylist.audioCooldown ?? 300}
                   min={100}
                   max={3000}
                   step={50}
-                  displayValue={`${((activePlaylist.audioCooldown ?? 300) / 1000).toFixed(1)}s`}
+                  displayValue={`${((expandedPlaylist.audioCooldown ?? 300) / 1000).toFixed(1)}s`}
                   onChange={(v) => handleSettingChange('audioCooldown', v)}
                 />
               </div>

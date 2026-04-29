@@ -1,4 +1,4 @@
-import type { SerialPortInfo, SerialStatus, RunnerStatus, Scene, ChannelDefinition, FxConfig, LedAddress, RoomFile } from '../../shared/types';
+import type { SerialPortInfo, SerialStatus, RunnerStatus, Scene, ChannelDefinition, FxConfig, LedAddress, RoomFile, Rig, ShowFile } from '../../shared/types';
 import type { IpcResponse } from '../../shared/types';
 
 /**
@@ -21,9 +21,16 @@ declare global {
       cancelFade: () => Promise<IpcResponse>;
       setRoomDimmer: (value: number) => Promise<IpcResponse>;
       setDimmerAddresses: (addresses: number[]) => Promise<IpcResponse>;
+      setChannelBatch: (updates: Array<{ address: number; value: number }>) => Promise<IpcResponse>;
 
       setFx: (config: FxConfig | null) => Promise<IpcResponse>;
       setFxLedAddresses: (addresses: LedAddress[]) => Promise<IpcResponse>;
+
+      // Post-processing modifiers
+      setColorShift: (id: string, addresses: LedAddress[], degrees: number) => Promise<IpcResponse>;
+      clearColorShift: (id: string) => Promise<IpcResponse>;
+      setLedDimmer: (id: string, addresses: number[], factor: number) => Promise<IpcResponse>;
+      clearLedDimmer: (id: string) => Promise<IpcResponse>;
 
       playScene: (scene: Scene, fadeDurationMs: number) => Promise<IpcResponse>;
       stop: () => Promise<IpcResponse>;
@@ -39,6 +46,10 @@ declare global {
       getDefaultPath: () => Promise<IpcResponse<string>>;
       getLastFilePath: () => Promise<IpcResponse<string | null>>;
       setLastFilePath: (filePath: string | null) => Promise<IpcResponse>;
+
+      // Show file I/O
+      exportShow: (roomData: RoomFile, rigs: Rig[]) => Promise<IpcResponse<string | null>>;
+      importShow: () => Promise<IpcResponse<ShowFile | null>>;
 
       onUniverseUpdate: (cb: (snapshot: number[]) => void) => () => void;
       onSerialStatus: (cb: (status: SerialStatus) => void) => () => void;

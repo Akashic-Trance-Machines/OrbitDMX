@@ -4,6 +4,7 @@ import started from 'electron-squirrel-startup';
 import { DmxEngine } from './main/dmx/DmxEngine';
 import { registerIpcHandlers } from './main/ipc/handlers';
 import { registerRoomFileHandlers } from './main/ipc/roomFileHandlers';
+import { registerShowFileHandlers } from './main/ipc/showFileHandlers';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -51,6 +52,15 @@ function buildMenu(): void {
           label: 'Save As…',
           accelerator: 'CmdOrCtrl+Shift+S',
           click: () => mainWindow?.webContents.send('menu:save-as'),
+        },
+        { type: 'separator' },
+        {
+          label: 'Export Show…',
+          click: () => mainWindow?.webContents.send('menu:export-show'),
+        },
+        {
+          label: 'Import Show…',
+          click: () => mainWindow?.webContents.send('menu:import-show'),
         },
         { type: 'separator' },
         isMac ? { role: 'close' as const } : { role: 'quit' as const },
@@ -151,6 +161,7 @@ app.on('ready', () => {
   // same channels twice and throw.
   registerIpcHandlers(engine, () => mainWindow?.webContents ?? null);
   registerRoomFileHandlers();
+  registerShowFileHandlers();
   buildMenu();
   createWindow();
 });

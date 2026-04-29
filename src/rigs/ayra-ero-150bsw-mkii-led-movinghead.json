@@ -1,0 +1,351 @@
+{
+  "id": "ayra-ero-150bsw-mkii-led-movinghead",
+  "brand": "AYRA",
+  "model": "ERO 150BSW MKII",
+  "defaultPersonality": "20-channel mode",
+  "personalities": [
+    {
+      "name": "17-channel mode",
+      "channelCount": 17,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0 - 540 Degrees"
+        },
+        {
+          "offset": 1,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0 - 270 Degrees"
+        },
+        {
+          "offset": 2,
+          "name": "Pan/Tilt Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 255 (fast - slow)"
+        },
+        {
+          "offset": 3,
+          "name": "Show Mode",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 015 No value; 016 - 063 Show 1; 064 - 127 Show 2; 128 - 191 Show 3; 192 - 255 Show 4"
+        },
+        {
+          "offset": 4,
+          "name": "Pan/Tilt Macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 007 Off; 008 - 255 Macro 1-31 (8 values per macro)"
+        },
+        {
+          "offset": 5,
+          "name": "Macro Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 255 (fast - slow)"
+        },
+        {
+          "offset": 6,
+          "name": "Colour Wheel",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 015 Open; 016 - 063 Colour 1-16; 064 - 127 Colour Wheel indexing; 128 - 189 Anti-clockwise rotation, fast to slow; 190 - 193 Stop colour rotation; 194 - 255 Clockwise rotation, slow to fast"
+        },
+        {
+          "offset": 7,
+          "name": "Gobo Wheel 1",
+          "type": "gobo",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 007 Open; 008 - 067 Gobo 1-7; 068 - 127 Gobo 1-7 shake; 128 - 189 Anti-clockwise rotation, fast to slow; 190 - 193 Stop Gobo wheel rotation; 194 - 255 Clockwise rotation, slow to fast"
+        },
+        {
+          "offset": 8,
+          "name": "Gobo Wheel 2",
+          "type": "gobo",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 007 Open; 008 - 061 Gobo 1-6; 062 - 127 Gobo 1-6 shake; 128 - 189 Anti-clockwise rotation, fast to slow; 190 - 193 Stop Gobo wheel rotation; 194 - 255 Clockwise rotation, slow to fast"
+        },
+        {
+          "offset": 9,
+          "name": "Gobo Rotation",
+          "type": "gobo-rotation",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 127 Gobo indexing; 128 - 189 Gobo rotation, clockwise, fast to slow; 190 - 193 Stop rotation; 194 - 255 Anti-clockwise rotation, slow to fast"
+        },
+        {
+          "offset": 10,
+          "name": "Angle / Frost",
+          "type": "frost",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 007 Off (beam); 008 - 128 Spot; 129 - 255 Frost"
+        },
+        {
+          "offset": 11,
+          "name": "Prisma",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 007 No effect; 008 - 255 Prisma effect"
+        },
+        {
+          "offset": 12,
+          "name": "Prisma Rotation",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 127 Prisma indexing; 128 - 189 Prisma rotation, anti-clockwise, fast to slow; 190 - 193 Stop Prisma rotation; 194 - 255 Prisma rotation, clockwise, slow to fast"
+        },
+        {
+          "offset": 13,
+          "name": "Focus",
+          "type": "focus",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 255 Focus 0-100%"
+        },
+        {
+          "offset": 14,
+          "name": "Shutter / Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 007 Off; 008 - 015 On; 016-131 Slow – fast, Stroboscope function; 132 - 139 Open; 140 - 181 Slow open, fast close; 182 - 189 Open; 190 - 231 Slow close, fast open; 232 - 239 Open; 240 - 247 Random Strobe; 248 - 255 Open"
+        },
+        {
+          "offset": 15,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Dimmer"
+        },
+        {
+          "offset": 16,
+          "name": "Special Functions",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 069 No function; 070 - 079 Blackout while panning / tilting; 080 - 089 No blackout while panning / tilting; 090-099 Blackout during colour changes; 100 - 109 No blackout during colour changes; 110 - 119 Blackout during Gobo changes; 120 - 129 No blackout during Gobo changes; 130 - 139 No function; 140 - 149 Pan/Tilt reset; 150 - 159 Reset effect wheels; 160 - 199 No function; 200 - 209 Reset all; 210 - 219 Blackout during all changes (Pan, Tilt, Gobo, Colours); 220 - 229 No blackout during all changes; 230 - 255 No function"
+        }
+      ]
+    },
+    {
+      "name": "20-channel mode",
+      "channelCount": 20,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0 - 540 Degrees"
+        },
+        {
+          "offset": 1,
+          "name": "Pan Fine",
+          "type": "pan-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0 - 270 Degrees"
+        },
+        {
+          "offset": 3,
+          "name": "Tilt Fine",
+          "type": "tilt-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Pan/Tilt Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 255 fast - slow"
+        },
+        {
+          "offset": 5,
+          "name": "Show Mode",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 015 No value; 016 - 063 Show 1; 064 - 127 Show 2; 128 - 191 Show 3; 192 - 255 Show 4"
+        },
+        {
+          "offset": 6,
+          "name": "Pan/Tilt Macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "See Channel 5 in 17 Channel Mode: 000 - 007 Off; 008 - 255 Macro 1-31 (8 values per macro)"
+        },
+        {
+          "offset": 7,
+          "name": "Macro Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 255 (fast - slow)"
+        },
+        {
+          "offset": 8,
+          "name": "Colour Wheel",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "See Channel 7 in 17 Channel Mode: 000 - 015 Open; 016 - 063 Colour 1-16; 064 - 127 Colour Wheel indexing; 128 - 189 Anti-clockwise rotation, fast to slow; 190 - 193 Stop colour rotation; 194 - 255 Clockwise rotation, slow to fast"
+        },
+        {
+          "offset": 9,
+          "name": "Gobo Wheel 1",
+          "type": "gobo",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "See channel 8 in 17 Channel Mode: 000 - 007 Open; 008 - 067 Gobo 1-7; 068 - 127 Gobo 1-7 shake; 128 - 189 Anti-clockwise rotation, fast to slow; 190 - 193 Stop Gobo wheel rotation; 194 - 255 Clockwise rotation, slow to fast"
+        },
+        {
+          "offset": 10,
+          "name": "Gobo Wheel 2",
+          "type": "gobo",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "See Channel 9 in 17 Channel Mode: 000 - 007 Open; 008 - 061 Gobo 1-6; 062 - 127 Gobo 1-6 shake; 128 - 189 Anti-clockwise rotation, fast to slow; 190 - 193 Stop Gobo wheel rotation; 194 - 255 Clockwise rotation, slow to fast"
+        },
+        {
+          "offset": 11,
+          "name": "Gobo Rotation",
+          "type": "gobo-rotation",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 127 Gobo Indexing; 128 - 189 Gobo rotation, clockwise, fast to slow; 190 - 193 Stop rotation; 194 - 255 Anti-clockwise rotation, slow to fast"
+        },
+        {
+          "offset": 12,
+          "name": "Angle / Frost",
+          "type": "frost",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 007 Off (beam); 008 - 128 Spot; 129 - 255 Frost"
+        },
+        {
+          "offset": 13,
+          "name": "Prisma",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 007 No effect; 008 - 255 Prisma effect"
+        },
+        {
+          "offset": 14,
+          "name": "Prisma Rotation",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 127 Prisma indexing; 128 - 189 Prisma rotation, anti-clockwise, fast to slow; 190 - 193 Stop Prisma rotation; 194 - 255 Prisma rotation, clockwise, slow to fast"
+        },
+        {
+          "offset": 15,
+          "name": "Focus",
+          "type": "focus",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 255 Focus 0-100%"
+        },
+        {
+          "offset": 16,
+          "name": "Shutter / Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 - 007 Off; 008 - 015 On; 016-131 Slow – fast, stroboscope function; 132 - 139 Open; 140 - 181 Slow open, fast close; 182 - 189 Open; 190 - 231 Slow close, fast open; 232 - 239 Open; 240 - 247 Random Strobe; 248 - 255 Open"
+        },
+        {
+          "offset": 17,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Dimmer"
+        },
+        {
+          "offset": 18,
+          "name": "No Function",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "No function"
+        },
+        {
+          "offset": 19,
+          "name": "Special Functions",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "See Channel 17 in 17 Channel mode: 000 - 069 No function; 070 - 079 Blackout while panning / tilting; 080 - 089 No blackout while panning / tilting; 090-099 Blackout during colour changes; 100 - 109 No blackout during colour changes; 110 - 119 Blackout during Gobo changes; 120 - 129 No blackout during Gobo changes; 130 - 139 No function; 140 - 149 Pan/Tilt reset; 150 - 159 Reset effect wheels; 160 - 199 No function; 200 - 209 Reset all; 210 - 219 Blackout during all changes (Pan, Tilt, Gobo, Colours); 220 - 229 No blackout during all changes; 230 - 255 No function"
+        }
+      ]
+    }
+  ]
+}

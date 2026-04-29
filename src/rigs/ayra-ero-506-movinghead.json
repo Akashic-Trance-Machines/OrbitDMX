@@ -1,0 +1,239 @@
+{
+  "id": "ayra-ero-506-movinghead",
+  "brand": "AYRA",
+  "model": "ERO 506",
+  "defaultPersonality": "15-channel mode",
+  "personalities": [
+    {
+      "name": "11-channel mode",
+      "channelCount": 11,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan position",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Tilt position",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Shutter / Strobe mode",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007: Not active, 008-015: LED quick start, 016-131: Strobe (slow to fast), 140-181: Slow start quick close, 182-189: LED quick start, 190-231: Quick start slow close, 232-239: LED quick start, 240-247: Random strobe, 248-255: Open"
+        },
+        {
+          "offset": 3,
+          "name": "Dimmer Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Dimmer Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Dimmer Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Dimmer White",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "Dimmer Amber",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Amber color dimmer"
+        },
+        {
+          "offset": 8,
+          "name": "Dimmer UV",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "UV color dimmer"
+        },
+        {
+          "offset": 9,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 10,
+          "name": "FX mode",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-069: No function, 070-079: X/Y move (LED off), 080-089: X/Y move stop (LED off), 090-239: No function, 240-255: Independent operation mode (sound controlled)"
+        }
+      ]
+    },
+    {
+      "name": "15-channel mode",
+      "channelCount": 15,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan position",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Pan fine",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Fine control for Pan"
+        },
+        {
+          "offset": 2,
+          "name": "Tilt position",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Tilt fine",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Fine control for Tilt"
+        },
+        {
+          "offset": 4,
+          "name": "X/Y speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Slow to fast"
+        },
+        {
+          "offset": 5,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Shutter / Strobe mode",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007: Not active, 008-015: LED quick start, 016-131: Strobe (slow to fast), 140-181: Slow start quick close, 182-189: LED quick start, 190-231: Quick start slow close, 232-239: LED quick start, 240-247: Random strobe, 248-255: Open"
+        },
+        {
+          "offset": 7,
+          "name": "Dimmer Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "Dimmer Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 9,
+          "name": "Dimmer Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 10,
+          "name": "Dimmer White",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 11,
+          "name": "Dimmer Amber",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Amber color dimmer"
+        },
+        {
+          "offset": 12,
+          "name": "Dimmer UV",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "UV color dimmer"
+        },
+        {
+          "offset": 13,
+          "name": "Colour LED macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 14,
+          "name": "FX mode",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-069: No function, 070-079: X/Y move (LED off), 080-089: X/Y move stop (LED off), 090-239: No function, 240-255: Independent operation mode (sound controlled)"
+        }
+      ]
+    }
+  ]
+}

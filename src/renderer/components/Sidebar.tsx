@@ -13,6 +13,7 @@ const NAV_ITEMS: { id: AppView; label: string; icon: string }[] = [
   { id: 'room',      label: 'Room',      icon: '⬡' },
   { id: 'scenes',    label: 'Scenes',    icon: '◈' },
   { id: 'playlists', label: 'Playlists', icon: '▶' },
+  { id: 'controls',  label: 'Controls',  icon: '🎛' },
   { id: 'fx',        label: 'FX',        icon: '✦' },
 ];
 

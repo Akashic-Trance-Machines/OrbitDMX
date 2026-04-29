@@ -1,0 +1,183 @@
+/* ── Fixture Target Selector (shared component) ──────────────────────────── */
+/* Used by both Controls editor and FX sidebar */
+
+.fixture-target-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fixture-target-radios {
+  display: flex;
+  gap: 8px;
+}
+
+.fixture-target-radio {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text-dim);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s;
+  font-family: var(--font-sans);
+}
+
+.fixture-target-radio.active {
+  background: var(--color-accent-glow);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.fixture-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 8px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+.fixture-target-all-note {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  padding: 4px 6px 6px;
+}
+
+.fixture-check-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.fixture-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.fixture-check-row:hover {
+  background: var(--color-surface-3);
+}
+
+.fixture-check-label {
+  font-size: 12px;
+  color: var(--color-text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fixture-check-addr {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+/* ── LED expand button ───────────────────────────────────────────────────── */
+
+.fixture-led-expand {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 10px;
+  font-family: var(--font-sans);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.fixture-led-expand:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.fixture-led-expand.expanded {
+  color: var(--color-accent);
+  border-color: var(--color-accent-dim);
+  background: var(--color-accent-glow);
+}
+
+.fixture-led-count {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.fixture-led-arrow {
+  font-size: 9px;
+}
+
+/* ── LED sub-list ────────────────────────────────────────────────────────── */
+
+.fixture-led-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  padding: 4px 8px 6px 28px;
+  animation: ledListSlideDown 0.15s ease-out;
+}
+
+@keyframes ledListSlideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fixture-led-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.fixture-led-row:hover {
+  background: var(--color-surface-3);
+}
+
+.fixture-led-label {
+  font-size: 11px;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+}
+
+/* ── Quick buttons ───────────────────────────────────────────────────────── */
+
+.fixture-quick-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.fixture-quick-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  transition: all 0.15s;
+}
+
+.fixture-quick-btn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}

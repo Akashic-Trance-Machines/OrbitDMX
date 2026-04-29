@@ -1,0 +1,227 @@
+{
+  "id": "ayra-dancefx-sp12x3-sp15x1-spotlights",
+  "brand": "AYRA",
+  "model": "DanceFX SP12X3 / SP15X1",
+  "defaultPersonality": "7-channel mode",
+  "personalities": [
+    {
+      "name": "2-channel mode",
+      "channelCount": 2,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Colour Presets",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-9: No function, 10-19: Red, 20-29: Green, 30-39: Blue, 40-49: Yellow, 50-59: Salmon, 60-69: Cyan, 70-79: Magenta, 80-89: Green yellow, 90-99: Orange, 100-109: Turquoise, 110-119: Light green, 120-129: Dark blue, 130-139: Lavender, 140-149: Light blue, 150-159: Dark orange, 160-255: Pink"
+        },
+        {
+          "offset": 1,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        }
+      ]
+    },
+    {
+      "name": "3-channel mode",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 1,
+          "name": "Dimmer Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 2,
+          "name": "Dimmer Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        }
+      ]
+    },
+    {
+      "name": "4-channel mode",
+      "channelCount": 4,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Colour Presets",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-9: No function, 10-19: Red, 20-29: Green, 30-39: Blue, 40-49: Yellow, 50-59: Salmon, 60-69: Cyan, 70-79: Magenta, 80-89: Green yellow, 90-99: Orange, 100-109: Turquoise, 110-119: Light green, 120-129: Dark blue, 130-139: Lavender, 140-149: Light blue, 150-159: Dark orange, 160-255: Pink"
+        },
+        {
+          "offset": 1,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 2,
+          "name": "Strobe Speed",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-9: No function, 10-255: Strobe speed (slow – fast)"
+        },
+        {
+          "offset": 3,
+          "name": "Built-in Programs",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-9: No function, 10-69: Colour fade (slow - fast), 70-129: Colour jump (slow - fast), 130-189: Sound-controlled colour fade (slow - fast), 190-255: Sound-controlled colour jump (slow - fast)"
+        }
+      ]
+    },
+    {
+      "name": "5-channel mode",
+      "channelCount": 5,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 1,
+          "name": "Dimmer Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 2,
+          "name": "Dimmer Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 3,
+          "name": "Function/Strobe Speed",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0: No function, 1-5: Sound-controlled (alternate 7 colours), 6-10: No function, 11-255: Strobe speed (slow - fast)"
+        },
+        {
+          "offset": 4,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        }
+      ]
+    },
+    {
+      "name": "7-channel mode",
+      "channelCount": 7,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 1,
+          "name": "Dimmer Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 2,
+          "name": "Dimmer Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 3,
+          "name": "Colour Presets",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-9: No function, 10-19: Red, 20-29: Green, 30-39: Blue, 40-49: Yellow, 50-59: Salmon, 60-69: Cyan, 70-79: Magenta, 80-89: Green yellow, 90-99: Orange, 100-109: Turquoise, 110-119: Light green, 120-129: Dark blue, 130-139: Lavender, 140-149: Light blue, 150-159: Dark orange, 160-255: Pink"
+        },
+        {
+          "offset": 4,
+          "name": "Built-in Programs",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-9: No function, 10-69: Colour fade (slow - fast), 70-129: Colour jump (slow - fast), 130-189: Sound-controlled colour fade (slow - fast), 190-255: Sound-controlled colour jump (slow - fast)"
+        },
+        {
+          "offset": 5,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 6,
+          "name": "Strobe Speed",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-9: No function, 10-255: Strobe speed (slow – fast)"
+        }
+      ]
+    }
+  ]
+}

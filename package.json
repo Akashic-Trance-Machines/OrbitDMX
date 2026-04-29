@@ -1,7 +1,7 @@
 {
   "name": "orbit-dmx",
   "productName": "OrbitDMX",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A modern, open-source stage lighting DMX controller",
   "main": ".vite/build/main.js",
   "private": true,
@@ -10,7 +10,9 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "eslint --ext .ts,.tsx .",
+    "scrape:ayra": "ts-node scripts/scrape-ayra.ts",
+    "parse:local": "ts-node scripts/parse-local.ts"
   },
   "keywords": [],
   "author": {
@@ -29,13 +31,18 @@
     "@electron-forge/plugin-vite": "^7.11.1",
     "@electron-forge/publisher-github": "^7.11.1",
     "@electron/fuses": "^1.8.0",
+    "@google/generative-ai": "^0.24.1",
     "@types/electron-squirrel-startup": "^1.0.2",
+    "@types/pdf-parse": "^1.1.5",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-react": "^4.7.0",
     "electron": "41.3.0",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.32.0",
+    "pdf-parse": "^1.1.1",
+    "puppeteer": "^24.42.0",
+    "ts-node": "^10.9.2",
     "typescript": "~4.5.4",
     "vite": "^5.4.21"
   },
