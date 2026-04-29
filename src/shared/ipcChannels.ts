@@ -39,6 +39,15 @@ export const IPC = {
   STORE_SAVE_PLAYLIST: 'store:save-playlist',
   STORE_DELETE_PLAYLIST: 'store:delete-playlist',
 
+  // Room file I/O
+  ROOM_FILE_SAVE: 'room-file:save',
+  ROOM_FILE_LOAD: 'room-file:load',
+  ROOM_FILE_PICK_OPEN: 'room-file:pick-open',
+  ROOM_FILE_PICK_SAVE_AS: 'room-file:pick-save-as',
+  ROOM_FILE_GET_DEFAULT_PATH: 'room-file:get-default-path',
+  ROOM_FILE_GET_LAST_PATH: 'room-file:get-last-path',
+  ROOM_FILE_SET_LAST_PATH: 'room-file:set-last-path',
+
   // Main → Renderer (push events via webContents.send)
   PUSH_UNIVERSE_UPDATE: 'push:universe-update',
   PUSH_SERIAL_STATUS: 'push:serial-status',

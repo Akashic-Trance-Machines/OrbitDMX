@@ -1,12 +1,14 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import type { FixtureInstance, ChannelDefinition, ChannelType } from '../../shared/types';
 import { getRigById } from '../../rigs';
 import { useSceneStore } from '../store/useSceneStore';
+import { useRoomStore } from '../store/useRoomStore';
 import './FixtureControlPanel.css';
 
 interface FixtureControlPanelProps {
   fixture: FixtureInstance;
   onClose: () => void;
+  onEditSetup: () => void;
 }
 
 /** Maps channel types to CSS accent colours */
@@ -74,10 +76,11 @@ function detectRgbGroups(channels: ChannelDefinition[]): { groups: RgbGroup[]; u
   return { groups, ungrouped };
 }
 
-export default function FixtureControlPanel({ fixture, onClose }: FixtureControlPanelProps) {
+export default function FixtureControlPanel({ fixture, onClose, onEditSetup }: FixtureControlPanelProps) {
   const rig = getRigById(fixture.rigId);
   const personality = rig?.personalities.find((p) => p.name === fixture.personalityName);
   const channels = personality?.channels ?? [];
+  const updateFixture = useRoomStore((s) => s.updateFixture);
 
   // Channel values: offset → value
   const [values, setValues] = useState<Record<number, number>>(() => {
@@ -215,12 +218,22 @@ export default function FixtureControlPanel({ fixture, onClose }: FixtureControl
     <div className="fixture-control-panel" id="fixture-control-panel">
       {/* Header */}
       <div className="fcp-header">
-        <div className="fcp-header-left">
-          <h2>{fixture.label}</h2>
-          <span className="fcp-header-meta">
-            {personality?.name} · CH {fixture.startAddress}–{fixture.startAddress + fixture.channelCount - 1}
-          </span>
+        <div className="fcp-header-top">
+          <div className="fcp-header-title-row">
+            <h2>{fixture.label}</h2>
+            <button className="fcp-btn-icon" id="btn-edit-setup" onClick={onEditSetup} title="Edit Setup (Name, Mode, Address)">
+              ⚙️
+            </button>
+          </div>
+          <button className="fcp-close" id="btn-close-panel" onClick={onClose} title="Close panel">
+            ×
+          </button>
         </div>
+        
+        <span className="fcp-header-meta">
+          {personality?.name} · CH {fixture.startAddress}–{fixture.startAddress + fixture.channelCount - 1}
+        </span>
+        
         <div className="fcp-header-actions">
           <button className="fcp-btn" id="btn-blackout" onClick={handleBlackout} title="All channels to 0">
             Blackout
@@ -228,11 +241,10 @@ export default function FixtureControlPanel({ fixture, onClose }: FixtureControl
           <button className="fcp-btn fcp-btn-accent" id="btn-full-on" onClick={handleFullOn} title="Full colour">
             Full On
           </button>
-          <button className="fcp-close" id="btn-close-panel" onClick={onClose} title="Close panel">
-            ×
-          </button>
         </div>
       </div>
+
+
 
       <div className="fcp-body">
         {/* ── Master dimmer — always at the very top ────────────── */}

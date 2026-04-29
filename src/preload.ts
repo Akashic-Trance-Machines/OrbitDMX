@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { IPC } from './shared/ipcChannels';
-import type { Scene, SerialPortInfo, SerialStatus, RunnerStatus, ChannelDefinition, FxConfig, LedAddress } from './shared/types';
+import type { Scene, SerialPortInfo, SerialStatus, RunnerStatus, ChannelDefinition, FxConfig, LedAddress, RoomFile } from './shared/types';
 import type { IpcResponse } from './shared/types';
 
 /**
@@ -65,6 +65,33 @@ contextBridge.exposeInMainWorld('dmx', {
   testFlash: (startAddress: number, channels: ChannelDefinition[]): Promise<IpcResponse> =>
     ipcRenderer.invoke(IPC.FIXTURE_TEST_FLASH, { startAddress, channels }),
 
+  // ── Room file I/O ─────────────────────────────────────────────────────────
+  saveRoomFile: (filePath: string, data: RoomFile): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.ROOM_FILE_SAVE, filePath, data),
+
+  loadRoomFile: (filePath: string): Promise<IpcResponse<RoomFile>> =>
+    ipcRenderer.invoke(IPC.ROOM_FILE_LOAD, filePath),
+
+  /** Show native open dialog, returns { filePath, data } or null if cancelled. */
+  pickOpenRoomFile: (): Promise<IpcResponse<{ filePath: string; data: RoomFile } | null>> =>
+    ipcRenderer.invoke(IPC.ROOM_FILE_PICK_OPEN),
+
+  /** Show native save-as dialog, returns the chosen file path or null. */
+  pickSaveAsRoomFile: (data: RoomFile): Promise<IpcResponse<string | null>> =>
+    ipcRenderer.invoke(IPC.ROOM_FILE_PICK_SAVE_AS, data),
+
+  /** Get the default save directory (~/Documents/OrbitDMX/). */
+  getDefaultPath: (): Promise<IpcResponse<string>> =>
+    ipcRenderer.invoke(IPC.ROOM_FILE_GET_DEFAULT_PATH),
+
+  /** Get the last-used file path from app config. */
+  getLastFilePath: (): Promise<IpcResponse<string | null>> =>
+    ipcRenderer.invoke(IPC.ROOM_FILE_GET_LAST_PATH),
+
+  /** Store the last-used file path in app config. */
+  setLastFilePath: (filePath: string | null): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.ROOM_FILE_SET_LAST_PATH, filePath),
+
   // ── Push subscriptions (main → renderer) ──────────────────────────────────
   // Each returns a cleanup function that removes only THIS listener,
   // so multiple concurrent subscribers don't clobber each other.
@@ -87,3 +114,13 @@ contextBridge.exposeInMainWorld('dmx', {
     return () => ipcRenderer.removeListener(IPC.PUSH_RUNNER_STATE, handler);
   },
 });
+
+// ── Menu event forwarding ──────────────────────────────────────────────────
+// The Electron menu sends events via webContents.send. We listen here in
+// the preload and dispatch custom DOM events that the renderer can handle.
+const MENU_EVENTS = ['menu:new-room', 'menu:open-room', 'menu:save-as', 'menu:undo', 'menu:redo'] as const;
+for (const eventName of MENU_EVENTS) {
+  ipcRenderer.on(eventName, () => {
+    window.dispatchEvent(new CustomEvent(eventName));
+  });
+}

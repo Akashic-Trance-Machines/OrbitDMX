@@ -30,6 +30,30 @@
   color: var(--color-text);
 }
 
+/* Room file indicator */
+.sidebar-room-file {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 20px 16px;
+  -webkit-app-region: no-drag;
+}
+
+.sidebar-room-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-room-dirty {
+  font-size: 8px;
+  color: var(--color-warning);
+  flex-shrink: 0;
+}
+
 .sidebar-nav {
   flex: 1;
   display: flex;

@@ -55,12 +55,22 @@ export interface FixtureInstance {
   label: string;          // user-given name, e.g. "Stage Left Par"
   startAddress: number;   // 1–512
   universe: number;       // 0-indexed (future: multi-universe)
+  // Floor plan position (meters from top-left corner of room)
+  x?: number;
+  y?: number;
+  rotation?: number; // degrees, increments of 45
+}
+
+export interface FloorPlanDimensions {
+  widthM: number;   // room width in meters
+  depthM: number;   // room depth in meters
 }
 
 export interface Room {
   id: string;
   name: string;
   fixtures: FixtureInstance[];
+  floorPlan?: FloorPlanDimensions;
 }
 
 // ─── Scene types ─────────────────────────────────────────────────────────────
@@ -146,4 +156,18 @@ export interface RunnerStatus {
   playlistId?: string;
   currentCueIndex?: number;
   sceneId?: string;
+}
+
+// ─── Room file persistence ────────────────────────────────────────────────────
+
+export interface RoomFile {
+  orbitdmx: string;           // schema version, e.g. "1.0"
+  room: {
+    id: string;
+    name: string;
+    fixtures: FixtureInstance[];
+    floorPlan?: FloorPlanDimensions;
+    scenes: Scene[];
+    playlists: Playlist[];
+  };
 }

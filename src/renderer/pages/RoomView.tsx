@@ -5,6 +5,8 @@ import { getRigById } from '../../rigs';
 import FixtureCard from '../components/FixtureCard';
 import FixtureControlPanel from '../components/FixtureControlPanel';
 import AddFixtureModal from '../components/AddFixtureModal';
+import EditFixtureModal from '../components/EditFixtureModal';
+import FloorPlanView from './FloorPlanView';
 import type { FixtureInstance } from '../../shared/types';
 import './RoomView.css';
 
@@ -27,13 +29,17 @@ function collectDimmerAddresses(fixtures: FixtureInstance[]): number[] {
   return addresses;
 }
 
+export type RoomViewMode = 'list' | 'floorplan';
+
 export default function RoomView() {
   const fixtures = useRoomStore((s) => s.fixtures);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingFixtureId, setEditingFixtureId] = useState<string | null>(null);
   const [testingId, setTestingId] = useState<string | null>(null);
   const [selectedFixtureId, setSelectedFixtureId] = useState<string | null>(null);
   const [roomDimmer, setRoomDimmer] = useState(255);
   const [universe, setUniverse] = useState<number[]>(() => new Array(512).fill(0));
+  const [viewMode, setViewMode] = useState<RoomViewMode>('list');
 
   const selectedFixture = fixtures.find((f) => f.id === selectedFixtureId) ?? null;
 
@@ -109,13 +115,32 @@ export default function RoomView() {
               {fixtures.length} {fixtures.length === 1 ? 'fixture' : 'fixtures'}
             </span>
           </div>
-          <button
-            className="btn-primary"
-            id="btn-add-fixture"
-            onClick={() => setShowAddModal(true)}
-          >
-            + Add Fixture
-          </button>
+          <div className="room-header-right">
+            {/* View toggle */}
+            <div className="room-view-toggle">
+              <button
+                className={`room-view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
+                id="btn-view-list"
+                onClick={() => setViewMode('list')}
+              >
+                ☰ List
+              </button>
+              <button
+                className={`room-view-toggle-btn ${viewMode === 'floorplan' ? 'active' : ''}`}
+                id="btn-view-floorplan"
+                onClick={() => setViewMode('floorplan')}
+              >
+                ▦ Floor Plan
+              </button>
+            </div>
+            <button
+              className="btn-primary"
+              id="btn-add-fixture"
+              onClick={() => setShowAddModal(true)}
+            >
+              + Add Fixture
+            </button>
+          </div>
         </div>
 
         {/* Room dimmer bar */}
@@ -154,55 +179,103 @@ export default function RoomView() {
         )}
 
         {/* Content */}
-        {fixtures.length === 0 ? (
-          <div className="room-empty-state">
-            <div className="room-empty-icon">💡</div>
-            <h3>No fixtures in room</h3>
-            <p>Add your DMX fixtures to get started.<br />Each fixture gets a DMX start address and mode.</p>
-            <button
-              className="btn-primary"
-              id="btn-add-fixture-empty"
-              onClick={() => setShowAddModal(true)}
-            >
-              + Add Fixture
-            </button>
-          </div>
-        ) : (
-          <div className="room-fixture-list">
-            {/* Universe strip */}
-            <div className="universe-strip">
-              <span className="universe-strip-label">DMX Universe 1 — 512 ch</span>
-              <div className="universe-strip-bar" title="Channel usage">
-                {fixtures.map((f) => {
-                  const left = ((f.startAddress - 1) / 512) * 100;
-                  const width = (f.channelCount / 512) * 100;
-                  return (
-                    <div
-                      key={f.id}
-                      className={`universe-strip-segment ${f.id === selectedFixtureId ? 'active' : ''}`}
-                      style={{ left: `${left}%`, width: `${width}%` }}
-                      title={`${f.label}: CH ${f.startAddress}–${f.startAddress + f.channelCount - 1}`}
-                    />
-                  );
-                })}
+        {/* View content — List or Floor Plan */}
+        {viewMode === 'list' ? (
+          <>
+            {fixtures.length === 0 ? (
+              <div className="room-empty-state">
+                <div className="room-empty-icon">💡</div>
+                <h3>No fixtures in room</h3>
+                <p>Add your DMX fixtures to get started.<br />Each fixture gets a DMX start address and mode.</p>
+                <button
+                  className="btn-primary"
+                  id="btn-add-fixture-empty"
+                  onClick={() => setShowAddModal(true)}
+                >
+                  + Add Fixture
+                </button>
               </div>
-            </div>
+            ) : (
+              <div className="room-fixture-list">
+                {/* Universe strip */}
+                <div className="universe-strip">
+                  <span className="universe-strip-label">DMX Universe 1 — 512 ch</span>
+                  <div className="universe-strip-bar" title="Channel usage">
+                    {/* Gap segments (unused address ranges) */}
+                    {(() => {
+                      const gaps: { start: number; end: number }[] = [];
+                      const sorted = [...fixtures].sort((a, b) => a.startAddress - b.startAddress);
+                      let cursor = 1;
+                      for (const f of sorted) {
+                        if (f.startAddress > cursor) {
+                          gaps.push({ start: cursor, end: f.startAddress - 1 });
+                        }
+                        cursor = Math.max(cursor, f.startAddress + f.channelCount);
+                      }
+                      if (cursor <= 512 && sorted.length > 0) {
+                        gaps.push({ start: cursor, end: 512 });
+                      }
+                      return gaps.map((g) => {
+                        const left = ((g.start - 1) / 512) * 100;
+                        const width = ((g.end - g.start + 1) / 512) * 100;
+                        return (
+                          <div
+                            key={`gap-${g.start}`}
+                            className="universe-strip-gap"
+                            style={{ left: `${left}%`, width: `${width}%` }}
+                            title={`Gap: CH ${g.start}–${g.end}`}
+                          />
+                        );
+                      });
+                    })()}
 
-            {/* Fixture cards */}
-            <div className="fixture-cards">
-              {fixtures.map((f) => (
-                <FixtureCard
-                  key={f.id}
-                  fixture={f}
-                  onTest={handleTest}
-                  isTesting={testingId === f.id}
-                  isSelected={selectedFixtureId === f.id}
-                  onSelect={handleSelectFixture}
-                  universe={universe}
-                />
-              ))}
-            </div>
-          </div>
+                    {/* Fixture segments */}
+                    {fixtures.map((f) => {
+                      // Check if this fixture overlaps with any other
+                      const hasOverlap = fixtures.some((other) => {
+                        if (other.id === f.id) return false;
+                        const fEnd = f.startAddress + f.channelCount - 1;
+                        const oEnd = other.startAddress + other.channelCount - 1;
+                        return !(fEnd < other.startAddress || f.startAddress > oEnd);
+                      });
+
+                      const left = ((f.startAddress - 1) / 512) * 100;
+                      const width = (f.channelCount / 512) * 100;
+                      return (
+                        <div
+                          key={f.id}
+                          className={`universe-strip-segment ${f.id === selectedFixtureId ? 'active' : ''} ${hasOverlap ? 'overlap' : ''}`}
+                          style={{ left: `${left}%`, width: `${width}%` }}
+                          title={`${f.label}: CH ${f.startAddress}–${f.startAddress + f.channelCount - 1}${hasOverlap ? ' ⚠ OVERLAP' : ''}`}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Fixture cards */}
+                <div className="fixture-cards">
+                  {fixtures.map((f) => (
+                    <FixtureCard
+                      key={f.id}
+                      fixture={f}
+                      onTest={handleTest}
+                      isTesting={testingId === f.id}
+                      isSelected={selectedFixtureId === f.id}
+                      onSelect={handleSelectFixture}
+                      universe={universe}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <FloorPlanView
+            selectedFixtureId={selectedFixtureId}
+            onSelectFixture={handleSelectFixture}
+            universe={universe}
+          />
         )}
       </div>
 
@@ -213,6 +286,7 @@ export default function RoomView() {
             key={selectedFixture.id}
             fixture={selectedFixture}
             onClose={() => setSelectedFixtureId(null)}
+            onEditSetup={() => setEditingFixtureId(selectedFixture.id)}
           />
         </div>
       )}
@@ -220,6 +294,14 @@ export default function RoomView() {
       {/* Add Fixture modal */}
       {showAddModal && (
         <AddFixtureModal onClose={() => setShowAddModal(false)} />
+      )}
+
+      {/* Edit Fixture modal */}
+      {editingFixtureId && (
+        <EditFixtureModal 
+          fixture={fixtures.find(f => f.id === editingFixtureId)!} 
+          onClose={() => setEditingFixtureId(null)} 
+        />
       )}
     </div>
   );

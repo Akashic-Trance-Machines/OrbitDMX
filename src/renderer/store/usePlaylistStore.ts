@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { Playlist, Cue } from '../../shared/types';
 
 export type PlaybackState = 'stopped' | 'playing' | 'paused';
@@ -21,72 +20,63 @@ interface PlaylistStore {
 
   setPlaybackState: (state: PlaybackState) => void;
   setCurrentCueIndex: (index: number) => void;
+  /** Bulk-replace all playlists (used by undo/redo and file load). */
+  setPlaylists: (playlists: Playlist[]) => void;
 }
 
-export const usePlaylistStore = create<PlaylistStore>()(
-  persist(
-    (set) => ({
-      playlists: [],
-      activePlaylistId: null,
-      playbackState: 'stopped',
-      currentCueIndex: 0,
+export const usePlaylistStore = create<PlaylistStore>()((set) => ({
+  playlists: [],
+  activePlaylistId: null,
+  playbackState: 'stopped',
+  currentCueIndex: 0,
 
-      addPlaylist: (playlist) =>
-        set((state) => ({
-          playlists: [...state.playlists, playlist],
-          activePlaylistId: playlist.id,
-        })),
+  addPlaylist: (playlist) =>
+    set((state) => ({
+      playlists: [...state.playlists, playlist],
+      activePlaylistId: playlist.id,
+    })),
 
-      updatePlaylist: (id, updates) =>
-        set((state) => ({
-          playlists: state.playlists.map((p) =>
-            p.id === id ? { ...p, ...updates } : p,
-          ),
-        })),
+  updatePlaylist: (id, updates) =>
+    set((state) => ({
+      playlists: state.playlists.map((p) =>
+        p.id === id ? { ...p, ...updates } : p,
+      ),
+    })),
 
-      deletePlaylist: (id) =>
-        set((state) => ({
-          playlists: state.playlists.filter((p) => p.id !== id),
-          activePlaylistId: state.activePlaylistId === id ? null : state.activePlaylistId,
-          playbackState: state.activePlaylistId === id ? 'stopped' : state.playbackState,
-        })),
+  deletePlaylist: (id) =>
+    set((state) => ({
+      playlists: state.playlists.filter((p) => p.id !== id),
+      activePlaylistId: state.activePlaylistId === id ? null : state.activePlaylistId,
+      playbackState: state.activePlaylistId === id ? 'stopped' : state.playbackState,
+    })),
 
-      selectPlaylist: (id) =>
-        set({ activePlaylistId: id, playbackState: 'stopped', currentCueIndex: 0 }),
+  selectPlaylist: (id) =>
+    set({ activePlaylistId: id, playbackState: 'stopped', currentCueIndex: 0 }),
 
-      addCue: (playlistId, cue) =>
-        set((state) => ({
-          playlists: state.playlists.map((p) =>
-            p.id === playlistId ? { ...p, cues: [...p.cues, cue] } : p,
-          ),
-        })),
+  addCue: (playlistId, cue) =>
+    set((state) => ({
+      playlists: state.playlists.map((p) =>
+        p.id === playlistId ? { ...p, cues: [...p.cues, cue] } : p,
+      ),
+    })),
 
-      removeCue: (playlistId, cueId) =>
-        set((state) => ({
-          playlists: state.playlists.map((p) =>
-            p.id === playlistId
-              ? { ...p, cues: p.cues.filter((c) => c.id !== cueId) }
-              : p,
-          ),
-        })),
+  removeCue: (playlistId, cueId) =>
+    set((state) => ({
+      playlists: state.playlists.map((p) =>
+        p.id === playlistId
+          ? { ...p, cues: p.cues.filter((c) => c.id !== cueId) }
+          : p,
+      ),
+    })),
 
-      reorderCues: (playlistId, cues) =>
-        set((state) => ({
-          playlists: state.playlists.map((p) =>
-            p.id === playlistId ? { ...p, cues } : p,
-          ),
-        })),
+  reorderCues: (playlistId, cues) =>
+    set((state) => ({
+      playlists: state.playlists.map((p) =>
+        p.id === playlistId ? { ...p, cues } : p,
+      ),
+    })),
 
-      setPlaybackState: (playbackState) => set({ playbackState }),
-      setCurrentCueIndex: (currentCueIndex) => set({ currentCueIndex }),
-    }),
-    {
-      name: 'ayra-playlist-store',
-      // Don't persist playback state — always start stopped
-      partialize: (state) => ({
-        playlists: state.playlists,
-        activePlaylistId: state.activePlaylistId,
-      }),
-    },
-  ),
-);
+  setPlaybackState: (playbackState) => set({ playbackState }),
+  setCurrentCueIndex: (currentCueIndex) => set({ currentCueIndex }),
+  setPlaylists: (playlists) => set({ playlists }),
+}));

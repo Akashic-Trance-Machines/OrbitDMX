@@ -1,41 +1,54 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { FixtureInstance } from '../../shared/types';
+import type { FixtureInstance, FloorPlanDimensions } from '../../shared/types';
 
 interface RoomStore {
   fixtures: FixtureInstance[];
+  floorPlan: FloorPlanDimensions;
+
   addFixture: (fixture: FixtureInstance) => void;
   removeFixture: (id: string) => void;
+  updateFixture: (id: string, updates: Partial<FixtureInstance>) => void;
+  /** Bulk-replace all fixtures (used by undo/redo and file load). */
+  setFixtures: (fixtures: FixtureInstance[]) => void;
+  setFloorPlan: (dims: FloorPlanDimensions) => void;
+
   /** Returns true if the given address range overlaps an existing fixture (optionally excluding one by id). */
   hasAddressConflict: (startAddress: number, channelCount: number, excludeId?: string) => boolean;
   /** Returns the conflicting fixture label(s) for a given range. */
   getConflicts: (startAddress: number, channelCount: number, excludeId?: string) => FixtureInstance[];
 }
 
-export const useRoomStore = create<RoomStore>()(
-  persist(
-    (set, get) => ({
-      fixtures: [],
+export const useRoomStore = create<RoomStore>()((set, get) => ({
+  fixtures: [],
+  floorPlan: { widthM: 10, depthM: 8 },
 
-      addFixture: (fixture) =>
-        set((state) => ({ fixtures: [...state.fixtures, fixture] })),
+  addFixture: (fixture) =>
+    set((state) => ({ fixtures: [...state.fixtures, fixture] })),
 
-      removeFixture: (id) =>
-        set((state) => ({ fixtures: state.fixtures.filter((f) => f.id !== id) })),
+  removeFixture: (id) =>
+    set((state) => ({ fixtures: state.fixtures.filter((f) => f.id !== id) })),
 
-      hasAddressConflict: (startAddress, channelCount, excludeId) =>
-        get().getConflicts(startAddress, channelCount, excludeId).length > 0,
+  updateFixture: (id, updates) =>
+    set((state) => ({
+      fixtures: state.fixtures.map((f) =>
+        f.id === id ? { ...f, ...updates } : f,
+      ),
+    })),
 
-      getConflicts: (startAddress, channelCount, excludeId) => {
-        const newEnd = startAddress + channelCount - 1;
-        return get().fixtures.filter((f) => {
-          if (f.id === excludeId) return false;
-          const fEnd = f.startAddress + f.channelCount - 1;
-          // Ranges overlap if neither is entirely before the other
-          return !(newEnd < f.startAddress || startAddress > fEnd);
-        });
-      },
-    }),
-    { name: 'ayra-room-store' },
-  ),
-);
+  setFixtures: (fixtures) => set({ fixtures }),
+
+  setFloorPlan: (floorPlan) => set({ floorPlan }),
+
+  hasAddressConflict: (startAddress, channelCount, excludeId) =>
+    get().getConflicts(startAddress, channelCount, excludeId).length > 0,
+
+  getConflicts: (startAddress, channelCount, excludeId) => {
+    const newEnd = startAddress + channelCount - 1;
+    return get().fixtures.filter((f) => {
+      if (f.id === excludeId) return false;
+      const fEnd = f.startAddress + f.channelCount - 1;
+      // Ranges overlap if neither is entirely before the other
+      return !(newEnd < f.startAddress || startAddress > fEnd);
+    });
+  },
+}));

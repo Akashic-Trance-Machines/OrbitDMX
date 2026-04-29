@@ -5,6 +5,8 @@ import './Sidebar.css';
 interface SidebarProps {
   activeView: AppView;
   onNavigate: (view: AppView) => void;
+  roomFileName?: string;
+  isDirty?: boolean;
 }
 
 const NAV_ITEMS: { id: AppView; label: string; icon: string }[] = [
@@ -14,13 +16,21 @@ const NAV_ITEMS: { id: AppView; label: string; icon: string }[] = [
   { id: 'fx',        label: 'FX',        icon: '✦' },
 ];
 
-export default function Sidebar({ activeView, onNavigate }: SidebarProps) {
+export default function Sidebar({ activeView, onNavigate, roomFileName, isDirty }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
         <span className="sidebar-logo-icon">✦</span>
         <span className="sidebar-logo-text">OrbitDMX</span>
       </div>
+
+      {/* Room file indicator */}
+      {roomFileName && (
+        <div className="sidebar-room-file" title={roomFileName}>
+          <span className="sidebar-room-name">{roomFileName}</span>
+          {isDirty && <span className="sidebar-room-dirty">●</span>}
+        </div>
+      )}
 
       <nav className="sidebar-nav">
         {NAV_ITEMS.map((item) => (

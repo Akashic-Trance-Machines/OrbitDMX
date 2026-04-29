@@ -1,0 +1,241 @@
+/* ── Floor Plan View ─────────────────────────────────────────────────── */
+
+.floor-plan-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Dimension controls ─────────────────────────────────────────────── */
+.fp-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--color-border-dim);
+  background: var(--color-surface);
+  flex-shrink: 0;
+}
+
+.fp-dim-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fp-dim-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.fp-dim-input {
+  width: 64px;
+  padding: 5px 8px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  text-align: center;
+  transition: border-color 0.15s;
+}
+
+.fp-dim-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-glow);
+}
+
+.fp-dim-unit {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.fp-dim-separator {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.fp-scale-info {
+  font-size: 11px;
+  margin-left: auto;
+}
+
+/* ── Canvas container ───────────────────────────────────────────────── */
+.fp-canvas-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 24px;
+  background:
+    radial-gradient(circle at center, var(--color-surface-2) 0%, var(--color-bg) 100%);
+}
+
+/* ── Room rectangle ─────────────────────────────────────────────────── */
+.fp-room {
+  position: relative;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.3),
+    inset 0 0 60px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* ── Grid ────────────────────────────────────────────────────────────── */
+.fp-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.fp-grid-line {
+  stroke: var(--color-border-dim);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.5;
+}
+
+/* ── Room dimension labels ──────────────────────────────────────────── */
+.fp-room-label {
+  position: absolute;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.fp-room-label-width {
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.fp-room-label-depth {
+  right: -28px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+}
+
+/* ── Fixture icons ──────────────────────────────────────────────────── */
+.fp-fixture {
+  position: absolute;
+  min-width: 48px;
+  padding: 0 8px;
+  height: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  z-index: 1;
+  touch-action: none; /* Prevent browser default touch behavior for drag */
+}
+
+.fp-fixture:hover {
+  border-color: var(--color-accent-dim);
+  box-shadow: 0 0 12px var(--color-accent-glow);
+  z-index: 2;
+}
+
+.fp-fixture.selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 16px var(--color-accent-glow);
+  z-index: 3;
+}
+
+.fp-fixture.dragging {
+  cursor: grabbing;
+  opacity: 0.85;
+  z-index: 10;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.fp-fixture-leds {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.fp-fixture-led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.fp-fixture-arrow {
+  font-size: 8px;
+  color: var(--color-text-muted);
+  line-height: 1;
+  opacity: 0.6;
+  margin-top: 2px;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────── */
+.fp-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ── View toggle ────────────────────────────────────────────────────── */
+.room-view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--color-surface-3);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.room-view-toggle-btn {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  border: none;
+  border-radius: calc(var(--radius-sm) - 2px);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.room-view-toggle-btn:hover {
+  color: var(--color-text-dim);
+}
+
+.room-view-toggle-btn.active {
+  background: var(--color-accent);
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}

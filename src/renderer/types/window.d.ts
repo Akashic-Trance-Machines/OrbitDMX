@@ -1,5 +1,5 @@
-import type { SerialPortInfo, SerialStatus, RunnerStatus, Scene, ChannelDefinition, FxConfig, LedAddress } from '../shared/types';
-import type { IpcResponse } from '../shared/types';
+import type { SerialPortInfo, SerialStatus, RunnerStatus, Scene, ChannelDefinition, FxConfig, LedAddress, RoomFile } from '../../shared/types';
+import type { IpcResponse } from '../../shared/types';
 
 /**
  * Type declaration for the contextBridge API exposed in preload.ts.
@@ -30,6 +30,15 @@ declare global {
 
       /** Flash the fixture at startAddress 3 times: Red → Green → Blue */
       testFlash: (startAddress: number, channels: ChannelDefinition[]) => Promise<IpcResponse>;
+
+      // Room file I/O
+      saveRoomFile: (filePath: string, data: RoomFile) => Promise<IpcResponse>;
+      loadRoomFile: (filePath: string) => Promise<IpcResponse<RoomFile>>;
+      pickOpenRoomFile: () => Promise<IpcResponse<{ filePath: string; data: RoomFile } | null>>;
+      pickSaveAsRoomFile: (data: RoomFile) => Promise<IpcResponse<string | null>>;
+      getDefaultPath: () => Promise<IpcResponse<string>>;
+      getLastFilePath: () => Promise<IpcResponse<string | null>>;
+      setLastFilePath: (filePath: string | null) => Promise<IpcResponse>;
 
       onUniverseUpdate: (cb: (snapshot: number[]) => void) => () => void;
       onSerialStatus: (cb: (status: SerialStatus) => void) => () => void;
