@@ -1,10 +1,14 @@
+import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 const pdfParse = require('pdf-parse');
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Initialize Gemini API
-const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyBJTbqg7rYSFd_no_SxNn9hxKmkTcHW9RE';
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+  throw new Error('GEMINI_API_KEY is not defined in environment variables');
+}
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
