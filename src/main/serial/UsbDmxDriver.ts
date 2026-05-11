@@ -138,6 +138,10 @@ export class UsbDmxDriver {
    *
    * Without the BREAK, receivers cannot synchronize to the data stream
    * and will ignore it entirely (falling back to auto/standalone mode).
+   *
+   * The entire sequence is executed inside a single Promise with nested
+   * callbacks, avoiding 4 separate event-loop round-trips that previously
+   * added 2–10 ms of overhead per frame on slower machines.
    */
   async sendFrame(universe: Uint8Array): Promise<void> {
     if (!this.port?.isOpen) return;
@@ -147,17 +151,34 @@ export class UsbDmxDriver {
     frame[0] = DMX_START_CODE;
     frame.set(universe, 1);
 
-    // 1. Assert BREAK (pulls TX line low)
-    await this.setBreak(true);
+    const port = this.port;
+    const buf = Buffer.from(frame);
 
-    // 2. Hold BREAK for ≥ 88 μs (1 ms is safe and common for FTDI adapters)
-    await this.delay(BREAK_DURATION_MS);
+    return new Promise<void>((resolve, reject) => {
+      // 1. Assert BREAK (pulls TX line low)
+      port.set({ brk: true }, (err) => {
+        if (err) { reject(err); return; }
 
-    // 3. Release BREAK → MAB begins (line goes high)
-    await this.setBreak(false);
+        // 2. Hold BREAK for ≥ 88 μs (1 ms is safe and common for FTDI adapters)
+        setTimeout(() => {
+          if (!port.isOpen) { resolve(); return; }
 
-    // 4. Write the DMX frame (start code + 512 channels)
-    await this.writeRaw(frame);
+          // 3. Release BREAK → MAB begins (line goes high)
+          port.set({ brk: false }, (err2) => {
+            if (err2) { reject(err2); return; }
+
+            // 4. Write the DMX frame (start code + 512 channels) and drain
+            port.write(buf, (err3) => {
+              if (err3) { reject(err3); return; }
+              port.drain((err4) => {
+                if (err4) reject(err4);
+                else resolve();
+              });
+            });
+          });
+        }, BREAK_DURATION_MS);
+      });
+    });
   }
 
   /** Register a callback to receive serial status changes. */

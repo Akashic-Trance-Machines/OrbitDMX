@@ -1,3 +1,4 @@
+import { powerSaveBlocker } from 'electron';
 import { DmxUniverse } from './DmxUniverse';
 import { FxProcessor } from './FxProcessor';
 import { UsbDmxDriver } from '../serial/UsbDmxDriver';
@@ -27,7 +28,11 @@ export class DmxEngine {
   /** Which driver is currently active (changes on connect). */
   private activeDriver: UsbDmxDriver | UsbBulkDmxDriver | null = null;
 
+  /** Remember the last-connected port for auto-reconnect after sleep/wake. */
+  private lastConnectedPath: string | null = null;
+
   private tickRunning = false;
+  private powerSaveBlockerId: number | null = null;
 
   // Fade state
   private fadeFromSnapshot: number[] | null = null;
@@ -91,6 +96,7 @@ export class DmxEngine {
   async connect(path: string): Promise<void> {
     const driver = isUsbBulkPath(path) ? this.bulkDriver : this.serialDriver;
     this.activeDriver = driver;
+    this.lastConnectedPath = path;
     await driver.connect(path);
     this.startTick();
   }
@@ -99,6 +105,46 @@ export class DmxEngine {
     this.stopTick();
     await this.activeDriver?.disconnect();
     this.activeDriver = null;
+    // Intentionally do NOT clear lastConnectedPath — we need it for reconnect.
+  }
+
+  /**
+   * Attempt to reconnect to the last-used serial port.
+   * Called after system resume (wake from sleep) to restore the DMX link.
+   * The USB-serial adapter may need a moment to re-enumerate, so we retry
+   * a few times with a delay.
+   */
+  async reconnect(): Promise<boolean> {
+    if (!this.lastConnectedPath) {
+      console.log('[DmxEngine] reconnect: no previous port to reconnect to');
+      return false;
+    }
+
+    const path = this.lastConnectedPath;
+    const MAX_RETRIES = 5;
+    const RETRY_DELAY_MS = 1000;
+
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        console.log(`[DmxEngine] reconnect attempt ${attempt}/${MAX_RETRIES} → ${path}`);
+        // Make sure old connection is torn down
+        this.stopTick();
+        try { await this.activeDriver?.disconnect(); } catch { /* ignore */ }
+        this.activeDriver = null;
+
+        await this.connect(path);
+        console.log(`[DmxEngine] reconnect successful on attempt ${attempt}`);
+        return true;
+      } catch (e) {
+        console.warn(`[DmxEngine] reconnect attempt ${attempt} failed:`, e);
+        if (attempt < MAX_RETRIES) {
+          await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+        }
+      }
+    }
+
+    console.error(`[DmxEngine] reconnect failed after ${MAX_RETRIES} attempts`);
+    return false;
   }
 
   get isConnected(): boolean {
@@ -265,12 +311,30 @@ export class DmxEngine {
   private startTick(): void {
     if (this.tickRunning) return;
     this.tickRunning = true;
+
+    // Prevent macOS from sleeping while DMX is active.
+    // 'prevent-display-sleep' is stronger than 'prevent-app-suspension' —
+    // it prevents both App Nap timer throttling AND idle sleep, so unattended
+    // playlist playback won't be interrupted when the user walks away.
+    // Note: physical lid-close sleep cannot be prevented in software.
+    if (this.powerSaveBlockerId === null) {
+      this.powerSaveBlockerId = powerSaveBlocker.start('prevent-display-sleep');
+      console.log(`[DmxEngine] powerSaveBlocker started (id=${this.powerSaveBlockerId}, type=prevent-display-sleep)`);
+    }
+
     console.log('[DmxEngine] Tick loop started (self-scheduling)');
     this.tickLoop();
   }
 
   private stopTick(): void {
     this.tickRunning = false;
+
+    if (this.powerSaveBlockerId !== null) {
+      powerSaveBlocker.stop(this.powerSaveBlockerId);
+      console.log(`[DmxEngine] powerSaveBlocker released (id=${this.powerSaveBlockerId})`);
+      this.powerSaveBlockerId = null;
+    }
+
     console.log('[DmxEngine] Tick loop stopped');
   }
 
@@ -279,10 +343,16 @@ export class DmxEngine {
    * Each iteration awaits the full sendFrame() (BREAK + data + drain) before
    * scheduling the next, so frames never overlap and BREAK signals cannot
    * corrupt in-flight data.
+   *
+   * Uses process.hrtime.bigint() for sub-millisecond precision — Date.now()
+   * only has ~1 ms resolution and drifts under load.
    */
   private async tickLoop(): Promise<void> {
+    const TICK_NS = BigInt(DMX_TICK_INTERVAL_MS) * 1_000_000n;
+    let lateFrames = 0;
+
     while (this.tickRunning) {
-      const frameStart = Date.now();
+      const frameStartNs = process.hrtime.bigint();
 
       // Advance fade if active
       if (this.runnerState === SCENE_STATE.FADING && this.fadeFromSnapshot && this.fadeToSnapshot) {
@@ -351,12 +421,26 @@ export class DmxEngine {
       // Push update to renderer
       this.onUniverseUpdate?.(this.universe.getSnapshot());
 
-      // Wait for remainder of tick interval to maintain target frame rate.
-      // If the frame took longer than the interval, proceed immediately.
-      const elapsed = Date.now() - frameStart;
-      const remaining = DMX_TICK_INTERVAL_MS - elapsed;
-      if (remaining > 0) {
-        await new Promise((r) => setTimeout(r, remaining));
+      // Wait for remainder of tick interval.
+      // With powerSaveBlocker active, setTimeout won't be throttled by App Nap.
+      // We use hrtime for accurate measurement but plain setTimeout for the wait.
+      const elapsedNs = process.hrtime.bigint() - frameStartNs;
+      const remainingMs = Number(TICK_NS - elapsedNs) / 1_000_000;
+
+      if (remainingMs > 1) {
+        await new Promise((r) => setTimeout(r, Math.floor(remainingMs)));
+      }
+
+      // Watchdog: log if frames are consistently late (> 10ms over budget)
+      const totalMs = Number(process.hrtime.bigint() - frameStartNs) / 1_000_000;
+      if (totalMs > DMX_TICK_INTERVAL_MS + 10) {
+        lateFrames++;
+        if (lateFrames === 20) {
+          console.warn(`[DmxEngine] ⚠️  20 late frames detected (avg ~${Math.round(totalMs)}ms per tick, budget ${DMX_TICK_INTERVAL_MS}ms)`);
+          lateFrames = 0;
+        }
+      } else {
+        lateFrames = 0;
       }
     }
   }

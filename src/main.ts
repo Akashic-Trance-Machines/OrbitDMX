@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow, Menu, powerMonitor } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { DmxEngine } from './main/dmx/DmxEngine';
@@ -164,6 +164,27 @@ app.on('ready', () => {
   registerShowFileHandlers();
   buildMenu();
   createWindow();
+
+  // ── Sleep / wake handling ──────────────────────────────────────────────────
+  // When macOS suspends (lid close, menu sleep), the USB-serial adapter
+  // is depowered and the connection is lost. On resume we automatically
+  // attempt to reconnect so the DMX signal resumes without user interaction.
+  powerMonitor.on('suspend', () => {
+    console.log('[main] System suspending — DMX output will be interrupted');
+  });
+
+  powerMonitor.on('resume', async () => {
+    console.log('[main] System resumed — attempting serial reconnect…');
+    const ok = await engine.reconnect();
+    if (ok) {
+      console.log('[main] Serial reconnected after wake');
+      // Notify the renderer so the UI updates its connection status
+      mainWindow?.webContents.send('push:serial-status', 'connected');
+    } else {
+      console.warn('[main] Serial reconnect failed — user will need to reconnect manually');
+      mainWindow?.webContents.send('push:serial-status', 'disconnected');
+    }
+  });
 });
 
 // Safety: blackout and disconnect serial before the process exits

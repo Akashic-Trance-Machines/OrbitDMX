@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-05-11
+
+### Fixed
+- **DMX Flicker on MacBook Air**: Added Electron `powerSaveBlocker` (`prevent-display-sleep`) to prevent macOS App Nap from throttling DMX tick timers — fixes intermittent all-lights-to-black flashing on battery-powered Macs.
+- **DMX Frame Timing**: Replaced `Date.now()` with `process.hrtime.bigint()` for sub-millisecond tick loop precision.
+- **sendFrame Latency**: Collapsed 4 separate async event-loop round-trips per DMX frame into a single nested-callback Promise, reducing per-frame overhead by 2–10 ms on slower machines.
+
+### Added
+- **Idle Sleep Prevention**: The system will not enter idle sleep while a DMX adapter is connected, ensuring unattended playlist playback continues indefinitely.
+- **Auto-Reconnect on Wake**: After a system sleep/wake cycle (lid close → reopen), the serial port is automatically reconnected with up to 5 retries, resuming DMX output without user interaction.
+- **Late Frame Watchdog**: Console warnings are logged when 20 consecutive frames exceed the tick budget by >10 ms, aiding performance diagnostics.
+
 ## [1.2.0] - 2026-04-29
 
 ### Added

@@ -1,6 +1,8 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { MakerSquirrel } from '@electron-forge/maker-squirrel';
 import { MakerZIP } from '@electron-forge/maker-zip';
+import { MakerDMG } from '@electron-forge/maker-dmg';
+import 'dotenv/config';
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
 import { PublisherGithub } from '@electron-forge/publisher-github';
@@ -24,6 +26,7 @@ const config: ForgeConfig = {
   makers: [
     new MakerSquirrel({}),
     new MakerZIP({}, ['darwin']),
+    new MakerDMG({}),
     new MakerRpm({}),
     new MakerDeb({}),
   ],
