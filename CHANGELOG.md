@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2026-05-11
+
+### Changed
+- **DMX Output Worker Thread**: Moved the 40 Hz DMX tick loop and serial I/O to a dedicated Node.js Worker Thread, completely isolating it from the Electron main process event loop. The worker continuously re-sends the latest frame — even if the main thread stalls, DMX output never drops.
+
+### Fixed
+- **MacBook Air Flicker**: The worker thread's uncontested event loop eliminates the intermittent all-lights-to-black flashing caused by main-thread congestion on slower machines.
+
 ## [1.2.1] - 2026-05-11
 
 ### Fixed

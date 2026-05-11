@@ -1,4 +1,6 @@
 import { powerSaveBlocker } from 'electron';
+import { Worker } from 'worker_threads';
+import path from 'node:path';
 import { DmxUniverse } from './DmxUniverse';
 import { FxProcessor } from './FxProcessor';
 import { UsbDmxDriver } from '../serial/UsbDmxDriver';
@@ -16,22 +18,32 @@ type SerialStatusCallback = (status: SerialStatus) => void;
  *
  * Responsibilities:
  * - Owns the DmxUniverse (live buffer)
- * - Drives the hardware tick loop at 40 Hz
+ * - Computes the output frame (fade, FX, color shift, room dimmer)
+ * - Delegates hardware output to a dedicated Worker Thread that runs at 40 Hz
  * - Manages fade transitions between scenes
  * - Emits push events to the renderer via registered callbacks
+ *
+ * Architecture:
+ *   Main thread: computes frames, sends them to the worker via postMessage
+ *   Worker thread: owns the serial port, runs a tight tick loop, re-sends
+ *                  the latest frame at ~40 Hz. Even if the main thread stalls,
+ *                  the worker keeps sending — no blackouts.
  */
 export class DmxEngine {
   private readonly universe: DmxUniverse;
+
+  /** UsbDmxDriver and UsbBulkDmxDriver are still used for listPorts() only. */
   private readonly serialDriver: UsbDmxDriver;
   private readonly bulkDriver: UsbBulkDmxDriver;
 
-  /** Which driver is currently active (changes on connect). */
-  private activeDriver: UsbDmxDriver | UsbBulkDmxDriver | null = null;
+  /** The dedicated DMX output worker thread. */
+  private worker: Worker | null = null;
 
   /** Remember the last-connected port for auto-reconnect after sleep/wake. */
   private lastConnectedPath: string | null = null;
 
   private tickRunning = false;
+  private tickTimer: ReturnType<typeof setInterval> | null = null;
   private powerSaveBlockerId: number | null = null;
 
   // Fade state
@@ -68,18 +80,13 @@ export class DmxEngine {
   // Current serial status (tracked locally so we can answer getSerialStatus queries)
   private currentSerialStatus: SerialStatus = 'disconnected';
 
+  // Track whether we're connected (worker handles the actual connection)
+  private _isConnected = false;
+
   constructor() {
     this.universe = new DmxUniverse();
     this.serialDriver = new UsbDmxDriver();
     this.bulkDriver = new UsbBulkDmxDriver();
-
-    // Forward status events from both drivers
-    const onStatus = (status: SerialStatus) => {
-      this.currentSerialStatus = status;
-      this.onSerialStatus?.(status);
-    };
-    this.serialDriver.onStatusChange(onStatus);
-    this.bulkDriver.onStatusChange(onStatus);
   }
 
   // ── Serial control ─────────────────────────────────────────────────────────
@@ -94,17 +101,26 @@ export class DmxEngine {
   }
 
   async connect(path: string): Promise<void> {
-    const driver = isUsbBulkPath(path) ? this.bulkDriver : this.serialDriver;
-    this.activeDriver = driver;
+    // USB bulk devices are unsupported — delegate to the bulk driver which throws
+    if (isUsbBulkPath(path)) {
+      throw new Error(
+        'LightingSoft SUSHI1A is not yet supported — it uses a proprietary protocol. ' +
+        'Please use an FTDI-based USB-DMX adapter (e.g. Enttec Open DMX USB).'
+      );
+    }
+
     this.lastConnectedPath = path;
-    await driver.connect(path);
-    this.startTick();
+
+    // Spawn the worker thread and connect
+    await this.spawnWorker();
+    await this.workerConnect(path);
+    this.startFrameLoop();
   }
 
   async disconnect(): Promise<void> {
-    this.stopTick();
-    await this.activeDriver?.disconnect();
-    this.activeDriver = null;
+    this.stopFrameLoop();
+    await this.workerDisconnect();
+    await this.terminateWorker();
     // Intentionally do NOT clear lastConnectedPath — we need it for reconnect.
   }
 
@@ -120,19 +136,18 @@ export class DmxEngine {
       return false;
     }
 
-    const path = this.lastConnectedPath;
+    const portPath = this.lastConnectedPath;
     const MAX_RETRIES = 5;
     const RETRY_DELAY_MS = 1000;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        console.log(`[DmxEngine] reconnect attempt ${attempt}/${MAX_RETRIES} → ${path}`);
+        console.log(`[DmxEngine] reconnect attempt ${attempt}/${MAX_RETRIES} → ${portPath}`);
         // Make sure old connection is torn down
-        this.stopTick();
-        try { await this.activeDriver?.disconnect(); } catch { /* ignore */ }
-        this.activeDriver = null;
+        this.stopFrameLoop();
+        await this.terminateWorker();
 
-        await this.connect(path);
+        await this.connect(portPath);
         console.log(`[DmxEngine] reconnect successful on attempt ${attempt}`);
         return true;
       } catch (e) {
@@ -148,7 +163,7 @@ export class DmxEngine {
   }
 
   get isConnected(): boolean {
-    return this.activeDriver?.isConnected ?? false;
+    return this._isConnected;
   }
 
   getSerialStatus(): SerialStatus {
@@ -156,7 +171,7 @@ export class DmxEngine {
   }
 
   getConnectedPort(): string | null {
-    return this.activeDriver?.currentPath ?? null;
+    return this._isConnected ? this.lastConnectedPath : null;
   }
 
   // ── DMX control ────────────────────────────────────────────────────────────
@@ -306,28 +321,139 @@ export class DmxEngine {
     this.onSerialStatus = cb;
   }
 
-  // ── Tick loop ──────────────────────────────────────────────────────────────
+  // ── Worker management ──────────────────────────────────────────────────────
 
-  private startTick(): void {
+  /**
+   * Spawn the DMX worker thread.
+   * The worker handles all serial I/O and runs the 40 Hz tick loop
+   * independently of the main process event loop.
+   */
+  private spawnWorker(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (this.worker) {
+        resolve();
+        return;
+      }
+
+      // Resolve the worker script path relative to the compiled main.js.
+      // In the Vite build output (.vite/build/), the worker is compiled
+      // alongside main.js in the same directory.
+      const workerPath = path.join(__dirname, 'dmxWorker.js');
+      console.log(`[DmxEngine] Spawning worker thread: ${workerPath}`);
+
+      this.worker = new Worker(workerPath);
+
+      this.worker.on('message', (msg: { type: string; status?: string; message?: string }) => {
+        if (msg.type === 'status') {
+          const status = msg.status as SerialStatus;
+          this.currentSerialStatus = status;
+          this._isConnected = status === 'connected';
+          this.onSerialStatus?.(status);
+        } else if (msg.type === 'error') {
+          console.error('[DmxEngine] Worker error:', msg.message);
+        }
+      });
+
+      this.worker.on('error', (err) => {
+        console.error('[DmxEngine] Worker thread error:', err);
+        reject(err);
+      });
+
+      this.worker.on('exit', (code) => {
+        console.log(`[DmxEngine] Worker thread exited (code=${code})`);
+        this.worker = null;
+        this._isConnected = false;
+      });
+
+      // Worker is ready once spawned (no async init needed)
+      resolve();
+    });
+  }
+
+  private async terminateWorker(): Promise<void> {
+    if (!this.worker) return;
+    await this.worker.terminate();
+    this.worker = null;
+    this._isConnected = false;
+  }
+
+  /** Tell the worker to open the serial port. */
+  private workerConnect(portPath: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.worker) {
+        reject(new Error('Worker not spawned'));
+        return;
+      }
+
+      // Listen for the status change that confirms connection
+      const onMessage = (msg: { type: string; status?: string; message?: string }) => {
+        if (msg.type === 'status' && msg.status === 'connected') {
+          this.worker?.removeListener('message', onMessage);
+          resolve();
+        } else if (msg.type === 'status' && msg.status === 'error') {
+          this.worker?.removeListener('message', onMessage);
+          reject(new Error('Worker connect failed'));
+        }
+      };
+      this.worker.on('message', onMessage);
+
+      this.worker.postMessage({ type: 'connect', path: portPath });
+
+      // Timeout after 5s
+      setTimeout(() => {
+        this.worker?.removeListener('message', onMessage);
+        reject(new Error('Worker connect timeout'));
+      }, 5000);
+    });
+  }
+
+  /** Tell the worker to close the serial port. */
+  private workerDisconnect(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.worker) {
+        resolve();
+        return;
+      }
+      this.worker.postMessage({ type: 'disconnect' });
+      // Give the worker a moment to send the blackout and close
+      setTimeout(resolve, 200);
+    });
+  }
+
+  // ── Frame loop (main thread) ───────────────────────────────────────────────
+  //
+  // The main thread runs a frame computation loop at ~40 Hz using setInterval.
+  // Each tick computes the output frame (fade, FX, etc.) and posts it to the
+  // worker. This is decoupled from the worker's own tick loop:
+  //   - If the main thread is slow, the worker re-sends the last frame (no blackout)
+  //   - If the main thread is fast, the worker picks up the latest frame
+  //
+
+  private startFrameLoop(): void {
     if (this.tickRunning) return;
     this.tickRunning = true;
 
     // Prevent macOS from sleeping while DMX is active.
-    // 'prevent-display-sleep' is stronger than 'prevent-app-suspension' —
-    // it prevents both App Nap timer throttling AND idle sleep, so unattended
-    // playlist playback won't be interrupted when the user walks away.
-    // Note: physical lid-close sleep cannot be prevented in software.
+    // 'prevent-display-sleep' prevents both App Nap and idle sleep.
     if (this.powerSaveBlockerId === null) {
       this.powerSaveBlockerId = powerSaveBlocker.start('prevent-display-sleep');
-      console.log(`[DmxEngine] powerSaveBlocker started (id=${this.powerSaveBlockerId}, type=prevent-display-sleep)`);
+      console.log(`[DmxEngine] powerSaveBlocker started (id=${this.powerSaveBlockerId})`);
     }
 
-    console.log('[DmxEngine] Tick loop started (self-scheduling)');
-    this.tickLoop();
+    console.log('[DmxEngine] Frame computation loop started');
+
+    // Use setInterval — even if a tick is late, the next one still fires.
+    // The worker handles the actual 40 Hz serial output independently.
+    this.tickTimer = setInterval(() => this.computeAndSendFrame(), DMX_TICK_INTERVAL_MS);
   }
 
-  private stopTick(): void {
+  private stopFrameLoop(): void {
     this.tickRunning = false;
+
+    if (this.tickTimer) {
+      clearInterval(this.tickTimer);
+      this.tickTimer = null;
+    }
 
     if (this.powerSaveBlockerId !== null) {
       powerSaveBlocker.stop(this.powerSaveBlockerId);
@@ -335,114 +461,78 @@ export class DmxEngine {
       this.powerSaveBlockerId = null;
     }
 
-    console.log('[DmxEngine] Tick loop stopped');
+    console.log('[DmxEngine] Frame computation loop stopped');
   }
 
   /**
-   * Self-scheduling async tick loop.
-   * Each iteration awaits the full sendFrame() (BREAK + data + drain) before
-   * scheduling the next, so frames never overlap and BREAK signals cannot
-   * corrupt in-flight data.
-   *
-   * Uses process.hrtime.bigint() for sub-millisecond precision — Date.now()
-   * only has ~1 ms resolution and drifts under load.
+   * Compute the output frame and post it to the worker thread.
+   * This runs on the main thread's setInterval, but the worker independently
+   * sends frames to hardware — so a late main-thread tick doesn't cause blackouts.
    */
-  private async tickLoop(): Promise<void> {
-    const TICK_NS = BigInt(DMX_TICK_INTERVAL_MS) * 1_000_000n;
-    let lateFrames = 0;
+  private computeAndSendFrame(): void {
+    // Advance fade if active
+    if (this.runnerState === SCENE_STATE.FADING && this.fadeFromSnapshot && this.fadeToSnapshot) {
+      const elapsed = Date.now() - this.fadeStartTime;
+      const t = Math.min(elapsed / this.fadeDurationMs, 1);
 
-    while (this.tickRunning) {
-      const frameStartNs = process.hrtime.bigint();
+      this.universe.applyFade(this.fadeFromSnapshot, this.fadeToSnapshot, t);
 
-      // Advance fade if active
-      if (this.runnerState === SCENE_STATE.FADING && this.fadeFromSnapshot && this.fadeToSnapshot) {
-        const elapsed = Date.now() - this.fadeStartTime;
-        const t = Math.min(elapsed / this.fadeDurationMs, 1);
-
-        this.universe.applyFade(this.fadeFromSnapshot, this.fadeToSnapshot, t);
-
-        if (t >= 1) {
-          this.cancelFade();
-          this.setRunnerState(SCENE_STATE.PLAYING);
-        }
-      }
-
-      // Build output frame — apply signal chain in order:
-      // 1. Color shift  2. LED dimmer  3. FX  4. Room dimmer (global)
-      const rawBuf = this.universe.getRawBuffer();
-      const cleanSnapshot = this.universe.getSnapshot(); // unmodified scene values
-      // Always work on a copy so effects don't corrupt the universe buffer
-      const outputBuf = new Uint8Array(rawBuf);
-
-      // 1. Apply color shift modifiers (rotate hue of targeted RGB groups)
-      for (const [, mod] of this.colorShiftModifiers) {
-        for (const addr of mod.addresses) {
-          const ri = addr.r - 1;
-          const gi = addr.g - 1;
-          const bi = addr.b - 1;
-          const [h, s, l] = rgbToHsl(outputBuf[ri], outputBuf[gi], outputBuf[bi]);
-          const [nr, ng, nb] = hslToRgb((h + mod.degrees / 360) % 1, s, l);
-          outputBuf[ri] = nr;
-          outputBuf[gi] = ng;
-          outputBuf[bi] = nb;
-        }
-      }
-
-      // 2. Apply LED dimmer modifiers (scale targeted color channels)
-      for (const [, mod] of this.ledDimmerModifiers) {
-        for (const addr of mod.addresses) {
-          const idx = addr - 1;
-          outputBuf[idx] = Math.round(outputBuf[idx] * mod.factor);
-        }
-      }
-
-      // 3. Apply FX on a plain number array (modifies in-place)
-      {
-        const arr = new Array(outputBuf.length);
-        for (let i = 0; i < outputBuf.length; i++) arr[i] = outputBuf[i];
-        this.fxProcessor.processTick(arr, cleanSnapshot);
-        for (let i = 0; i < outputBuf.length; i++) outputBuf[i] = arr[i];
-      }
-
-      // 4. Apply room dimmer — global master fader on ALL channels
-      if (this.roomDimmer < 255) {
-        for (let i = 0; i < outputBuf.length; i++) {
-          outputBuf[i] = Math.round((outputBuf[i] * this.roomDimmer) / 255);
-        }
-      }
-
-      // Write to hardware (await ensures frame completes before next iteration)
-      try {
-        await this.activeDriver?.sendFrame(outputBuf);
-      } catch (e) {
-        console.error('[DmxEngine] sendFrame error:', e);
-      }
-
-      // Push update to renderer
-      this.onUniverseUpdate?.(this.universe.getSnapshot());
-
-      // Wait for remainder of tick interval.
-      // With powerSaveBlocker active, setTimeout won't be throttled by App Nap.
-      // We use hrtime for accurate measurement but plain setTimeout for the wait.
-      const elapsedNs = process.hrtime.bigint() - frameStartNs;
-      const remainingMs = Number(TICK_NS - elapsedNs) / 1_000_000;
-
-      if (remainingMs > 1) {
-        await new Promise((r) => setTimeout(r, Math.floor(remainingMs)));
-      }
-
-      // Watchdog: log if frames are consistently late (> 10ms over budget)
-      const totalMs = Number(process.hrtime.bigint() - frameStartNs) / 1_000_000;
-      if (totalMs > DMX_TICK_INTERVAL_MS + 10) {
-        lateFrames++;
-        if (lateFrames === 20) {
-          console.warn(`[DmxEngine] ⚠️  20 late frames detected (avg ~${Math.round(totalMs)}ms per tick, budget ${DMX_TICK_INTERVAL_MS}ms)`);
-          lateFrames = 0;
-        }
-      } else {
-        lateFrames = 0;
+      if (t >= 1) {
+        this.cancelFade();
+        this.setRunnerState(SCENE_STATE.PLAYING);
       }
     }
+
+    // Build output frame — apply signal chain in order:
+    // 1. Color shift  2. LED dimmer  3. FX  4. Room dimmer (global)
+    const rawBuf = this.universe.getRawBuffer();
+    const cleanSnapshot = this.universe.getSnapshot(); // unmodified scene values
+    // Always work on a copy so effects don't corrupt the universe buffer
+    const outputBuf = new Uint8Array(rawBuf);
+
+    // 1. Apply color shift modifiers (rotate hue of targeted RGB groups)
+    for (const [, mod] of this.colorShiftModifiers) {
+      for (const addr of mod.addresses) {
+        const ri = addr.r - 1;
+        const gi = addr.g - 1;
+        const bi = addr.b - 1;
+        const [h, s, l] = rgbToHsl(outputBuf[ri], outputBuf[gi], outputBuf[bi]);
+        const [nr, ng, nb] = hslToRgb((h + mod.degrees / 360) % 1, s, l);
+        outputBuf[ri] = nr;
+        outputBuf[gi] = ng;
+        outputBuf[bi] = nb;
+      }
+    }
+
+    // 2. Apply LED dimmer modifiers (scale targeted color channels)
+    for (const [, mod] of this.ledDimmerModifiers) {
+      for (const addr of mod.addresses) {
+        const idx = addr - 1;
+        outputBuf[idx] = Math.round(outputBuf[idx] * mod.factor);
+      }
+    }
+
+    // 3. Apply FX on a plain number array (modifies in-place)
+    {
+      const arr = new Array(outputBuf.length);
+      for (let i = 0; i < outputBuf.length; i++) arr[i] = outputBuf[i];
+      this.fxProcessor.processTick(arr, cleanSnapshot);
+      for (let i = 0; i < outputBuf.length; i++) outputBuf[i] = arr[i];
+    }
+
+    // 4. Apply room dimmer — global master fader on ALL channels
+    if (this.roomDimmer < 255) {
+      for (let i = 0; i < outputBuf.length; i++) {
+        outputBuf[i] = Math.round((outputBuf[i] * this.roomDimmer) / 255);
+      }
+    }
+
+    // Post the computed frame to the worker thread (non-blocking).
+    // The worker will pick this up on its next tick cycle.
+    this.worker?.postMessage({ type: 'frame', data: Array.from(outputBuf) });
+
+    // Push update to renderer
+    this.onUniverseUpdate?.(this.universe.getSnapshot());
   }
 
   private cancelFade(): void {

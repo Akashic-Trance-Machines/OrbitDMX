@@ -71,6 +71,14 @@ const config: ForgeConfig = {
           target: 'main',
         },
         {
+          // DMX worker thread — compiled as a separate file so it can be
+          // loaded via new Worker() at runtime. Uses the same externals
+          // config as main (serialport, usb, etc.).
+          entry: 'src/main/dmx/dmxWorker.ts',
+          config: 'vite.main.config.ts',
+          target: 'main',
+        },
+        {
           entry: 'src/preload.ts',
           config: 'vite.preload.config.ts',
           target: 'preload',
