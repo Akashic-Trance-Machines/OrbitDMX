@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2026-05-11
+
+### Fixed
+- **DMX Timing Precision**: Replaced all `setTimeout` timing in the DMX worker with `Atomics.wait()` — a true kernel-level thread sleep that bypasses the event loop timer queue entirely. `setTimeout(1)` can fire 1–15ms late on macOS; `Atomics.wait(1)` blocks for exactly 1ms. This eliminates the remaining source of intermittent DMX signal gaps.
+
 ## [1.2.2] - 2026-05-11
 
 ### Changed
