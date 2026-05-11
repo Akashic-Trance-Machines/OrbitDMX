@@ -39,6 +39,14 @@ export class DmxEngine {
   /** The dedicated DMX output worker thread. */
   private worker: Worker | null = null;
 
+  /**
+   * SharedArrayBuffer for zero-copy frame transfer to the worker.
+   * Main thread writes output frames here; worker reads on each tick.
+   * No postMessage, no structured clone, no GC pressure.
+   */
+  private readonly sharedFrameBuffer = new SharedArrayBuffer(512);
+  private readonly sharedFrameView = new Uint8Array(this.sharedFrameBuffer);
+
   /** Remember the last-connected port for auto-reconnect after sleep/wake. */
   private lastConnectedPath: string | null = null;
 
@@ -341,7 +349,9 @@ export class DmxEngine {
       const workerPath = path.join(__dirname, 'dmxWorker.js');
       console.log(`[DmxEngine] Spawning worker thread: ${workerPath}`);
 
-      this.worker = new Worker(workerPath);
+      this.worker = new Worker(workerPath, {
+        workerData: { sharedFrameBuffer: this.sharedFrameBuffer },
+      });
 
       this.worker.on('message', (msg: { type: string; status?: string; message?: string }) => {
         if (msg.type === 'status') {
@@ -527,9 +537,9 @@ export class DmxEngine {
       }
     }
 
-    // Post the computed frame to the worker thread (non-blocking).
-    // The worker will pick this up on its next tick cycle.
-    this.worker?.postMessage({ type: 'frame', data: Array.from(outputBuf) });
+    // Write the computed frame directly into shared memory (zero-copy).
+    // The worker reads this on each tick — no postMessage, no GC pressure.
+    this.sharedFrameView.set(outputBuf);
 
     // Push update to renderer
     this.onUniverseUpdate?.(this.universe.getSnapshot());

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.4] - 2026-05-11
+
+### Fixed
+- **Zero-Copy Frame Transfer**: Replaced per-frame `postMessage` (40×/sec structured-clone of 512-value arrays) with `SharedArrayBuffer`. The main thread writes directly to shared memory; the worker reads it — zero serialization, zero allocation, zero GC pressure. Eliminates periodic V8 garbage collection pauses that caused remaining intermittent flashes.
+- **Pre-allocated Frame Buffer**: The worker's DMX frame buffer is now allocated once at startup and reused every tick, further eliminating per-frame memory allocation.
+
 ## [1.2.3] - 2026-05-11
 
 ### Fixed
