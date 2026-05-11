@@ -2,12 +2,13 @@
  * DMX Worker Thread
  *
  * Runs in a dedicated Node.js Worker Thread with Atomics.wait() timing.
+ * Frame data via SharedArrayBuffer (zero-copy, zero-GC).
  *
- * Frame data is received via SharedArrayBuffer (zero-copy, zero-GC).
- * The main thread writes output frames directly into shared memory;
- * this worker reads the latest frame on each tick cycle.
- *
- * Control messages (connect/disconnect) still use postMessage.
+ * BREAK generation uses baud-rate switching instead of ioctl:
+ *   1. Switch to 76800 baud → write 0x00 → produces ~117μs LOW = valid BREAK
+ *   2. Switch to 250000 baud → write DMX frame
+ * This avoids TIOCSBRK/TIOCCBRK ioctls which are unreliable on some
+ * macOS USB-C controllers (especially MacBook Air).
  */
 
 import { parentPort, workerData } from 'worker_threads';
@@ -19,26 +20,32 @@ const DMX_DATA_BITS = 8;
 const DMX_STOP_BITS = 2;
 const DMX_PARITY = 'none' as const;
 const DMX_START_CODE = 0x00;
-const BREAK_DURATION_MS = 1;
 const TICK_INTERVAL_MS = 25; // 40 Hz
+
+// BREAK baud rate: at 76800 baud with 8N2, a 0x00 byte produces:
+//   9 LOW bits × 13.02μs = 117.19μs BREAK  (min 88μs ✓)
+//   2 HIGH bits × 13.02μs = 26.04μs MAB    (min 8μs ✓)
+// This goes through the normal data path — no ioctl required.
+const BREAK_BAUD_RATE = 76800;
 
 let port: SerialPort | null = null;
 let tickRunning = false;
 
-// ── Shared memory ────────────────────────────────────────────────────────────
-// The main thread writes output frames here via DmxEngine.sharedFrameView.
-// We read from it on each tick — zero-copy, zero-allocation, zero-GC.
-const sharedFrameBuffer: SharedArrayBuffer = workerData.sharedFrameBuffer;
-const sharedFrame = new Uint8Array(sharedFrameBuffer);
+// Shared memory for zero-copy frame transfer from main thread
+const sharedFrame = new Uint8Array(workerData.sharedFrameBuffer as SharedArrayBuffer);
 
-// Atomics.wait() buffer for precise kernel-level sleep
+// Atomics.wait() for precise kernel-level sleep
 const waitBuffer = new Int32Array(new SharedArrayBuffer(4));
-
 function preciseSleep(ms: number): void {
   if (ms > 0) Atomics.wait(waitBuffer, 0, 0, Math.ceil(ms));
 }
 
-// ── Message handler (control messages only — no frame data) ──────────────────
+// Pre-allocated buffers (zero allocation per frame)
+const breakByte = Buffer.from([0x00]);  // BREAK byte sent at low baud
+const frame = Buffer.alloc(DMX_UNIVERSE_SIZE + 1);
+frame[0] = DMX_START_CODE;
+
+// ── Message handler ──────────────────────────────────────────────────────────
 
 parentPort!.on('message', (msg: { type: string; path?: string }) => {
   if (msg.type === 'connect') handleConnect(msg.path!);
@@ -67,7 +74,7 @@ function handleConnect(path: string): void {
       return;
     }
     emitStatus('connected');
-    console.log(`[DmxWorker] Connected to ${path}`);
+    console.log(`[DmxWorker] Connected to ${path} (baud-rate BREAK mode)`);
 
     port!.on('error', (e) => {
       console.error('[DmxWorker] Serial error:', e.message);
@@ -95,24 +102,18 @@ function handleDisconnect(): void {
 function startTick(): void {
   if (tickRunning) return;
   tickRunning = true;
-  console.log('[DmxWorker] Tick loop started (SharedArrayBuffer + Atomics.wait)');
+  console.log('[DmxWorker] Tick loop started (baud-rate BREAK + Atomics.wait)');
   tickLoop();
 }
 
 async function tickLoop(): Promise<void> {
-  // Pre-allocate the DMX frame buffer once — reuse every tick (zero allocation)
-  const frame = Buffer.alloc(DMX_UNIVERSE_SIZE + 1);
-  frame[0] = DMX_START_CODE;
-
   while (tickRunning) {
     const t0 = process.hrtime.bigint();
 
     try {
-      // Copy latest frame from shared memory into our pre-allocated buffer.
-      // This is a single memcpy of 512 bytes — ~0.1μs, no allocation.
+      // Copy latest frame from shared memory (single memcpy, no allocation)
       frame.set(sharedFrame, 1);
-
-      await sendFrame(frame);
+      await sendFrame();
     } catch (e) {
       console.error('[DmxWorker] sendFrame error:', e);
     }
@@ -123,29 +124,45 @@ async function tickLoop(): Promise<void> {
 }
 
 // ── DMX frame transmission ───────────────────────────────────────────────────
+//
+// Uses baud-rate switching for BREAK generation:
+//   1. Switch to 76800 baud
+//   2. Write 0x00 → FTDI produces ~117μs LOW (= BREAK) + ~26μs HIGH (= MAB)
+//   3. Switch to 250000 baud
+//   4. Write DMX frame (start code + 512 channels)
+//
+// This avoids ioctl(TIOCSBRK/TIOCCBRK) entirely, using the normal data path
+// for BREAK. Much more reliable on macOS USB-C controllers.
 
-function sendFrame(buf: Buffer): Promise<void> {
+function sendFrame(): Promise<void> {
   if (!port?.isOpen) return Promise.resolve();
   const p = port;
 
   return new Promise<void>((resolve, reject) => {
-    // 1. Assert BREAK
-    p.set({ brk: true }, (err) => {
+    // 1. Switch to BREAK baud rate
+    p.update({ baudRate: BREAK_BAUD_RATE }, (err) => {
       if (err) { reject(err); return; }
 
-      // 2. Hold BREAK — Atomics.wait (kernel-level, NOT setTimeout)
-      preciseSleep(BREAK_DURATION_MS);
-      if (!p.isOpen) { resolve(); return; }
-
-      // 3. Release BREAK
-      p.set({ brk: false }, (err2) => {
+      // 2. Write BREAK byte (0x00 at 76800 = ~117μs LOW + ~26μs HIGH)
+      p.write(breakByte, (err2) => {
         if (err2) { reject(err2); return; }
 
-        // 4. Write frame + drain
-        p.write(buf, (err3) => {
+        // 3. Drain — ensure BREAK is fully on the wire before switching baud
+        p.drain((err3) => {
           if (err3) { reject(err3); return; }
-          p.drain((err4) => {
-            if (err4) reject(err4); else resolve();
+          if (!p.isOpen) { resolve(); return; }
+
+          // 4. Switch back to DMX baud rate
+          p.update({ baudRate: DMX_BAUD_RATE }, (err4) => {
+            if (err4) { reject(err4); return; }
+
+            // 5. Write DMX frame (start code + 512 channels) + drain
+            p.write(frame, (err5) => {
+              if (err5) { reject(err5); return; }
+              p.drain((err6) => {
+                if (err6) reject(err6); else resolve();
+              });
+            });
           });
         });
       });
