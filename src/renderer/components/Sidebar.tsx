@@ -58,7 +58,7 @@ export default function Sidebar({ activeView, onNavigate, roomFileName, isDirty 
           <span className="sidebar-nav-icon">⚙</span>
           <span className="sidebar-nav-label">Settings</span>
         </button>
-        <div className="sidebar-version text-muted mono">v0.1.0</div>
+        <div className="sidebar-version text-muted mono">v{__APP_VERSION__}</div>
       </div>
     </aside>
   );

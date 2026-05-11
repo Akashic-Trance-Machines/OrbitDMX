@@ -250,7 +250,7 @@ export default function SettingsView() {
           </div>
           <div className="about-row">
             <span className="about-label">Version</span>
-            <span className="about-value mono">v0.1.0</span>
+            <span className="about-value mono">v{__APP_VERSION__}</span>
           </div>
           <div className="about-row">
             <span className="about-label">Protocol</span>

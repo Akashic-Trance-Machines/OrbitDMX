@@ -5,6 +5,9 @@ import type { IpcResponse } from '../../shared/types';
  * Type declaration for the contextBridge API exposed in preload.ts.
  * This makes window.dmx fully typed in the renderer.
  */
+/** Build-time constant injected by Vite (from package.json version). */
+declare const __APP_VERSION__: string;
+
 declare global {
   interface Window {
     dmx: {
