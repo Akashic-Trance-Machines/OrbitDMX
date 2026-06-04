@@ -1,0 +1,354 @@
+{
+  "id": "Stairville Stage Flood Inst QCL 24x10W",
+  "brand": "Stairville",
+  "model": "Stage Flood Inst QCL 24x10W",
+  "defaultPersonality": "11-channel mode",
+  "personalities": [
+    {
+      "name": "3-channel mode",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "3-channel mode",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Hue",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Saturation",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "4-channel mode",
+      "channelCount": 4,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "4-channel mode",
+      "channelCount": 4,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "5-channel mode",
+      "channelCount": 5,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "6-channel mode",
+      "channelCount": 6,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "11-channel mode",
+      "channelCount": 11,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Mode",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Color Transition Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Fade-In Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "Automatic Show",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "Automatic Show Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 9,
+          "name": "Dimmer Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 10,
+          "name": "ID",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

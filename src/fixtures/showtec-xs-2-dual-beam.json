@@ -1,0 +1,332 @@
+{
+  "id": "Showtec XS-2 Dual Beam",
+  "brand": "Showtec",
+  "model": "XS-2 Dual Beam",
+  "defaultPersonality": "20-channel mode",
+  "personalities": [
+    {
+      "name": "17-channel mode",
+      "channelCount": 17,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Pan Fine",
+          "type": "pan-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Tilt Fine",
+          "type": "tilt-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Pan Fine",
+          "type": "pan-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "Tilt Fine",
+          "type": "tilt-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 9,
+          "name": "Color Wheel",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 10,
+          "name": "Gobo",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 11,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 12,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 13,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 14,
+          "name": "Chase Effect",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 14,
+          "name": "Command",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 15,
+          "name": "Built-in Program",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 16,
+          "name": "Built-in Program Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "20-channel mode",
+      "channelCount": 20,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Pan Fine",
+          "type": "pan-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Tilt Fine",
+          "type": "tilt-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Color Wheel 1",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Gobo Wheel 1",
+          "type": "gobo",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 9,
+          "name": "Pan Fine",
+          "type": "pan-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 10,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 11,
+          "name": "Tilt Fine",
+          "type": "tilt-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 12,
+          "name": "Color Wheel 2",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 13,
+          "name": "Gobo Wheel 2",
+          "type": "gobo",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 14,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 15,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 16,
+          "name": "Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 17,
+          "name": "Chase Effect",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 17,
+          "name": "Command",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 18,
+          "name": "Built-in Program",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 19,
+          "name": "Built-in Program Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

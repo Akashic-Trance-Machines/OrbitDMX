@@ -1,0 +1,252 @@
+{
+  "id": "Stairville SonicPulse MH Wash 1208 (V2)",
+  "brand": "Stairville",
+  "model": "SonicPulse MH Wash 1208 (V2)",
+  "defaultPersonality": "19-channel mode",
+  "personalities": [
+    {
+      "name": "10-channel mode",
+      "channelCount": 10,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 9,
+          "name": "Command",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "19-channel mode",
+      "channelCount": 19,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Pan Fine",
+          "type": "pan-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Tilt Fine",
+          "type": "tilt-fine",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "Color Macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "Color Change",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 9,
+          "name": "Color Effect Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 10,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 11,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 12,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 13,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 14,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 15,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 16,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 17,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 18,
+          "name": "Command",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "id": "ayra-compar-20",
+  "brand": "Ayra",
+  "model": "ComPar 20",
+  "defaultPersonality": "6-channel mode",
+  "personalities": [
+    {
+      "name": "2-channel mode",
+      "channelCount": 2,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Dimmer"
+        },
+        {
+          "offset": 1,
+          "name": "Color Macro",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-36 Red, 37-73 Green, 74-110 Blue, 111-147 Yellow, 147-184 Magenta, 185-221 Cyan, 222-255 White"
+        }
+      ]
+    },
+    {
+      "name": "3-channel mode (RGB)",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Red"
+        },
+        {
+          "offset": 1,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Green"
+        },
+        {
+          "offset": 2,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Blue"
+        }
+      ]
+    },
+    {
+      "name": "3-channel mode (Dimmer, Strobe, Effect)",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Dimmer"
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-7 No function, 8-255 Strobe slow to fast"
+        },
+        {
+          "offset": 2,
+          "name": "Effect",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-4 Blackout, 5-80 Color Macro (1-15), 81-150 Color Jumping (slow to fast), 151-220 Color Fading (slow to fast), 221-255 Sound Control (microphone sensitivity slow to fast)"
+        }
+      ]
+    },
+    {
+      "name": "6-channel mode",
+      "channelCount": 6,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Dimmer"
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-7 No function, 8-255 Strobe slow to fast"
+        },
+        {
+          "offset": 2,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Red"
+        },
+        {
+          "offset": 3,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Green"
+        },
+        {
+          "offset": 4,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Blue"
+        },
+        {
+          "offset": 5,
+          "name": "Effect",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-4 Blackout, 5-80 Color Macro (1-15), 81-150 Color Jumping (slow to fast), 151-220 Color Fading (slow to fast), 221-255 Sound Control (microphone sensitivity slow to fast)"
+        }
+      ]
+    }
+  ]
+}

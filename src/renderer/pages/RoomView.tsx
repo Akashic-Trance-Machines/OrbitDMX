@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRoomStore } from '../store/useRoomStore';
 import { useSceneStore } from '../store/useSceneStore';
-import { getRigById } from '../../rigs';
+import { getFixtureProfileById } from '../../fixtures';
 import FixtureCard from '../components/FixtureCard';
 import FixtureControlPanel from '../components/FixtureControlPanel';
 import AddFixtureModal from '../components/AddFixtureModal';
@@ -17,8 +17,8 @@ import './RoomView.css';
 function collectDimmerAddresses(fixtures: FixtureInstance[]): number[] {
   const addresses: number[] = [];
   for (const f of fixtures) {
-    const rig = getRigById(f.rigId);
-    const personality = rig?.personalities.find((p) => p.name === f.personalityName);
+    const profile = getFixtureProfileById(f.profileId);
+    const personality = profile?.personalities.find((p) => p.name === f.personalityName);
     if (!personality) continue;
     for (const ch of personality.channels) {
       if (ch.type === 'dimmer') {
@@ -74,10 +74,10 @@ export default function RoomView() {
   }, []);
 
   const handleTest = async (fixture: FixtureInstance) => {
-    const rig = getRigById(fixture.rigId);
-    if (!rig) return;
+    const profile = getFixtureProfileById(fixture.profileId);
+    if (!profile) return;
 
-    const personality = rig.personalities.find((p) => p.name === fixture.personalityName);
+    const personality = profile.personalities.find((p) => p.name === fixture.personalityName);
     if (!personality) return;
 
     setTestingId(fixture.id);
@@ -177,11 +177,11 @@ export default function RoomView() {
         {/* Content */}
         {/* View content — List or Floor Plan */}
         {viewMode === 'list' ? (
-          <>
+          <div className="room-list-content">
             {fixtures.length === 0 ? (
-              <div className="room-empty-state">
+              <div className="room-empty">
                 <div className="room-empty-icon">💡</div>
-                <h3>No fixtures in room</h3>
+                <h2>No fixtures in room</h2>
                 <p>Add your DMX fixtures to get started.<br />Each fixture gets a DMX start address and mode.</p>
                 <button
                   className="btn-primary"
@@ -265,7 +265,7 @@ export default function RoomView() {
                 </div>
               </div>
             )}
-          </>
+          </div>
         ) : (
           <FloorPlanView
             selectedFixtureId={selectedFixtureId}

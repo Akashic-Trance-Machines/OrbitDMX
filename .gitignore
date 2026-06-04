@@ -93,3 +93,6 @@ out/
 
 scripts/manuals/
 scripts/processed manuals/
+
+# Lightkey fixture files (binary plist, not redistributable)
+*.lightkeyfxt

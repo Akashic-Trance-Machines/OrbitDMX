@@ -1,0 +1,148 @@
+{
+  "id": "Showtec Galactic RGB-2000",
+  "brand": "Showtec",
+  "model": "Galactic RGB-2000",
+  "defaultPersonality": "13-channel mode",
+  "personalities": [
+    {
+      "name": "1-channel mode",
+      "channelCount": 1,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Mode Selection",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "13-channel mode",
+      "channelCount": 13,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Mode",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Folder",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Pattern",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Files",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Shutter/Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "X Movement",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Y Movement",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Zoom Effect",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Y Rotation",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "X Rotation",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "Z Rotation",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 9,
+          "name": "Drawing/Clipping",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 10,
+          "name": "Wave",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 11,
+          "name": "Color",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 12,
+          "name": "Pattern Drawing Style",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

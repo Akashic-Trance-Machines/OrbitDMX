@@ -1,0 +1,408 @@
+{
+  "id": "Showtec Spectral PC 600Z IP",
+  "brand": "Showtec",
+  "model": "Spectral PC 600Z IP",
+  "defaultPersonality": "17-channel mode",
+  "personalities": [
+    {
+      "name": "9-channel mode",
+      "channelCount": 9,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Hue",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Hue Fine",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Saturation",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Color Macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Zoom",
+          "type": "zoom",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "Command",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "Dimmer Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "9-channel mode",
+      "channelCount": 9,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Zoom",
+          "type": "zoom",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "Command",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "Dimmer Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "12-channel mode",
+      "channelCount": 12,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "Program",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "Auto Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 9,
+          "name": "Zoom",
+          "type": "zoom",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 10,
+          "name": "Command",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 11,
+          "name": "Dimmer Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "17-channel mode",
+      "channelCount": 17,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "IntensityFine",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "RedFine",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "GreenFine",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 7,
+          "name": "BlueFine",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 8,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 9,
+          "name": "CoolWhiteFine",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 10,
+          "name": "Macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 11,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 12,
+          "name": "Program",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 13,
+          "name": "Auto Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 14,
+          "name": "Zoom",
+          "type": "zoom",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 15,
+          "name": "Command",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 16,
+          "name": "Dimmer Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

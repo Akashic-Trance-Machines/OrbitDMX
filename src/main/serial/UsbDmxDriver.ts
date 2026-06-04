@@ -1,10 +1,35 @@
 import { SerialPort } from 'serialport';
 import { DMX_BAUD_RATE, DMX_DATA_BITS, DMX_PARITY, DMX_STOP_BITS, DMX_UNIVERSE_SIZE } from '../../shared/constants';
-import type { SerialPortInfo, SerialStatus } from '../../shared/types';
+import type { SerialPortInfo, SerialStatus, DmxOutputMode } from '../../shared/types';
 
 // Enttec Open DMX USB protocol constants
 const DMX_START_CODE = 0x00;
 const BREAK_DURATION_MS = 1;
+
+/**
+ * Infer the most likely DMX output protocol from port metadata.
+ * Uses manufacturer string and PnP ID — no port needs to be opened.
+ *
+ * Accuracy:
+ *  - OrbitBridgeDeck (Akashic Trance Machines): confirmed Enttec Pro framing.
+ *  - Enttec Pro: reliably identified by "pro" in manufacturer/PnP.
+ *  - Enttec Open: identified by "enttec" without "pro".
+ *  - Everything else: defaults to baud-rate BREAK (safe for any FTDI/CH340/CP210x).
+ */
+function detectMode(p: { manufacturer?: string; pnpId?: string }): DmxOutputMode {
+  const mfg = (p.manufacturer ?? '').toLowerCase();
+  const pnp = (p.pnpId      ?? '').toLowerCase();
+  const combined = `${mfg} ${pnp}`;
+
+  // OrbitBridgeDeck (RP2350 CDC) implements Enttec Pro framing
+  if (combined.includes('akashic')) return 'enttecPro';
+
+  if (combined.includes('enttec')) {
+    if (combined.includes('pro')) return 'enttecPro';
+    return 'enttecOpen';
+  }
+  return 'baudRateBreak';
+}
 
 /**
  * USB-DMX serial driver.
@@ -54,14 +79,17 @@ export class UsbDmxDriver {
         path: p.path,
         manufacturer: p.manufacturer,
         serialNumber: p.serialNumber,
+        detectedMode: detectMode(p),
       }))
-      // Sort USB/FTDI ports to the top
+      // Sort USB/FTDI ports to the top; Enttec Pro/Open before generic
       .sort((a, b) => {
-        const isUsb = (port: SerialPortInfo) =>
-          port.manufacturer != null || port.path.toLowerCase().includes('usb');
-        if (isUsb(a) && !isUsb(b)) return -1;
-        if (!isUsb(a) && isUsb(b)) return 1;
-        return a.path.localeCompare(b.path);
+        const rank = (port: SerialPortInfo) => {
+          if (port.detectedMode === 'enttecPro')  return 0;
+          if (port.detectedMode === 'enttecOpen') return 1;
+          if (port.manufacturer != null || port.path.toLowerCase().includes('usb')) return 2;
+          return 3;
+        };
+        return rank(a) - rank(b) || a.path.localeCompare(b.path);
       });
   }
 

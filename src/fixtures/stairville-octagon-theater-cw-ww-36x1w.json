@@ -1,0 +1,54 @@
+{
+  "id": "Stairville Octagon Theater CW/WW 36x1W",
+  "brand": "Stairville",
+  "model": "Octagon Theater CW/WW 36x1W",
+  "defaultPersonality": "5-channel mode",
+  "personalities": [
+    {
+      "name": "5-channel mode",
+      "channelCount": 5,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "CoolWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "WarmWhite",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Color Macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

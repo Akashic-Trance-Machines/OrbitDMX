@@ -1,0 +1,44 @@
+{
+  "id": "Eurolite Mirror Ball Mount Pro",
+  "brand": "Eurolite",
+  "model": "Mirror Ball Mount Pro",
+  "defaultPersonality": "2-channel mode",
+  "personalities": [
+    {
+      "name": "1-channel mode",
+      "channelCount": 1,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Rotation Direction/Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "2-channel mode",
+      "channelCount": 2,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Rotation Direction",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Rotation Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

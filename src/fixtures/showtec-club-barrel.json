@@ -1,0 +1,54 @@
+{
+  "id": "Showtec Club Barrel",
+  "brand": "Showtec",
+  "model": "Club Barrel",
+  "defaultPersonality": "4-channel mode",
+  "personalities": [
+    {
+      "name": "4-channel mode",
+      "channelCount": 4,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Gobo",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Command",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

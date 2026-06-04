@@ -1,0 +1,46 @@
+{
+  "id": "Stairville HL 40 DMX",
+  "brand": "Stairville",
+  "model": "HL 40 DMX",
+  "defaultPersonality": "4-channel mode",
+  "personalities": [
+    {
+      "name": "4-channel mode",
+      "channelCount": 4,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Colors",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Chase",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

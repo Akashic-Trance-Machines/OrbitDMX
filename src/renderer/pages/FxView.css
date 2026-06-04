@@ -97,6 +97,10 @@
 .fx-card-icon {
   font-size: 32px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
 }
 
 .fx-card-label {
@@ -364,4 +368,240 @@
   background: var(--color-surface-2);
   border: 1px solid var(--color-border-dim);
   border-radius: var(--radius-sm);
+}
+
+/* ── DMX speed cap warning ──────────────────────────────────────────────────── */
+
+.fx-cap-warning {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-warning);
+  background: rgba(255, 180, 0, 0.08);
+  border: 1px solid rgba(255, 180, 0, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  line-height: 1.4;
+}
+
+/* ── Quantise section ───────────────────────────────────────────────────────── */
+
+.fx-quantise-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-dim);
+  border-radius: var(--radius-md);
+}
+
+.fx-quantise-info {
+  font-size: 11px;
+  color: var(--color-accent);
+  padding: 2px 0 0 2px;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+
+/* ── Tempo sync section ─────────────────────────────────────────────────────── */
+
+.fx-tempo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-dim);
+  border-radius: var(--radius-md);
+}
+
+.fx-tempo-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fx-tempo-toggle-btn {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-surface-3);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.fx-tempo-toggle-btn.active {
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent-glow);
+}
+
+.fx-tempo-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.fx-tempo-toggle-btn.active .fx-tempo-toggle-thumb {
+  transform: translateX(16px);
+}
+
+.fx-divider-select {
+  flex: 1;
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 5px 8px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.fx-divider-select:focus {
+  border-color: var(--color-accent);
+}
+
+.fx-divider-select option {
+  background: var(--color-surface-2);
+}
+
+.fx-tempo-preview {
+  font-size: 11px;
+  color: var(--color-accent);
+  min-width: 90px;
+  text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ── Running dot (independent active indicator on each card) ──────────────── */
+
+.fx-card {
+  position: relative;
+}
+
+.fx-card-running-dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.8);
+  animation: runningDotPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes runningDotPulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(1.3); opacity: 0.6; }
+}
+
+/* ── Active badge in panel header ─────────────────────────────────────────── */
+
+.fx-panel-active-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  border-radius: 20px;
+  padding: 2px 8px;
+  margin-left: 4px;
+  animation: runningDotPulse 1.5s ease-in-out infinite;
+}
+
+/* ── Fixture target picker ────────────────────────────────────────────────── */
+
+.fx-target-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-dim);
+  border-radius: var(--radius-md);
+}
+
+.fx-target-row {
+  align-items: center;
+}
+
+.fx-target-modes {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.fx-target-mode-btn {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid var(--color-border-dim);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.fx-target-mode-btn:hover {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.fx-target-mode-btn.active {
+  border-color: var(--color-accent);
+  background: rgba(124, 100, 255, 0.12);
+  color: var(--color-accent);
+}
+
+.fx-fixture-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.fx-fixture-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  border: 1px solid var(--color-border-dim);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.fx-fixture-btn:hover {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.fx-fixture-btn.active {
+  border-color: var(--color-accent);
+  background: rgba(124, 100, 255, 0.15);
+  color: var(--color-accent);
 }

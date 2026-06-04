@@ -1,0 +1,64 @@
+{
+  "id": "ayra-tdc-180-derby-led-lichteffecteng",
+  "brand": "Ayra",
+  "model": "TDC 180 Derby",
+  "defaultPersonality": "6-channel mode",
+  "personalities": [
+    {
+      "name": "6-channel mode",
+      "channelCount": 6,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Multi-mode",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-200: dimmer 0-100%, 201-247: strobe slow-fast, 248-255: sound mode"
+        },
+        {
+          "offset": 1,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "White",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "Motor position",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Rotation (counter-clockwise)"
+        }
+      ]
+    }
+  ]
+}

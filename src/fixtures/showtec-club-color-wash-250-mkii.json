@@ -1,0 +1,46 @@
+{
+  "id": "Showtec Club Color Wash 250 MKII",
+  "brand": "Showtec",
+  "model": "Club Color Wash 250 MKII",
+  "defaultPersonality": "2-channel mode",
+  "personalities": [
+    {
+      "name": "2-channel mode",
+      "channelCount": 2,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Color Wheel",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

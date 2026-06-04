@@ -1,0 +1,251 @@
+/* ── PalettePlaylistPanel ─────────────────────────────────────────────────── */
+
+.pp-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+/* Transport */
+.pp-transport {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-surface-3);
+}
+
+.pp-transport-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.pp-transport-btn:active { transform: scale(0.97); }
+.pp-transport-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.pp-play {
+  background: var(--color-accent);
+  color: #fff;
+}
+.pp-play:hover:not(:disabled) { background: var(--color-accent-hover, #5b7ff7); }
+
+.pp-stop {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+.pp-stop:hover { background: var(--color-surface-4, #3a3a4a); }
+
+.pp-current-colour-indicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.2), 0 0 14px 4px currentColor;
+  animation: pp-pulse 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes pp-pulse {
+  from { box-shadow: 0 0 0 2px rgba(255,255,255,0.15), 0 0 8px 2px currentColor; }
+  to   { box-shadow: 0 0 0 2px rgba(255,255,255,0.3), 0 0 18px 6px currentColor; }
+}
+
+/* Warning */
+.pp-warning {
+  margin: 12px 20px;
+  padding: 10px 14px;
+  background: rgba(255, 180, 0, 0.1);
+  border: 1px solid rgba(255, 180, 0, 0.3);
+  border-radius: 8px;
+  color: #ffc107;
+  font-size: 0.8rem;
+}
+
+/* Colour strip */
+.pp-colour-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--color-surface-3);
+}
+
+.pp-colour-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: transform 0.2s, border-color 0.2s;
+  cursor: default;
+}
+
+.pp-colour-dot.active {
+  border-color: #fff;
+  transform: scale(1.35);
+  box-shadow: 0 0 8px 2px currentColor;
+}
+
+/* Sections */
+.pp-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-surface-3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pp-section:last-child {
+  border-bottom: none;
+}
+
+.pp-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+}
+
+/* Direction tabs */
+.pp-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.pp-tab {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--color-surface-3);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.pp-tab:hover { background: var(--color-surface-3); }
+.pp-tab.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+/* Sync row (toggle) */
+.pp-sync-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pp-sync-btn {
+  position: relative;
+  width: 42px;
+  height: 22px;
+  border-radius: 11px;
+  border: none;
+  background: var(--color-surface-3);
+  cursor: pointer;
+  transition: background 0.25s;
+  flex-shrink: 0;
+}
+
+.pp-sync-btn.active { background: var(--color-accent); }
+
+.pp-sync-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.25s;
+}
+
+.pp-sync-btn.active .pp-sync-thumb { transform: translateX(20px); }
+
+/* Sliders */
+.pp-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pp-slider-label {
+  font-size: 0.78rem;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+  min-width: 38px;
+}
+
+.pp-slider {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.pp-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid #fff;
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(0,0,0,0.4);
+}
+
+.pp-divider-select {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-surface-3);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.pp-value {
+  font-size: 0.78rem;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+  min-width: 56px;
+  text-align: right;
+}
+
+/* Period indicator blink dot */
+.pp-period-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 2px;
+}
+
+.pp-blink {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: pp-blink-anim var(--dur, 1000ms) ease-in-out infinite;
+  animation-duration: inherit;
+}
+
+@keyframes pp-blink-anim {
+  0%, 49.9% { opacity: 1; transform: scale(1); }
+  50%, 100%  { opacity: 0.2; transform: scale(0.7); }
+}

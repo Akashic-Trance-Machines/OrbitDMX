@@ -204,8 +204,18 @@
 
 .fcp-color-master {
   margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-border-dim);
+}
+
+/* "All Spots" master — visually distinct from individual spot cards */
+.fcp-color-master--all {
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-accent-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
 }
 
 .fcp-color-label {
@@ -265,7 +275,7 @@
 /* Per-LED grid */
 .fcp-color-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
 }
 
@@ -273,7 +283,88 @@
   background: var(--color-surface-2);
   border: 1px solid var(--color-border-dim);
   border-radius: var(--radius-md);
-  padding: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Spot card header — clickable, always visible */
+.fcp-spot-header {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.fcp-spot-header:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.fcp-spot-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.fcp-spot-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fcp-spot-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+  transition: background 0.1s;
+}
+
+.fcp-spot-hex {
+  font-size: 11px;
+  color: var(--color-text-dim);
+}
+
+.fcp-spot-chevron {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1;
+  display: inline-block;
+  transition: transform 0.22s ease;
+  transform: rotate(0deg);
+}
+
+.fcp-spot-chevron--closed {
+  transform: rotate(-90deg);
+}
+
+/* Collapsible body — animated via grid-template-rows */
+.fcp-spot-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.25s ease, padding 0.25s ease;
+  padding: 0 12px 12px;
+}
+
+.fcp-color-led--collapsed .fcp-spot-body {
+  grid-template-rows: 0fr;
+  padding-bottom: 0;
+}
+
+/* Inner wrapper: single grid child with min-height:0 + actual layout */
+.fcp-spot-body-inner {
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -365,4 +456,9 @@
 
 .fcp-color-led .fcp-slider-value {
   font-size: 11px;
+}
+
+/* Hide redundant picker header when inside a spot card (card header shows label+hex already) */
+.fcp-spot-body-inner .hts-header {
+  display: none;
 }

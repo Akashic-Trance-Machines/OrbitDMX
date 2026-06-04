@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { getRigById } from '../../rigs';
+import { getFixtureProfileById } from '../../fixtures';
 import { useRoomStore } from '../store/useRoomStore';
-import type { FixtureInstance, RigPersonality } from '../../shared/types';
+import type { FixtureInstance, FixturePersonality } from '../../shared/types';
 import './EditFixtureModal.css';
 
 interface EditFixtureModalProps {
@@ -15,9 +15,9 @@ export default function EditFixtureModal({ fixture, onClose }: EditFixtureModalP
   const [startAddress, setStartAddress] = useState<number>(fixture.startAddress);
 
   const { getConflicts, updateFixture } = useRoomStore();
-  const rig = getRigById(fixture.rigId);
+  const profile = getFixtureProfileById(fixture.profileId);
 
-  const selectedPersonality: RigPersonality | undefined = rig?.personalities.find(
+  const selectedPersonality: FixturePersonality | undefined = profile?.personalities.find(
     (p) => p.name === personalityName,
   );
 
@@ -50,13 +50,13 @@ export default function EditFixtureModal({ fixture, onClose }: EditFixtureModalP
     if (e.target === e.currentTarget) onClose();
   };
 
-  if (!rig) return null;
+  if (!profile) return null;
 
   return (
     <div className="modal-backdrop" onClick={handleBackdropClick}>
       <div className="modal-card">
         <div className="modal-header">
-          <h2>Edit Setup: {rig.model}</h2>
+          <h2>Edit Setup: {profile.model}</h2>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
@@ -79,7 +79,7 @@ export default function EditFixtureModal({ fixture, onClose }: EditFixtureModalP
               value={personalityName}
               onChange={(e) => setPersonalityName(e.target.value)}
             >
-              {rig.personalities.map((p) => (
+              {profile.personalities.map((p) => (
                 <option key={p.name} value={p.name}>
                   {p.name} ({p.channelCount} channels)
                 </option>

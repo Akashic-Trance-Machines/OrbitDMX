@@ -1,0 +1,30 @@
+{
+  "id": "Stairville Prometheus Spark 1",
+  "brand": "Stairville",
+  "model": "Prometheus Spark 1",
+  "defaultPersonality": "2-channel mode",
+  "personalities": [
+    {
+      "name": "2-channel mode",
+      "channelCount": 2,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Spark Height",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Mode",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

@@ -38,7 +38,15 @@ export const useRoomStore = create<RoomStore>()((set, get) => ({
       ),
     })),
 
-  setFixtures: (fixtures) => set({ fixtures }),
+  setFixtures: (fixtures) => set({ 
+    fixtures: fixtures.map(f => {
+      // Migrate old save files where rigId was used instead of profileId
+      if ((f as any).rigId && !f.profileId) {
+        return { ...f, profileId: (f as any).rigId };
+      }
+      return f;
+    }) 
+  }),
 
   setFloorPlan: (floorPlan) => set({ floorPlan }),
 

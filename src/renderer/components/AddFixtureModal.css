@@ -124,6 +124,103 @@
   color: var(--color-danger);
 }
 
+/* ── Fixture search dropdown ─────────────────────────────────────────────── */
+
+.fixture-search-wrapper {
+  position: relative;
+}
+
+.fixture-search-input.has-selection {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.fixture-search-check {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-accent);
+  font-size: 14px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.fixture-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 110;
+  padding: 4px 0;
+  animation: dropdownIn 0.12s ease;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fixture-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+  gap: 12px;
+}
+
+.fixture-dropdown-item:hover,
+.fixture-dropdown-item.highlighted {
+  background: var(--color-surface-3);
+}
+
+.fixture-dropdown-item.selected {
+  color: var(--color-accent);
+}
+
+.fixture-dropdown-model {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.fixture-dropdown-meta {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fixture-dropdown-empty {
+  padding: 16px 12px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* Scrollbar in dropdown */
+.fixture-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+.fixture-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fixture-dropdown::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
 /* Buttons */
 .btn-secondary {
   background: var(--color-surface-3);

@@ -1,4 +1,4 @@
-import type { SerialPortInfo, SerialStatus, RunnerStatus, Scene, ChannelDefinition, FxConfig, LedAddress, RoomFile, Rig, ShowFile } from '../../shared/types';
+import type { SerialPortInfo, SerialStatus, RunnerStatus, Scene, ChannelDefinition, FxConfig, LedAddress, RoomFile, FixtureProfile, ShowFile } from '../../shared/types';
 import type { IpcResponse } from '../../shared/types';
 
 /**
@@ -28,6 +28,7 @@ declare global {
 
       setFx: (config: FxConfig | null) => Promise<IpcResponse>;
       setFxLedAddresses: (addresses: LedAddress[]) => Promise<IpcResponse>;
+      setFxLedAddressesForType: (type: string, addresses: LedAddress[]) => Promise<IpcResponse>;
 
       // Post-processing modifiers
       setColorShift: (id: string, addresses: LedAddress[], degrees: number) => Promise<IpcResponse>;
@@ -51,7 +52,7 @@ declare global {
       setLastFilePath: (filePath: string | null) => Promise<IpcResponse>;
 
       // Show file I/O
-      exportShow: (roomData: RoomFile, rigs: Rig[]) => Promise<IpcResponse<string | null>>;
+      exportShow: (roomData: RoomFile, fixtureProfiles: FixtureProfile[]) => Promise<IpcResponse<string | null>>;
       importShow: () => Promise<IpcResponse<ShowFile | null>>;
 
       onUniverseUpdate: (cb: (snapshot: number[]) => void) => () => void;

@@ -58,6 +58,21 @@ export function registerIpcHandlers(engine: DmxEngine, webContents: () => WebCon
     };
   });
 
+  ipcMain.handle(IPC.SERIAL_GET_OUTPUT_MODE, async (): Promise<IpcResponse> => {
+    return { success: true, data: engine.getOutputMode() };
+  });
+
+  ipcMain.handle(IPC.SERIAL_SET_OUTPUT_MODE, async (_event, mode: string): Promise<IpcResponse> => {
+    try {
+      // Cast is safe — validated by type system in renderer before calling
+      engine.setOutputMode(mode as any);
+      return { success: true };
+    } catch (e) {
+      console.error('[IPC] set-output-mode error:', e);
+      return { success: false, error: String(e) };
+    }
+  });
+
   // ── DMX control ─────────────────────────────────────────────────────────────
 
   ipcMain.handle(IPC.DMX_SEND_SCENE, async (_event, scene: Scene): Promise<IpcResponse> => {
@@ -146,6 +161,16 @@ export function registerIpcHandlers(engine: DmxEngine, webContents: () => WebCon
       return { success: true };
     } catch (e) {
       console.error('[IPC] set-fx-led-addresses error:', e);
+      return { success: false, error: String(e) };
+    }
+  });
+
+  ipcMain.handle(IPC.DMX_SET_FX_LED_ADDRESSES_FOR_TYPE, async (_event, type: string, addresses: any[]): Promise<IpcResponse> => {
+    try {
+      engine.setFxLedAddressesForType(type, addresses);
+      return { success: true };
+    } catch (e) {
+      console.error('[IPC] set-fx-led-addresses-for-type error:', e);
       return { success: false, error: String(e) };
     }
   });

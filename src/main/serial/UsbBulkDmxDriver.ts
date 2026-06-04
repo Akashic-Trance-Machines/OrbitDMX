@@ -1,6 +1,23 @@
 import { usb } from 'usb';
 import type { SerialPortInfo, SerialStatus } from '../../shared/types';
 
+// CRITICAL: Prevent the SIGSEGV crash that occurs when a USB device is unplugged.
+//
+// Importing `usb` starts libusb's native hotplug monitoring thread
+// (org.libusb.device-hotplug on macOS). When any USB device is unplugged,
+// libusb fires a native callback that calls back into the main process V8
+// isolate via napi_call_function → can_call_into_js(). If V8 is not in a
+// safe state to receive that call (e.g. during GC or event loop drain),
+// this causes EXC_BAD_ACCESS / SIGSEGV on Thread 0 (CrBrowserMain).
+//
+// unrefHotplugEvents() marks libusb's internal libuv handle as unref'd so it
+// no longer prevents the event loop from draining AND suppresses the in-flight
+// NAPI hotplug callbacks that would otherwise race with V8 teardown.
+//
+// We only use usb.getDeviceList() (a synchronous snapshot — no callbacks),
+// so we never need hotplug events here.
+usb.unrefHotplugEvents();
+
 /**
  * USB Bulk DMX Driver for LightingSoft AG / Sunlite / Nicolaudie USB-DMX
  * interfaces (SUSHI1A, SIUDI, USB-1, etc.).

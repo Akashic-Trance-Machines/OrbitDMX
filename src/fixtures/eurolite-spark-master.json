@@ -1,0 +1,30 @@
+{
+  "id": "Eurolite Spark Master",
+  "brand": "Eurolite",
+  "model": "Spark Master",
+  "defaultPersonality": "2-channel mode",
+  "personalities": [
+    {
+      "name": "2-channel mode",
+      "channelCount": 2,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Spark Effect",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Function",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

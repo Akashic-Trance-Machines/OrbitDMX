@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-06-04
+
+### Added
+- **Hue Rotator FX**: New effect that continuously rotates the hue of each targeted spot's colour. Speed is BPM-syncable. Icon is a custom SVG rainbow circular arrow.
+- **Multi-FX Architecture**: All FX effects can now run simultaneously. Active effects are visually indicated per card with a live dot. Processing order: breath → fire → candle → twinkle → strobe → strobeColor → hueRotator.
+- **Per-FX Fixture Targeting**: Each FX type has its own independent fixture target (All / Include / Exclude) with per-LED spot sub-selection.
+- **Palette & HSB Generator Playlists**: New generator types added to the Playlists page, each with independent playback controls.
+- **Status Bar Playlist Indicators**: Running scene playlists, palette generators, and HSB generators are each shown as live pills in the bottom status bar.
+- **Room Picker**: Clicking the room name in the sidebar opens a modal to switch between rooms or create a new one.
+
+### Changed
+- **FX Target Picker**: Replaced the flat chip list with the shared `FixtureTargetSelector` component — fixtures are grouped with expandable per-spot LED checkboxes and Select All / None shortcuts (same as Controls and Playlists).
+- **MIDI Device Selector**: Redesigned to match the DMX Adapter section — status badge, labelled dropdown, and full-width Connect/Disconnect button.
+- **DMX Status Bar**: Now shows "DMX connected" only, without the raw port path.
+- **Controls Nav Icon**: Replaced `🎛` emoji (misaligned) with `⊞` geometric symbol to match all other nav icons.
+- **Playlist Mutual Exclusion**: Starting any playlist type (scene, palette, HSB) now stops all other running playlist types. The room-switch flow also flushes a save and stops playback before loading the new room.
+
+### Fixed
+- **Palette / HSB Not Saved on Room Switch**: `useColourStore` was missing from the autosave subscription list, so palette edits never triggered a debounced save. Fixed.
+- **Breath FX No Effect**: Fixed `processBreath` to correctly target per-type LED addresses instead of the deprecated global dimmer set.
+- **Playlists Not Restored on Load**: Boot-time room loader was missing `setPaletteGenerators` and `setHsbGenerators` calls. Fixed.
+- **FX Fixture Names Showing UUID**: Include/Exclude picker was reading `f.name` (undefined) instead of `f.label`, falling through to the raw UUID.
+
 ## [1.2.5] - 2026-05-11
 
 ### Changed

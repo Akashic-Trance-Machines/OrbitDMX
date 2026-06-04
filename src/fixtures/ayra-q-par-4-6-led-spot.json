@@ -1,0 +1,195 @@
+{
+  "id": "ayra-q-par-4-6-led-spot",
+  "brand": "Ayra",
+  "model": "Q-Par 4 / Q-Par 6",
+  "defaultPersonality": "7-channel mode",
+  "personalities": [
+    {
+      "name": "2-channel mode",
+      "channelCount": 2,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Color Preset",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-16: Red, 17-33: Green, 34-50: Blue, 51-67: White, 68-84: Orange, 85-101: Cyan, 102-118: Lavender, 119-135: Pink, 136-152: Bright Green, 153-169: Magenta, 170-186: Pale Pink, 187-203: Amber, 204-220: Bright Magenta, 221-237: Pale Cyan, 238-255: Warm White"
+        }
+      ]
+    },
+    {
+      "name": "3-channel mode 1 (RGB)",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "3-channel mode 2 (Dimmer, Strobe, Macro)",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-255: slow-fast"
+        },
+        {
+          "offset": 2,
+          "name": "Colour Macros",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-4: Blackout, 5-80: Colour 1-15, 81-150: Colour jump (slow - fast), 151-220: Colour fade (slow - fast), 221-255: Sound-controlled (sensitivity low - high)"
+        }
+      ]
+    },
+    {
+      "name": "4-channel mode (RGBW)",
+      "channelCount": 4,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "White",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "7-channel mode",
+      "channelCount": 7,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-255: slow - fast"
+        },
+        {
+          "offset": 2,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "White",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Operating Mode Selection",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-4: No function, 5-80: Colour macro (1-63), 81-150: Colour jump (slow - fast), 151-220: Colour fade (slow - fast), 221-255: Sound-controlled (sensitivity low - high)"
+        }
+      ]
+    }
+  ]
+}

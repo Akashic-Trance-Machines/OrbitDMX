@@ -173,6 +173,15 @@
   box-shadow: 0 0 12px rgba(247, 79, 79, 0.2);
 }
 
+/* ── List content wrapper (needed so flex children can fill height) ─────────── */
+.room-list-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
 /* ── Empty state ────────────────────────────────────────────────────────────── */
 .room-empty {
   flex: 1;
@@ -180,26 +189,40 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
   text-align: center;
-  color: var(--color-text-muted);
   padding: 48px;
 }
 
 .room-empty-icon {
-  font-size: 48px;
-  filter: grayscale(0.4);
-  margin-bottom: 8px;
+  font-size: 52px;
+  filter: grayscale(0.3);
+  margin-bottom: 4px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
 }
 
 .room-empty h2 {
+  font-size: 18px;
+  font-weight: 600;
   color: var(--color-text-dim);
+  margin: 0;
 }
 
 .room-empty p {
   font-size: 14px;
-  line-height: 1.6;
-  max-width: 320px;
+  line-height: 1.65;
+  color: var(--color-text-muted);
+  max-width: 300px;
+  margin: 0;
+}
+
+.room-empty .btn-primary {
+  margin-top: 8px;
 }
 
 /* ── Fixture list ───────────────────────────────────────────────────────────── */

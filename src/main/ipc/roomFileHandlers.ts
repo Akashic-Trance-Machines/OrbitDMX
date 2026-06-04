@@ -155,4 +155,31 @@ export function registerRoomFileHandlers(): void {
     writeConfig(config);
     return { success: true };
   });
+
+  // ── List all .orbitdmx files in the default directory ─────────────────────
+  ipcMain.handle(IPC.ROOM_FILE_LIST_DIR, async (): Promise<IpcResponse> => {
+    try {
+      const dir = getDefaultDir();
+      if (!fs.existsSync(dir)) {
+        return { success: true, data: [] };
+      }
+      const entries = fs.readdirSync(dir);
+      const files = entries
+        .filter((f) => f.endsWith('.orbitdmx'))
+        .map((f) => {
+          const filePath = path.join(dir, f);
+          const stat = fs.statSync(filePath);
+          return {
+            name: f.replace('.orbitdmx', ''),
+            filePath,
+            modifiedAt: stat.mtimeMs,
+          };
+        })
+        .sort((a, b) => b.modifiedAt - a.modifiedAt); // newest first
+      return { success: true, data: files };
+    } catch (e) {
+      console.error('[IPC] room-file-list-dir error:', e);
+      return { success: false, error: String(e) };
+    }
+  });
 }

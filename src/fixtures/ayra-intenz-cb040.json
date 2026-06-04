@@ -1,0 +1,200 @@
+{
+  "id": "ayra-intenz-cb040",
+  "brand": "Ayra",
+  "model": "IntenZ CB040",
+  "defaultPersonality": "9-channel mode",
+  "personalities": [
+    {
+      "name": "5-channel mode",
+      "channelCount": 5,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Red Dimmer",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Green Dimmer",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Blue Dimmer",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "White Dimmer",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    },
+    {
+      "name": "7-channel mode",
+      "channelCount": 7,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-7: LED On; 8-15: LED Off; 16-131: Stroboscope, slow to fast; 132-139: LED On; 140-181: Fast out, slow on, pulse effect, slow to fast; 182-189: LED On; 190-231: Slow out, fast on, pulse effect, slow to fast; 232-239: LED On; 240-247: Random Strobe; 248-255: LED On"
+        },
+        {
+          "offset": 2,
+          "name": "Red Dimmer",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Green Dimmer",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Blue Dimmer",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "White Dimmer",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Dimmer Curve",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-50: Linear; 51-101: Exponential; 102-152: Logarithmic; 153-204: S-curve; 205-255: Halogen simulation"
+        }
+      ]
+    },
+    {
+      "name": "9-channel mode",
+      "channelCount": 9,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-7: LED On; 8-15: LED Off; 16-131: Stroboscope, slow to fast; 132-139: LED On; 140-181: Fast on, slow off pulse-effect, slow to fast; 182-189: LED On; 190-231: Slow on, fast off pulse-effect, slow to fast; 232-239: LED On; 240-247: Random Strobe; 248-255: LED On"
+        },
+        {
+          "offset": 2,
+          "name": "Red Dimmer",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Green Dimmer",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Blue Dimmer",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 5,
+          "name": "White Dimmer",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Color Modes",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-5: No function; 6-125: Colour 1-15; 126-128: Colour stop; 129-192: Colour jump, slow to fast; 193-255: Colourfade, slow to fast"
+        },
+        {
+          "offset": 7,
+          "name": "Sound Control",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-5: No function; 6-255: Sound-controlled mode, sensitivity low to high"
+        },
+        {
+          "offset": 8,
+          "name": "Dimmer Curve",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-50: Linear; 51-101: Exponential; 102-152: Logarithmic; 153-204: S-curve; 205-255: Halogen simulation"
+        }
+      ]
+    }
+  ]
+}

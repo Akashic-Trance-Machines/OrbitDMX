@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { IPC } from './shared/ipcChannels';
-import type { Scene, SerialPortInfo, SerialStatus, RunnerStatus, ChannelDefinition, FxConfig, LedAddress, RoomFile, Rig, ShowFile } from './shared/types';
+import type { Scene, SerialPortInfo, SerialStatus, RunnerStatus, ChannelDefinition, FxConfig, LedAddress, RoomFile, FixtureProfile, ShowFile } from './shared/types';
 import type { IpcResponse } from './shared/types';
 
 /**
@@ -25,6 +25,14 @@ contextBridge.exposeInMainWorld('dmx', {
   /** Query the current serial connection status (useful on component mount). */
   getSerialStatus: (): Promise<IpcResponse<SerialStatus>> =>
     ipcRenderer.invoke(IPC.SERIAL_GET_STATUS),
+
+  /** Get the current DMX output mode from the engine. */
+  getOutputMode: (): Promise<IpcResponse<{ mode: string; autoDetected: boolean }>> =>
+    ipcRenderer.invoke(IPC.SERIAL_GET_OUTPUT_MODE),
+
+  /** Set the DMX output mode (takes effect on next connect). */
+  setOutputMode: (mode: string): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.SERIAL_SET_OUTPUT_MODE, mode),
 
   // ── DMX ───────────────────────────────────────────────────────────────────
   sendScene: (scene: Scene): Promise<IpcResponse> =>
@@ -54,6 +62,9 @@ contextBridge.exposeInMainWorld('dmx', {
 
   setFxLedAddresses: (addresses: LedAddress[]): Promise<IpcResponse> =>
     ipcRenderer.invoke(IPC.DMX_SET_FX_LED_ADDRESSES, addresses),
+
+  setFxLedAddressesForType: (type: string, addresses: LedAddress[]): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.DMX_SET_FX_LED_ADDRESSES_FOR_TYPE, type, addresses),
 
   setChannelBatch: (updates: Array<{ address: number; value: number }>): Promise<IpcResponse> =>
     ipcRenderer.invoke(IPC.DMX_SET_CHANNEL_BATCH, updates),
@@ -108,9 +119,13 @@ contextBridge.exposeInMainWorld('dmx', {
   setLastFilePath: (filePath: string | null): Promise<IpcResponse> =>
     ipcRenderer.invoke(IPC.ROOM_FILE_SET_LAST_PATH, filePath),
 
+  /** List all .orbitdmx files in ~/Documents/OrbitDMX/, sorted newest first. */
+  listRoomDir: (): Promise<IpcResponse<Array<{ name: string; filePath: string; modifiedAt: number }>>> =>
+    ipcRenderer.invoke(IPC.ROOM_FILE_LIST_DIR),
+
   // ── Show file I/O (.orbitshow) ─────────────────────────────────────────
-  exportShow: (roomData: RoomFile, rigs: Rig[]): Promise<IpcResponse<string | null>> =>
-    ipcRenderer.invoke(IPC.SHOW_FILE_EXPORT, roomData, rigs),
+  exportShow: (roomData: RoomFile, fixtureProfiles: FixtureProfile[]): Promise<IpcResponse<string | null>> =>
+    ipcRenderer.invoke(IPC.SHOW_FILE_EXPORT, roomData, fixtureProfiles),
 
   importShow: (): Promise<IpcResponse<ShowFile | null>> =>
     ipcRenderer.invoke(IPC.SHOW_FILE_IMPORT),

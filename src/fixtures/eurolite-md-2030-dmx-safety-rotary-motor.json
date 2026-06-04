@@ -1,0 +1,22 @@
+{
+  "id": "Eurolite MD-2030 DMX Safety Rotary Motor",
+  "brand": "Eurolite",
+  "model": "MD-2030 DMX Safety Rotary Motor",
+  "defaultPersonality": "1-channel mode",
+  "personalities": [
+    {
+      "name": "1-channel mode",
+      "channelCount": 1,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Rotation Direction and Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

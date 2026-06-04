@@ -1,0 +1,77 @@
+{
+  "id": "ayra-tdc-sunrise-led-lighteffect",
+  "brand": "Ayra",
+  "model": "TDC Sunrise",
+  "defaultPersonality": "7-channel mode",
+  "personalities": [
+    {
+      "name": "7-channel mode",
+      "channelCount": 7,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% overall dimmer"
+        },
+        {
+          "offset": 1,
+          "name": "Red/Yellow Dimmer",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Controls intensity of Red LEDs, contributing to yellow hues."
+        },
+        {
+          "offset": 2,
+          "name": "Green/White Dimmer",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Controls intensity of Green LEDs, contributing to white hues."
+        },
+        {
+          "offset": 3,
+          "name": "Blue/Pink Dimmer",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Controls intensity of Blue LEDs, contributing to pink hues."
+        },
+        {
+          "offset": 4,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-10: No function, 11-255: Strobe slow to fast."
+        },
+        {
+          "offset": 5,
+          "name": "Motor",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-5: No movement, 6-127: Motor static positioning, 128-255: Control motor speed (back and forth movement, slow to fast)."
+        },
+        {
+          "offset": 6,
+          "name": "Macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-9: CH1-CH6 cannot be used (individual control disabled). 10-39: Macro A1. 40-69: Macro A2. 70-99: Macro A3. 100-129: Macro A4. 130-159: Macro A5. 160-189: Macro A6. 190-219: Macro A7. 220-249: Macro Sound 1. 250-255: Macro Sound 2."
+        }
+      ]
+    }
+  ]
+}

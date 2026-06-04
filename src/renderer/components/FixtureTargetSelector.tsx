@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { useRoomStore } from '../store/useRoomStore';
-import { getRigById } from '../../rigs';
+import { getFixtureProfileById } from '../../fixtures';
 import type { FixtureTarget } from '../../shared/types';
 import './FixtureTargetSelector.css';
 
@@ -28,9 +28,9 @@ interface LedGroup {
 }
 
 /** Resolve LED groups for a fixture. Returns empty if fixture has only 1 LED. */
-function getFixtureLedGroups(rigId: string, personalityName: string): LedGroup[] {
-  const rig = getRigById(rigId);
-  const personality = rig?.personalities.find((p) => p.name === personalityName);
+function getFixtureLedGroups(profileId: string, personalityName: string): LedGroup[] {
+  const profile = getFixtureProfileById(profileId);
+  const personality = profile?.personalities.find((p) => p.name === personalityName);
   if (!personality) return [];
 
   const reds = personality.channels.filter((c) => c.type === 'red');
@@ -49,7 +49,7 @@ export default function FixtureTargetSelector({ target, onChange, showLedFilter 
   const fixtureData = useMemo(() => {
     return fixtures.map((f) => ({
       fixture: f,
-      ledGroups: getFixtureLedGroups(f.rigId, f.personalityName),
+      ledGroups: getFixtureLedGroups(f.profileId, f.personalityName),
     }));
   }, [fixtures]);
 

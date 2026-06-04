@@ -1,0 +1,38 @@
+{
+  "id": "Eurolite LED TSR/D/Z-400 RGBAW 3W DMX",
+  "brand": "Eurolite",
+  "model": "LED TSR/D/Z-400 RGBAW 3W DMX",
+  "defaultPersonality": "3-channel mode",
+  "personalities": [
+    {
+      "name": "3-channel mode",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Color",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Step Motor",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,229 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   HsbPlaylistPanel — Hue circle + range rows
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Hue circle wrapper ────────────────────────────────────────────────────── */
+
+.hue-circle-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 12px auto 4px;
+  flex-shrink: 0;
+}
+
+/* CSS conic-gradient rainbow donut.
+   `from -90deg` puts red (hue 0) at the top (12 o'clock), matching
+   the SVG coordinate math in the component.                                  */
+.hue-circle-rainbow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    hsl(0,  90%, 60%)   0deg,
+    hsl(30, 90%, 60%)  30deg,
+    hsl(60, 90%, 60%)  60deg,
+    hsl(90, 90%, 60%)  90deg,
+    hsl(120,90%, 60%) 120deg,
+    hsl(150,90%, 60%) 150deg,
+    hsl(180,90%, 60%) 180deg,
+    hsl(210,90%, 60%) 210deg,
+    hsl(240,90%, 60%) 240deg,
+    hsl(270,90%, 60%) 270deg,
+    hsl(300,90%, 60%) 300deg,
+    hsl(330,90%, 60%) 330deg,
+    hsl(360,90%, 60%) 360deg
+  );
+  /* Punch out the centre to create the donut hole.
+     The INNER_R in the SVG is 55 px (viewBox 160×160 = same pixel ratio).   */
+  mask:        radial-gradient(circle, transparent 52px, black 53px);
+  -webkit-mask:radial-gradient(circle, transparent 52px, black 53px);
+}
+
+/* SVG overlay sits directly on top of the rainbow div */
+.hue-circle-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Info row below the circle */
+.hue-circle-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* ── Sat / Bri range row ───────────────────────────────────────────────────── */
+
+.hsb-range-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.hsb-range-row:last-child {
+  margin-bottom: 0;
+}
+
+.hsb-range-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+  width: 28px;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+
+.hsb-range-controls {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hsb-slider-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hsb-slider-labels {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--color-text-dim);
+  margin-bottom: 4px;
+}
+
+.hsb-range-dash {
+  opacity: 0.5;
+}
+
+/* ── Dual-thumb range slider ───────────────────────────────────────────────── */
+
+/* Wrapper creates a stacking context for the track and both thumbs */
+.hsb-slider-track-wrap {
+  position: relative;
+  height: 28px;          /* room for two thumbs stacked */
+}
+
+/* Shared visual track drawn as a plain div (not the native track) */
+.hsb-track-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Both range inputs sit absolutely on top of the track.
+   Native track is hidden; only the thumbs are visible.                       */
+.hsb-slider {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  appearance: none;
+  -webkit-appearance: none;
+  pointer-events: none;   /* track area non-clickable */
+}
+
+.hsb-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid #fff;
+  cursor: grab;
+  pointer-events: all;    /* thumbs are interactive */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  transition: transform 0.12s;
+}
+
+.hsb-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.hsb-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+}
+
+/* Firefox */
+.hsb-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid #fff;
+  cursor: grab;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Gradient reference bar ────────────────────────────────────────────────── */
+
+.hsb-gradient-bar {
+  height: 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* ── Re-roll button (manual mode) ─────────────────────────────────────────── */
+
+.hsb-reroll-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-dim);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  margin-top: 4px;
+}
+
+.hsb-reroll-btn:hover:not(:disabled) {
+  background: var(--color-surface-3);
+}
+
+.hsb-reroll-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.hsb-reroll-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Hint text ─────────────────────────────────────────────────────────────── */
+
+.hsb-hint {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--color-text-dim);
+  margin-top: 6px;
+  line-height: 1.4;
+}

@@ -1,0 +1,32 @@
+{
+  "id": "ayra-flash-30-60",
+  "brand": "Ayra",
+  "model": "Flash 30 LED / Flash 60 LED",
+  "defaultPersonality": "2-channel mode",
+  "personalities": [
+    {
+      "name": "2-channel mode",
+      "channelCount": 2,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0 - 100%"
+        },
+        {
+          "offset": 1,
+          "name": "Strobe/Sound Control",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-7: Stroboscope blackout; 8-247: Stroboscope mode slow - fast; 248-255: Sound-controlled mode"
+        }
+      ]
+    }
+  ]
+}

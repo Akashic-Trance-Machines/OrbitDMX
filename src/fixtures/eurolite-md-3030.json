@@ -1,0 +1,22 @@
+{
+  "id": "Eurolite MD-3030",
+  "brand": "Eurolite",
+  "model": "MD-3030",
+  "defaultPersonality": "1-channel mode",
+  "personalities": [
+    {
+      "name": "1-channel mode",
+      "channelCount": 1,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Rotation",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "Eurolite Confetti Shot DMX",
+  "brand": "Eurolite",
+  "model": "Confetti Shot DMX",
+  "defaultPersonality": "1-channel mode",
+  "personalities": [
+    {
+      "name": "1-channel mode",
+      "channelCount": 1,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Fire",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

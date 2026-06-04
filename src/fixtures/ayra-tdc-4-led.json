@@ -1,0 +1,50 @@
+{
+  "id": "ayra-tdc-4-led",
+  "brand": "Ayra",
+  "model": "TDC 4 LED",
+  "defaultPersonality": "4-channel mode",
+  "personalities": [
+    {
+      "name": "4-channel mode",
+      "channelCount": 4,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Function",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-9: OFF, 10-85: Synchronous show, 86-160: 2-light show, 161-239: 4-light show, 250-255: Sound Active"
+        },
+        {
+          "offset": 1,
+          "name": "Chase",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-21: Chase 1, 22-42: Chase 2, 43-63: Chase 3, 64-85: Chase 4, 86-106: Chase 5, 107-127: Chase 6, 128-149: Chase 7, 150-170: Chase 8, 171-191: Chase 9, 192-213: Chase 10, 214-234: Chase 11, 235-255: Chase 12"
+        },
+        {
+          "offset": 2,
+          "name": "Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Variety slow to fast"
+        },
+        {
+          "offset": 3,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-9: ON Strobe, 10-255: Strobing slow to fast"
+        }
+      ]
+    }
+  ]
+}

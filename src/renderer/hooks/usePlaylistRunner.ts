@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { usePlaylistStore } from '../store/usePlaylistStore';
 import { useSceneStore } from '../store/useSceneStore';
+import { useTempoStore } from '../store/useTempoStore';
 import { useAudioStore } from '../store/useAudioStore';
 import type { Playlist, Scene } from '../../shared/types';
 
@@ -126,8 +127,15 @@ export function usePlaylistRunner() {
     (fromIndex: number, pl: Playlist) => {
       clearAutoTimer();
 
-      const holdMs = pl.holdDurationMs;
+      // BPM sync: derive hold from global BPM if enabled
+      const bpmMs = pl.bpmSync
+        ? (60_000 / useTempoStore.getState().bpm) * (pl.bpmDivider ?? 1)
+        : null;
+      const holdMs = bpmMs ?? pl.holdDurationMs;
       const nextIdx = getNextIndex(fromIndex, pl);
+
+      // Record when this hold period started so the progress bar can animate correctly.
+      usePlaylistStore.getState().setHoldStartedAt(Date.now());
 
       timerRef.current = setTimeout(() => {
         playCue(nextIdx, pl);
@@ -239,6 +247,7 @@ export function usePlaylistRunner() {
     return () => {
       clearAutoTimer();
       cleanupAudio();
+      usePlaylistStore.getState().setHoldStartedAt(null);
     };
   }, [playbackState, activePlaylistId, syncMode]);
 

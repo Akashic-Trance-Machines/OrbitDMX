@@ -1,0 +1,264 @@
+{
+  "id": "ayra-vision-180-beam",
+  "brand": "Ayra",
+  "model": "Vision 180 Beam",
+  "defaultPersonality": "15-channel mode",
+  "personalities": [
+    {
+      "name": "13-channel mode",
+      "channelCount": 13,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Pan Fine",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Tilt Fine",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Colour Wheel",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-4: Open white (no colour), 5-127: Static colours and split colours, 128-189: Colour wheel rotation forwards (fast-slow), 190-193: Colour wheel stop, 194-255: Colour wheel rotation backwards (slow-fast). Split Colour function affects ranges."
+        },
+        {
+          "offset": 5,
+          "name": "Gobo Wheel",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-6: Open (no gobo), 7-104: Static gobos, 105-202: Gobo shake (slow-fast), 203-255: Continuous gobo scroll (slow-fast)."
+        },
+        {
+          "offset": 6,
+          "name": "Shutter",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-31: Shutter closed, 32-63: Shutter open, 64-95: Strobe effect (slow-fast), 96-127: Shutter open, 128-159: Pulse effect (slow-fast), 160-191: Shutter open, 192-223: Random strobe effect (slow-fast), 224-255: Shutter open."
+        },
+        {
+          "offset": 7,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-255: Dimmer 0-100%."
+        },
+        {
+          "offset": 8,
+          "name": "Focus",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-255: Focus close-far."
+        },
+        {
+          "offset": 9,
+          "name": "Prism",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-5: No prism, 6-127: Prism on, 128-189: Prism rotation forwards (fast-slow), 190-193: Prism rotation stop, 194-255: Prism rotation backwards (fast-slow)."
+        },
+        {
+          "offset": 10,
+          "name": "Frost",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-199: Frost off, 200-255: Frost on."
+        },
+        {
+          "offset": 11,
+          "name": "Pan/Tilt Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-225: Max. to min. speed, 226-235: Blackout unit when moving, 236-245: Blackout unit when effect wheel moves (colours/gobos/prism), 246-255: No function."
+        },
+        {
+          "offset": 12,
+          "name": "Special Functions",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-79: No function, 80-84: Motor reset all motors, 85-87: Motor reset pan and tilt, 88-90: Colour wheel reset, 91-93: Gobo wheel reset, 94-96: No function, 97-99: Other motor reset (prism, frost), 100-219: Automatic shows 1-6, 220-239: Automatic show 7, 240-255: Music controlled show 1."
+        }
+      ]
+    },
+    {
+      "name": "15-channel mode",
+      "channelCount": 15,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Pan Fine",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Tilt Fine",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Colour Wheel",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-4: Open white (no colour), 5-127: Static colours and split colours, 128-189: Colour wheel rotation forwards (fast-slow), 190-193: Colour wheel stop, 194-255: Colour wheel rotation backwards (slow-fast). Split Colour function affects ranges."
+        },
+        {
+          "offset": 5,
+          "name": "Gobo Wheel",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-6: Open (no gobo), 7-104: Static gobos, 105-202: Gobo shake (slow-fast), 203-255: Continuous gobo scroll (slow-fast)."
+        },
+        {
+          "offset": 6,
+          "name": "Shutter",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-31: Shutter closed, 32-63: Shutter open, 64-95: Strobe effect (slow-fast), 96-127: Shutter open, 128-159: Pulse effect (slow-fast), 160-191: Shutter open, 192-223: Random strobe effect (slow-fast), 224-255: Shutter open."
+        },
+        {
+          "offset": 7,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-255: Dimmer 0-100%."
+        },
+        {
+          "offset": 8,
+          "name": "Focus",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-255: Focus close-far."
+        },
+        {
+          "offset": 9,
+          "name": "Prism",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-5: No prism, 6-127: Prism on, 128-189: Prism rotation forwards (fast-slow), 190-193: Prism rotation stop, 194-255: Prism rotation backwards (fast-slow)."
+        },
+        {
+          "offset": 10,
+          "name": "Frost",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-199: Frost off, 200-255: Frost on."
+        },
+        {
+          "offset": 11,
+          "name": "Pan/Tilt Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-225: Max. to min. speed, 226-235: Blackout unit when moving, 236-245: Blackout unit when effect wheel moves (colours/gobos/prism), 246-255: No function."
+        },
+        {
+          "offset": 12,
+          "name": "Special Functions",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-79: No function, 80-84: Motor reset all motors, 85-87: Motor reset pan and tilt, 88-90: Colour wheel reset, 91-93: Gobo wheel reset, 94-96: No function, 97-99: Other motor reset (prism, frost), 100-219: Automatic shows 1-6, 220-239: Automatic show 7, 240-255: Music controlled show 1."
+        },
+        {
+          "offset": 13,
+          "name": "Colour Wheel Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-255: Max. to min. speed. Only available in 15-channel mode."
+        },
+        {
+          "offset": 14,
+          "name": "Gobo Wheel Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-255: Max. to min. speed. Only available in 15-channel mode."
+        }
+      ]
+    }
+  ]
+}

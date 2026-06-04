@@ -1,0 +1,118 @@
+{
+  "id": "ayra-armageddon-648-w-led",
+  "brand": "Ayra",
+  "model": "Armageddon 648 W LED",
+  "defaultPersonality": "8-channel mode",
+  "personalities": [
+    {
+      "name": "3-channel mode",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 1,
+          "name": "Show Mode",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-15: LED OFF, 16-255: SHOW MODE"
+        },
+        {
+          "offset": 2,
+          "name": "Show Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-255: Slow to fast"
+        }
+      ]
+    },
+    {
+      "name": "8-channel mode",
+      "channelCount": 8,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-5: LED ON, 6-15: LED OFF, 16-131: LED Strobe (slow to fast), 132-139: LED ON, 140-181: Fast on, slow off (slow to fast), 182-189: LED ON, 190-231: Slow on, fast off (slow to fast), 232-239: LED ON, 240-247: Random Strobe, 248-255: LED ON"
+        },
+        {
+          "offset": 2,
+          "name": "White 1",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 3,
+          "name": "White 2",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 4,
+          "name": "White 3",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 5,
+          "name": "White 4",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 6,
+          "name": "Show Mode",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-15: LED OFF, 16-255: SHOW MODE"
+        },
+        {
+          "offset": 7,
+          "name": "Show Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-255: Show speed (slow to fast)"
+        }
+      ]
+    }
+  ]
+}

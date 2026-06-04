@@ -1,0 +1,22 @@
+{
+  "id": "Stairville MBM40D DMX",
+  "brand": "Stairville",
+  "model": "MBM40D DMX",
+  "defaultPersonality": "1-channel mode",
+  "personalities": [
+    {
+      "name": "1-channel mode",
+      "channelCount": 1,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Mode",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

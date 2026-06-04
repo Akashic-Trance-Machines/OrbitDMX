@@ -1,0 +1,197 @@
+{
+  "id": "ayra-ero-micro-spot-led-movinghead",
+  "brand": "Ayra",
+  "model": "ERO Micro Spot",
+  "defaultPersonality": "10-channel mode",
+  "personalities": [
+    {
+      "name": "1-channel mode",
+      "channelCount": 1,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Sound-controlled show modes",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007 No function (Blackout), 008-067 Show 1, 068-127 Show 2, 128-187 Show 3, 188-247 Show 4, 248-255 Random show"
+        }
+      ]
+    },
+    {
+      "name": "8-channel mode",
+      "channelCount": 8,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan position",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "min - max"
+        },
+        {
+          "offset": 1,
+          "name": "Tilt position",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "min - max"
+        },
+        {
+          "offset": 2,
+          "name": "Colour wheel",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "PLEASE NOTE: the SPLC colours will not work if SPLC is not activated. 000-007 Open white, 008-015: SPLC 1, 016-023: Red, 024-031: SPLC2, 032-039: Orange, 040-047: SPLC3, 048-055: Yellow, 056-063: SPLC4, 064-071: Green, 072-079: SPLC5, 080-087: Dark blue, 088-095: SPLC6, 096-103: Light blue, 104-111: SPLC7, 112-127: Magenta, 128-255: Rainbow effect, slow - fast"
+        },
+        {
+          "offset": 3,
+          "name": "Gobo wheel",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007: Open, 008-015: Gobo 1, 016-023: Gobo 2, 024-031: Gobo 3, 032-039: Gobo 4, 040-047: Gobo 5, 048-055: Gobo 6, 056-063: Gobo 7, 064-071: Open shake, 072-079: Gobo 1 shake, 080-087: Gobo 2 shake, 088-095: Gobo3 shake, 096-103: Gobo4 shake, 104-111: Gobo 5 shake, 112-119: Gobo 6 shake, 120-127 Gobo 7 shake, 128-255 Gobo scroll slow - fast"
+        },
+        {
+          "offset": 4,
+          "name": "Shutter",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007 Blackout, 008-015: Open, 016-131 Stroboscope mode, slow - fast, 132-139: Open, 140-181: Shutter slow open, close fast, slow - fast, 182-189: Open, 190-231: Shutter slow close, open fast, slow-fast, 232-239: Open, 240-247: Random strobe, 248-255: Open"
+        },
+        {
+          "offset": 5,
+          "name": "LED dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 6,
+          "name": "Movement speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "fast movement – slow movement"
+        },
+        {
+          "offset": 7,
+          "name": "Various functions",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-199 No function, 200-209 Reset after 3 seconds within this value, 210-239 No function, 240-255 Sound-controlled mode"
+        }
+      ]
+    },
+    {
+      "name": "10-channel mode",
+      "channelCount": 10,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan position",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "min - max"
+        },
+        {
+          "offset": 1,
+          "name": "Pan fine position",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "min-max"
+        },
+        {
+          "offset": 2,
+          "name": "Tilt position",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "min - max"
+        },
+        {
+          "offset": 3,
+          "name": "Tilt fine position",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "min - max (Manual text states 'Tilt position min - max' for this channel, but this is likely Tilt fine given the 10-channel mode structure with pan fine.)"
+        },
+        {
+          "offset": 4,
+          "name": "Colour wheel",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "PLEASE NOTE: the SPLC colours will not work if SPLC is not activated. 000-007 Open white, 008-015: SPLC 1, 016-023: Red, 024-031: SPLC2, 032-039: Orange, 040-047: SPLC3, 048-055: Yellow, 056-063: SPLC4, 064-071: Green, 072-079: SPLC5, 080-087: Dark blue, 088-095: SPLC6, 096-103: Light blue, 104-111: SPLC7, 112-127: Magenta, 128-255: Rainbow effect, slow - fast"
+        },
+        {
+          "offset": 5,
+          "name": "Gobo wheel",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007: Open, 008-015: Gobo 1, 016-023: Gobo 2, 024-031: Gobo 3, 032-039: Gobo 4, 040-047: Gobo 5, 048-055: Gobo 6, 056-063: Gobo 7, 064-071: Open shake, 072-079: Gobo 1 shake, 080-087: Gobo 2 shake, 088-095: Gobo3 shake, 096-103: Gobo4 shake, 104-111: Gobo 5 shake, 112-119: Gobo 6 shake, 120-127 Gobo 7 shake, 128-255 Gobo scroll slow - fast"
+        },
+        {
+          "offset": 6,
+          "name": "Shutter",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007 Blackout, 008-015: Open, 016-131 Stroboscope mode, slow - fast, 132-139: Open, 140-181: Shutter slow open, close fast, slow - fast, 182-189: Open, 190-231: Shutter slow close, open fast, slow-fast, 232-239: Open, 240-247: Random strobe, 248-255: Open"
+        },
+        {
+          "offset": 7,
+          "name": "LED dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 8,
+          "name": "Movement speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "fast movement – slow movement"
+        },
+        {
+          "offset": 9,
+          "name": "Various functions",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-199 No function, 200-209 Reset after 3 seconds within this value, 210-239 No function, 240-255 Sound-controlled mode"
+        }
+      ]
+    }
+  ]
+}

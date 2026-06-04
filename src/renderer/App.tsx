@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
+import RoomPickerModal from './components/RoomPickerModal';
 import RoomView from './pages/RoomView';
 import SceneView from './pages/SceneView';
 import PlaylistView from './pages/PlaylistView';
 import ControlsView from './pages/ControlsView';
 import FxView from './pages/FxView';
 import SettingsView from './pages/SettingsView';
+import ColoursView from './pages/ColoursView';
 import StatusBar from './components/StatusBar';
 import { useSerialStore } from './store/useSerialStore';
 import { useRoomStore } from './store/useRoomStore';
@@ -14,17 +16,20 @@ import { useHistoryStore } from './store/useHistoryStore';
 import { useSceneStore } from './store/useSceneStore';
 import { usePlaylistStore } from './store/usePlaylistStore';
 import { usePlaylistRunner } from './hooks/usePlaylistRunner';
+import { usePalettePlaylistRunner } from './hooks/usePalettePlaylistRunner';
+import { useHsbPlaylistRunner } from './hooks/useHsbPlaylistRunner';
 import { useMidiListener } from './hooks/useMidiListener';
 import { useAutosave, loadRoomFromFile, newRoom, buildCurrentRoomFile } from './hooks/useAutosave';
 import type { FixtureInstance } from '../shared/types';
 import './styles/app.css';
 
-export type AppView = 'room' | 'scenes' | 'playlists' | 'controls' | 'fx' | 'settings';
+export type AppView = 'room' | 'scenes' | 'playlists' | 'controls' | 'fx' | 'colours' | 'settings';
 
 import { useFxStore } from './store/useFxStore';
 
 export default function App() {
   const [activeView, setActiveView] = useState<AppView>('room');
+  const [showRoomPicker, setShowRoomPicker] = useState(false);
   const { setStatus, setConnectedPort } = useSerialStore();
   const fixtures = useRoomStore((s) => s.fixtures);
   const roomFileName = useRoomFileStore((s) => s.fileName);
@@ -32,6 +37,12 @@ export default function App() {
 
   // ── App-level playlist runner (survives page navigation) ──────────────
   usePlaylistRunner();
+
+  // ── App-level palette generator runner (survives page navigation) ──────
+  usePalettePlaylistRunner();
+
+  // ── App-level HSB generator runner (survives page navigation) ─────────────
+  useHsbPlaylistRunner();
 
   // ── App-level MIDI listener (survives page navigation) ────────────────
   useMidiListener();
@@ -52,6 +63,8 @@ export default function App() {
 
     const cleanup = window.dmx.onSerialStatus((status) => {
       setStatus(status);
+      // Clear port reference only on a final disconnect or error — not during
+      // auto-reconnect (status='reconnecting'), so the UI can still show the port name.
       if (status === 'disconnected' || status === 'error') {
         setConnectedPort(null);
       }
@@ -61,11 +74,11 @@ export default function App() {
   }, []);
 
   // ── App-level FX LED address sync ─────────────────────────────────────
-  // Re-sync whenever fixtures change or the FX target filter changes
-  const fxTarget = useFxStore((s) => s.target);
+  // Re-sync ALL FX types whenever fixtures or any per-type target changes
+  const fxStates = useFxStore((s) => s.fxStates);
   useEffect(() => {
-    useFxStore.getState().syncLedAddresses(fixtures);
-  }, [fixtures, fxTarget]);
+    useFxStore.getState().syncAllLedAddresses(fixtures);
+  }, [fixtures, fxStates]);
 
   // ── Menu actions via custom DOM events dispatched from preload ──────────
   useEffect(() => {
@@ -106,11 +119,11 @@ export default function App() {
     async function handleMenuExportShow() {
       if (typeof window.dmx === 'undefined') return;
       const data = buildCurrentRoomFile();
-      // Gather all referenced rigs
-      const rigIds = new Set(data.room.fixtures.map((f) => f.rigId));
-      const { RIGS } = await import('../rigs');
-      const rigs = RIGS.filter((r) => rigIds.has(r.id));
-      await window.dmx.exportShow(data, rigs);
+      // Gather all referenced profiles
+      const profileIds = new Set(data.room.fixtures.map((f) => f.profileId));
+      const { FIXTURE_PROFILES } = await import('../fixtures');
+      const fixtureProfiles = FIXTURE_PROFILES.filter((r) => profileIds.has(r.id));
+      await window.dmx.exportShow(data, fixtureProfiles);
     }
 
     async function handleMenuImportShow() {
@@ -160,6 +173,7 @@ export default function App() {
         onNavigate={setActiveView}
         roomFileName={roomFileName}
         isDirty={isDirty}
+        onOpenRoomPicker={() => setShowRoomPicker(true)}
       />
       <main className="app-main">
         {activeView === 'room'      && <RoomView />}
@@ -167,9 +181,13 @@ export default function App() {
         {activeView === 'playlists' && <PlaylistView />}
         {activeView === 'controls'  && <ControlsView />}
         {activeView === 'fx'        && <FxView />}
+        {activeView === 'colours'   && <ColoursView />}
         {activeView === 'settings'  && <SettingsView />}
       </main>
       <StatusBar />
+      {showRoomPicker && (
+        <RoomPickerModal onClose={() => setShowRoomPicker(false)} />
+      )}
     </div>
   );
 }

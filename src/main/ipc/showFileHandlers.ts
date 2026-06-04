@@ -2,7 +2,7 @@ import { ipcMain, dialog, BrowserWindow } from 'electron';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { IPC } from '../../shared/ipcChannels';
-import type { IpcResponse, ShowFile, RoomFile, Rig } from '../../shared/types';
+import type { IpcResponse, ShowFile, RoomFile, FixtureProfile } from '../../shared/types';
 
 /**
  * Register IPC handlers for .orbitshow export/import.
@@ -10,7 +10,7 @@ import type { IpcResponse, ShowFile, RoomFile, Rig } from '../../shared/types';
 export function registerShowFileHandlers(): void {
 
   // ── Export Show ──────────────────────────────────────────────────────────
-  ipcMain.handle(IPC.SHOW_FILE_EXPORT, async (_event, roomData: RoomFile, rigs: Rig[]): Promise<IpcResponse> => {
+  ipcMain.handle(IPC.SHOW_FILE_EXPORT, async (_event, roomData: RoomFile, fixtureProfiles: FixtureProfile[]): Promise<IpcResponse> => {
     try {
       const win = BrowserWindow.getFocusedWindow();
       const result = await dialog.showSaveDialog(win!, {
@@ -26,7 +26,7 @@ export function registerShowFileHandlers(): void {
       const showFile: ShowFile = {
         orbitshow: '1.0',
         room: roomData.room,
-        rigs,
+        fixtureProfiles,
       };
 
       fs.writeFileSync(result.filePath, JSON.stringify(showFile, null, 2), 'utf-8');
@@ -61,7 +61,7 @@ export function registerShowFileHandlers(): void {
         return { success: false, error: 'Invalid .orbitshow file: missing required fields.' };
       }
 
-      console.log(`[ShowFile] Imported from ${filePath} (${showFile.rigs?.length ?? 0} embedded rigs)`);
+      console.log(`[ShowFile] Imported from ${filePath} (${showFile.fixtureProfiles?.length ?? 0} embedded profiles)`);
       return { success: true, data: showFile };
     } catch (e) {
       console.error('[ShowFile] Import error:', e);

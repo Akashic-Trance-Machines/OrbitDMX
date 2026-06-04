@@ -7,17 +7,19 @@ interface SidebarProps {
   onNavigate: (view: AppView) => void;
   roomFileName?: string;
   isDirty?: boolean;
+  onOpenRoomPicker?: () => void;
 }
 
 const NAV_ITEMS: { id: AppView; label: string; icon: string }[] = [
   { id: 'room',      label: 'Room',      icon: '⬡' },
   { id: 'scenes',    label: 'Scenes',    icon: '◈' },
   { id: 'playlists', label: 'Playlists', icon: '▶' },
-  { id: 'controls',  label: 'Controls',  icon: '🎛' },
+  { id: 'controls',  label: 'Controls',  icon: '⊞' },
   { id: 'fx',        label: 'FX',        icon: '✦' },
+  { id: 'colours',   label: 'Colours',   icon: '◉' },
 ];
 
-export default function Sidebar({ activeView, onNavigate, roomFileName, isDirty }: SidebarProps) {
+export default function Sidebar({ activeView, onNavigate, roomFileName, isDirty, onOpenRoomPicker }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
@@ -25,12 +27,18 @@ export default function Sidebar({ activeView, onNavigate, roomFileName, isDirty 
         <span className="sidebar-logo-text">OrbitDMX</span>
       </div>
 
-      {/* Room file indicator */}
+      {/* Room file indicator — click to switch rooms */}
       {roomFileName && (
-        <div className="sidebar-room-file" title={roomFileName}>
+        <button
+          className="sidebar-room-file"
+          title="Switch room…"
+          onClick={onOpenRoomPicker}
+        >
           <span className="sidebar-room-name">{roomFileName}</span>
-          {isDirty && <span className="sidebar-room-dirty">●</span>}
-        </div>
+          {isDirty
+            ? <span className="sidebar-room-dirty">●</span>
+            : <span className="sidebar-room-chevron">›</span>}
+        </button>
       )}
 
       <nav className="sidebar-nav">

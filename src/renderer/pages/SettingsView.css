@@ -161,119 +161,96 @@
 .spin { display: inline-block; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ── Port cards ─────────────────────────────────────────────────────────────── */
-.ports-empty {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  padding: 4px 2px;
+/* ── DMX Connector Grid ──────────────────────────────────────────────────────── */
+.dmx-connector-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 4px;
 }
 
-.port-list {
+@media (max-width: 580px) {
+  .dmx-connector-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.connector-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
-.port-card {
+.connector-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+/* ── Device Details Card ────────────────────────────────────────────────────── */
+.device-details-card {
+  padding: 16px 20px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-dim);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.device-details-desc {
+  font-size: 13px;
+  color: var(--color-text-dim);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.device-details-meta {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  transition: border-color 0.15s, background 0.15s;
-  font-family: var(--font-sans);
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.port-card:hover:not(:disabled):not(.connected) {
-  border-color: var(--color-surface-3);
-  background: var(--color-surface-3);
+.meta-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-success);
+  background: rgba(79, 217, 122, 0.08);
+  border: 1px solid rgba(79, 217, 122, 0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.port-card.selected {
-  border-color: var(--color-accent);
-  background: rgba(124, 106, 247, 0.06);
-}
-
-.port-card.connected {
-  border-color: var(--color-success);
-  background: rgba(79, 217, 122, 0.06);
-  cursor: default;
-}
-
-.port-card:disabled {
-  cursor: default;
-}
-
-.port-card-icon {
-  font-size: 20px;
-  flex-shrink: 0;
-  width: 28px;
-  text-align: center;
-}
-
-.port-card-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-.port-card-path {
-  font-size: 14px;
-  color: var(--color-text);
-  font-weight: 500;
-}
-
-.port-card-meta {
+.meta-protocol {
   font-size: 12px;
   color: var(--color-text-muted);
 }
 
-.port-card-badge {
-  font-size: 11px;
-  font-weight: 600;
+.meta-protocol strong {
   color: var(--color-accent);
-  background: var(--color-accent-glow);
-  padding: 3px 10px;
-  border-radius: 99px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
 }
 
-/* ── Error ───────────────────────────────────────────────────────────────────── */
-.settings-error {
-  font-size: 13px;
-  color: var(--color-danger);
-  padding: 10px 14px;
-  background: rgba(247, 79, 79, 0.08);
-  border: 1px solid rgba(247, 79, 79, 0.2);
-  border-radius: var(--radius-sm);
+/* ── Connector Actions ───────────────────────────────────────────────────────── */
+.connector-actions {
+  display: flex;
+  margin-top: 4px;
 }
 
-/* ── About section ───────────────────────────────────────────────────────────── */
-.about-row {
+.connect-full-width,
+.disconnect-full-width {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 14px;
+  justify-content: center;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--color-border-dim);
-  font-size: 13px;
-}
-.about-row:last-child { border-bottom: none; }
-
-.about-label {
-  width: 96px;
-  color: var(--color-text-muted);
-  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
-.about-value {
-  color: var(--color-text);
-}
+

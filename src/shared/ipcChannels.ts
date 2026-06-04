@@ -3,10 +3,12 @@
 // Renderer → Main (invoke, returns { success, data?, error? })
 export const IPC = {
   // Serial / hardware
-  SERIAL_LIST_PORTS: 'serial:list-ports',
-  SERIAL_CONNECT: 'serial:connect',
-  SERIAL_DISCONNECT: 'serial:disconnect',
-  SERIAL_GET_STATUS: 'serial:get-status',   // query current status on mount
+  SERIAL_LIST_PORTS:    'serial:list-ports',
+  SERIAL_CONNECT:       'serial:connect',
+  SERIAL_DISCONNECT:    'serial:disconnect',
+  SERIAL_GET_STATUS:    'serial:get-status',
+  SERIAL_GET_OUTPUT_MODE: 'serial:get-output-mode',
+  SERIAL_SET_OUTPUT_MODE: 'serial:set-output-mode',
 
   // DMX engine control
   DMX_SEND_SCENE: 'dmx:send-scene',
@@ -18,6 +20,7 @@ export const IPC = {
   DMX_SET_DIMMER_ADDRESSES: 'dmx:set-dimmer-addresses',
   DMX_SET_FX: 'dmx:set-fx',
   DMX_SET_FX_LED_ADDRESSES: 'dmx:set-fx-led-addresses',
+  DMX_SET_FX_LED_ADDRESSES_FOR_TYPE: 'dmx:set-fx-led-addresses-for-type',
   DMX_SET_CHANNEL_BATCH: 'dmx:set-channel-batch',
   DMX_SET_COLOR_SHIFT: 'dmx:set-color-shift',
   DMX_CLEAR_COLOR_SHIFT: 'dmx:clear-color-shift',
@@ -52,6 +55,7 @@ export const IPC = {
   ROOM_FILE_GET_DEFAULT_PATH: 'room-file:get-default-path',
   ROOM_FILE_GET_LAST_PATH: 'room-file:get-last-path',
   ROOM_FILE_SET_LAST_PATH: 'room-file:set-last-path',
+  ROOM_FILE_LIST_DIR: 'room-file:list-dir',
 
   // Show file I/O (.orbitshow)
   SHOW_FILE_EXPORT: 'show-file:export',

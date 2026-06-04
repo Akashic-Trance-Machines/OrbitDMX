@@ -1,7 +1,7 @@
 {
   "name": "orbit-dmx",
   "productName": "OrbitDMX",
-  "version": "1.2.5",
+  "version": "1.3.0",
   "description": "A modern, open-source stage lighting DMX controller",
   "main": ".vite/build/main.js",
   "private": true,
@@ -12,7 +12,8 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "scrape:ayra": "ts-node scripts/scrape-ayra.ts",
-    "parse:local": "ts-node scripts/parse-local.ts"
+    "parse:local": "ts-node scripts/parse-local.ts",
+    "postinstall": "patch-package && (cd node_modules/@serialport/bindings-cpp && npx node-gyp rebuild --target=$(node -e \"process.stdout.write(require('../../electron/package.json').version)\") --arch=arm64 --dist-url=https://electronjs.org/headers --runtime=electron && cp build/Release/bindings.node bin/darwin-arm64-145/bindings-cpp.node)"
   },
   "keywords": [],
   "author": {
@@ -41,6 +42,7 @@
     "electron": "41.3.0",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.32.0",
+    "patch-package": "^8.0.1",
     "pdf-parse": "^1.1.1",
     "puppeteer": "^24.42.0",
     "ts-node": "^10.9.2",

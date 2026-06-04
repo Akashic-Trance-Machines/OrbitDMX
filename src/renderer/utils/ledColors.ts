@@ -1,4 +1,4 @@
-import { getRigById } from '../../rigs';
+import { getFixtureProfileById } from '../../fixtures';
 import type { FixtureInstance, ChannelDefinition } from '../../shared/types';
 
 /** A single LED colour within a fixture. */
@@ -20,8 +20,8 @@ export interface LedColor {
  * Fixtures without RGB channels return a gray based on dimmer value.
  */
 export function getFixtureLedColors(fixture: FixtureInstance, snapshot: number[]): LedColor[] {
-  const rig = getRigById(fixture.rigId);
-  const personality = rig?.personalities.find((p) => p.name === fixture.personalityName);
+  const profile = getFixtureProfileById(fixture.profileId);
+  const personality = profile?.personalities.find((p) => p.name === fixture.personalityName);
   if (!personality) {
     return [{ fixtureId: fixture.id, fixtureLabel: fixture.label, ledIndex: 0, color: 'rgb(50,50,60)' }];
   }

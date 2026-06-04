@@ -4,24 +4,57 @@ import { useControlsStore, getWidgetKind, getChannelTypeForControl, getFxTypeFor
 import { useRoomStore } from '../store/useRoomStore';
 import { useFxStore } from '../store/useFxStore';
 import { usePlaylistStore } from '../store/usePlaylistStore';
+import { useTempoStore } from '../store/useTempoStore';
 import type { ControlWidget, FxType } from '../../shared/types';
 
 /**
  * useMidiListener — app-level hook for Web MIDI API.
  *
- * Mounted once in App.tsx (like usePlaylistRunner) so MIDI works
- * regardless of which page is active.
+ * Mounted once in App.tsx so MIDI works regardless of which page is active.
  *
- * - Auto-discovers MIDI input devices
- * - Routes CC messages to matching ControlWidgets
- * - Supports "Learn" mode for auto-mapping
+ * Device selection model (mirrors the DMX adapter UX):
+ *  - All available inputs are discovered and listed in the store.
+ *  - Only the device whose id === connectedDeviceId receives midimessage events.
+ *  - Auto-reconnect: when the connected device reappears after being unplugged
+ *    (onstatechange fires), the listener re-attaches automatically.
+ *  - connectedDeviceId is persisted in localStorage by the store.
  */
 export function useMidiListener() {
   const midiAccessRef = useRef<WebMidi.MIDIAccess | null>(null);
-  const listenersRef = useRef<Map<string, (e: WebMidi.MIDIMessageEvent) => void>>(new Map());
+  // Single active handler — only one device at a time.
+  const activeHandlerRef = useRef<{ inputId: string; fn: (e: WebMidi.MIDIMessageEvent) => void } | null>(null);
+
+  // Detach any existing listener and re-attach to the currently connectedDeviceId.
+  // Called on init, onstatechange, and whenever connectedDeviceId changes.
+  function rewireListener(access: WebMidi.MIDIAccess) {
+    // Detach old listener
+    if (activeHandlerRef.current) {
+      const { inputId, fn } = activeHandlerRef.current;
+      const old = access.inputs.get(inputId);
+      if (old) old.removeEventListener('midimessage', fn as EventListener);
+      activeHandlerRef.current = null;
+    }
+
+    const connectedId = useMidiStore.getState().connectedDeviceId;
+    if (!connectedId) return;
+
+    const input = access.inputs.get(connectedId);
+    if (!input) {
+      // Device selected but not currently present (unplugged). Will re-attach
+      // when onstatechange fires and the device reappears.
+      console.log(`[MIDI] Selected device ${connectedId} not found — waiting for reconnect`);
+      return;
+    }
+
+    const handler = (e: WebMidi.MIDIMessageEvent) => handleMidiMessage(e, input.name || input.id);
+    input.addEventListener('midimessage', handler as EventListener);
+    activeHandlerRef.current = { inputId: connectedId, fn: handler };
+    console.log(`[MIDI] Active device: ${input.name || input.id}`);
+  }
 
   useEffect(() => {
     let cancelled = false;
+    let unsubDevice: (() => void) | null = null;
 
     async function init() {
       if (!navigator.requestMIDIAccess) {
@@ -36,45 +69,34 @@ export function useMidiListener() {
         midiAccessRef.current = access;
         useMidiStore.getState().setIsListening(true);
 
-        // Discover devices
+        // Populate device list
         const devices: Array<{ id: string; name: string }> = [];
         access.inputs.forEach((input) => {
           devices.push({ id: input.id, name: input.name || input.id });
         });
         useMidiStore.getState().setDevices(devices);
 
-        // Attach listeners to all inputs
-        access.inputs.forEach((input) => {
-          const handler = (e: WebMidi.MIDIMessageEvent) => handleMidiMessage(e, input.name || input.id);
-          listenersRef.current.set(input.id, handler);
-          input.addEventListener('midimessage', handler as EventListener);
-        });
+        // Wire up to whichever device is already selected (e.g. restored from localStorage)
+        rewireListener(access);
 
-        // Listen for device connect/disconnect
+        // ── onstatechange: device plugged / unplugged ──────────────────────
         access.onstatechange = () => {
           const updatedDevices: Array<{ id: string; name: string }> = [];
-
-          // Remove old listeners
-          listenersRef.current.forEach((handler, inputId) => {
-            const input = access.inputs.get(inputId);
-            if (input) {
-              input.removeEventListener('midimessage', handler as EventListener);
-            }
-          });
-          listenersRef.current.clear();
-
-          // Re-attach to all current inputs
           access.inputs.forEach((input) => {
             updatedDevices.push({ id: input.id, name: input.name || input.id });
-            const handler = (e: WebMidi.MIDIMessageEvent) => handleMidiMessage(e, input.name || input.id);
-            listenersRef.current.set(input.id, handler);
-            input.addEventListener('midimessage', handler as EventListener);
           });
-
           useMidiStore.getState().setDevices(updatedDevices);
+          // Auto-reconnect: re-attach if the selected device just reappeared.
+          rewireListener(access);
         };
 
-        console.log(`[MIDI] Listening on ${devices.length} input(s):`, devices.map((d) => d.name).join(', '));
+        // ── Subscribe to Connect / Disconnect actions from the UI ──────────
+        unsubDevice = useMidiStore.subscribe((state, prev) => {
+          if (state.connectedDeviceId === prev.connectedDeviceId) return;
+          rewireListener(access);
+        });
+
+        console.log(`[MIDI] ${devices.length} input(s) available:`, devices.map((d) => d.name).join(', '));
       } catch (err) {
         console.error('[MIDI] Failed to access MIDI devices:', err);
       }
@@ -84,16 +106,14 @@ export function useMidiListener() {
 
     return () => {
       cancelled = true;
-      // Cleanup all listeners
-      if (midiAccessRef.current) {
-        midiAccessRef.current.inputs.forEach((input) => {
-          const handler = listenersRef.current.get(input.id);
-          if (handler) {
-            input.removeEventListener('midimessage', handler as EventListener);
-          }
-        });
+      unsubDevice?.();
+      const access = midiAccessRef.current;
+      if (access && activeHandlerRef.current) {
+        const { inputId, fn } = activeHandlerRef.current;
+        const input = access.inputs.get(inputId);
+        if (input) input.removeEventListener('midimessage', fn as EventListener);
+        activeHandlerRef.current = null;
       }
-      listenersRef.current.clear();
       useMidiStore.getState().setIsListening(false);
     };
   }, []);
@@ -118,15 +138,15 @@ export function useMidiListener() {
     });
 
     const unsubFx = useFxStore.subscribe((state, prev) => {
-      if (state.isActive === prev.isActive && state.selectedType === prev.selectedType) return;
+      if (state.fxStates === prev.fxStates) return;
 
       const widgets = useControlsStore.getState().widgets;
       for (const w of widgets) {
         const fxType = getFxTypeForControl(w.controlType);
         if (!fxType) continue;
 
-        const shouldBeOn = state.isActive && state.selectedType === fxType;
-        const newValue = shouldBeOn ? 255 : 0;
+        const isNowActive = state.fxStates[fxType as import('../../shared/types').FxType]?.isActive ?? false;
+        const newValue = isNowActive ? 255 : 0;
         if (w.value !== newValue) {
           useControlsStore.getState().updateControl(w.id, { value: newValue });
         }
@@ -146,9 +166,30 @@ export function useMidiListener() {
  */
 function handleMidiMessage(event: WebMidi.MIDIMessageEvent, deviceName: string) {
   const data = event.data;
-  if (!data || data.length < 3) return;
+  if (!data || data.length < 1) return;
 
   const status = data[0];
+
+  // ── System Real-Time messages (single byte, no channel/data bytes) ────
+  // These arrive on any device and must be handled before the CC range check.
+  if (status === 0xF8) {
+    // MIDI Timing Clock — fires 24 times per quarter note at the sender's BPM
+    useTempoStore.getState().handleMidiClock();
+    return;
+  }
+  if (status === 0xFA || status === 0xFB) {
+    // Start (0xFA) or Continue (0xFB) — reset accumulator for a clean lock
+    // We treat both as a "sync start" signal; the next clocks will build BPM
+    return;
+  }
+  if (status === 0xFC) {
+    // Stop (0xFC) — optionally pause; we don't stop playback, just ignore
+    return;
+  }
+
+  // ── Channel Voice messages ────────────────────────────────────────────
+  if (data.length < 3) return;
+
   // CC messages: 0xB0 (channel 1) through 0xBF (channel 16)
   if (status < 0xB0 || status > 0xBF) return;
 
@@ -306,30 +347,16 @@ function applyButtonPress(widget: ControlWidget) {
   const fxType = getFxTypeForControl(widget.controlType);
 
   if (fxType) {
-    // FX button: use FX page settings but with this button's target
-    const fxState = useFxStore.getState();
-    const store = useControlsStore.getState();
-    
-    // Stop any running FX first
-    fxState.stopFx();
-
-    // Deactivate all other FX buttons (only one FX can run at a time)
-    for (const w of store.widgets) {
-      if (w.id !== widget.id && getFxTypeForControl(w.controlType) && w.value > 0) {
-        store.updateControl(w.id, { value: 0 });
-      }
-    }
-
-    // Set the FX type and start it
-    fxState.setSelectedType(fxType as FxType);
-    fxState.setIsActive(true);
-    
-    // Sync LED addresses with this button's target
+    // FX button: start this specific FX type with this button's target
+    const fxStore = useFxStore.getState();
     const fixtures = useRoomStore.getState().fixtures;
-    fxState.setTarget(widget.target);
-    fxState.syncLedAddresses(fixtures);
 
-    store.updateControl(widget.id, { value: 255 });
+    // Apply this button's target to that FX type
+    fxStore.setFxParam(fxType as import('../../shared/types').FxType, 'target', widget.target);
+    fxStore.syncLedAddresses(fxType as import('../../shared/types').FxType, fixtures);
+    fxStore.setFxActive(fxType as import('../../shared/types').FxType, true);
+
+    useControlsStore.getState().updateControl(widget.id, { value: 255 });
     return;
   }
 
@@ -361,11 +388,8 @@ function applyButtonPress(widget: ControlWidget) {
 function applyButtonRelease(widget: ControlWidget) {
   const fxType = getFxTypeForControl(widget.controlType);
   if (fxType) {
-    const fxState = useFxStore.getState();
-    fxState.stopFx();
-    // Reset FX target to "all" so the FX page isn't affected by this button's target
-    fxState.setTarget({ mode: 'all', fixtureIds: [] });
-    fxState.syncLedAddresses(useRoomStore.getState().fixtures);
+    const fxStore = useFxStore.getState();
+    fxStore.setFxActive(fxType as import('../../shared/types').FxType, false);
     useControlsStore.getState().updateControl(widget.id, { value: 0 });
     return;
   }

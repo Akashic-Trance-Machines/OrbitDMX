@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import type { ControlWidget, ControlsLayout, FixtureTarget, ChannelType, ControlType, WidgetKind } from '../../shared/types';
 import { useRoomStore } from './useRoomStore';
-import { getRigById } from '../../rigs';
+import { getFixtureProfileById } from '../../fixtures';
+import { useFxStore } from './useFxStore';
 
 // ── Type-driven helpers ──────────────────────────────────────────────────────
 
@@ -221,8 +222,8 @@ function getAddressesForChannelType(fixtureIds: string[], channelType: ChannelTy
     const fixture = allFixtures.find((f) => f.id === fId);
     if (!fixture) continue;
 
-    const rig = getRigById(fixture.rigId);
-    const personality = rig?.personalities.find((p) => p.name === fixture.personalityName);
+    const profile = getFixtureProfileById(fixture.profileId);
+    const personality = profile?.personalities.find((p) => p.name === fixture.personalityName);
     if (!personality) continue;
 
     const matchingChannels = personality.channels
@@ -275,13 +276,12 @@ function cleanupControlEffect(widget: ControlWidget): void {
     case 'fx-fire':
     case 'fx-candle':
     case 'fx-twinkle': {
-      // Stop any running FX and reset target to "all"
-      window.dmx.setFx(null);
-      // Lazy import to avoid circular dependency issues at module level
-      const { useFxStore } = require('./useFxStore');
-      const fxState = useFxStore.getState();
-      fxState.setTarget({ mode: 'all' as const, fixtureIds: [] });
-      fxState.syncLedAddresses(useRoomStore.getState().fixtures);
+      // Stop that specific FX type
+      const fxType = getFxTypeForControl(type);
+      if (fxType) {
+        const fxStore = useFxStore.getState();
+        fxStore.setFxActive(fxType as any, false);
+      }
       break;
     }
 
@@ -340,8 +340,8 @@ export const useControlsStore = create<ControlsStore>()((set, get) => ({
       const fixture = allFixtures.find((f) => f.id === fId);
       if (!fixture) continue;
 
-      const rig = getRigById(fixture.rigId);
-      const personality = rig?.personalities.find((p) => p.name === fixture.personalityName);
+      const profile = getFixtureProfileById(fixture.profileId);
+      const personality = profile?.personalities.find((p) => p.name === fixture.personalityName);
       if (!personality) continue;
 
       const channels = personality.channels;

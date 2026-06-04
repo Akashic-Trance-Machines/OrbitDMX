@@ -1,6 +1,21 @@
 import type { SceneState } from './constants';
 
-// ─── Rig / Fixture types ─────────────────────────────────────────────────────
+// ─── Colour types (shared so RoomFile can reference them) ─────────────────────
+
+export interface ColourPreset {
+  id: string;
+  name: string;
+  hex: string; // 6-char hex, e.g. "#f5a023"
+}
+
+export interface ColourPalette {
+  id: string;
+  name: string;
+  /** Ordered list of hex colours */
+  colours: string[];
+}
+
+// ─── Fixture Profile types ─────────────────────────────────────────────────────
 
 export interface ChannelDefinition {
   offset: number;        // 0-based offset from fixture start address
@@ -33,25 +48,25 @@ export type ChannelType =
   | 'other'
   | 'generic';
 
-export interface RigPersonality {
+export interface FixturePersonality {
   name: string;           // e.g. "3-channel RGB", "6-channel extended"
   channelCount: number;
   channels: ChannelDefinition[];
 }
 
-export interface Rig {
+export interface FixtureProfile {
   id: string;             // slug, e.g. "ayra-compar-jr"
   brand: string;
   model: string;
   defaultPersonality?: string;  // name of the personality to select by default
-  personalities: RigPersonality[];
+  personalities: FixturePersonality[];
 }
 
 // ─── Room types ──────────────────────────────────────────────────────────────
 
 export interface FixtureInstance {
   id: string;             // uuid
-  rigId: string;          // references Rig.id
+  profileId: string;      // references FixtureProfile.id
   personalityName: string;
   channelCount: number;   // cached from personality — used for conflict detection
   label: string;          // user-given name, e.g. "Stage Left Par"
@@ -101,19 +116,107 @@ export interface Playlist {
   id: string;
   roomId: string;
   name: string;
+  kind?: 'scene';            // optional discriminant — absent = 'scene' for backward compat
   cues: Cue[];
   syncMode: PlaylistSyncMode;
   playDirection: PlayDirection;
   fadeDurationMs: number;      // crossfade time (all modes)
   holdDurationMs: number;      // auto mode: how long each scene holds before advancing
+  bpmSync?: boolean;           // auto mode: sync hold to global BPM
+  bpmDivider?: number;         // auto mode + bpmSync: beat multiplier (4, 2, 1, 0.5…)
   audioGain: number;           // music mode: microphone input gain (0–100)
   audioThreshold: number;      // music mode: beat detection threshold (0–100)
   audioCooldown?: number;      // music mode: minimum ms between triggers (default 300)
 }
 
+// ─── Palette Playlist types ────────────────────────────────────────────────────
+
+/**
+ * A Palette Generator playlist — cycles through the colours of a named
+ * ColourPalette and writes them to targeted fixture LEDs with crossfade.
+ * Uses the same syncMode system as Scene Playlists.
+ * Session-only (not persisted to room file).
+ */
+export interface PalettePlaylist {
+  id: string;
+  roomId: string;
+  name: string;
+  kind: 'palette';           // discriminant
+
+  paletteId: string;         // references ColourPalette.id
+
+  // Mode — same three as scene playlists for a uniform UI
+  syncMode: PlaylistSyncMode; // 'auto' | 'manual' | 'music'
+
+  // Auto mode timing
+  holdMs: number;            // manual hold duration ms (after fade completes)
+  bpmSync: boolean;          // auto mode: sync hold to global BPM
+  bpmDivider: number;        // auto mode + bpmSync: beat multiplier (4, 2, 1, 0.5…)
+
+  // Crossfade
+  fadeMs: number;            // 0 = snap, >0 = crossfade duration ms
+
+  // Music mode
+  audioGain: number;         // microphone input gain (0–100)
+  audioThreshold: number;    // beat detection threshold (0–100)
+  audioCooldown?: number;    // minimum ms between triggers (default 300)
+
+  // Playback order
+  playDirection: PlayDirection;
+
+  // Fixture targeting
+  target: FixtureTarget;
+}
+
+// ─── HSB Playlist types ────────────────────────────────────────────────────────
+
+/** A min/max range for a single HSB channel. */
+export interface HsbRange {
+  min: number;
+  max: number;
+}
+
+/**
+ * An HSB Generator playlist — on every step each spot receives its own
+ * independently randomised colour, constrained by min/max Hue (0–360),
+ * Saturation (0–100), and Brightness (0–100) ranges.
+ * Session-only (not persisted to room file).
+ */
+export interface HsbPlaylist {
+  id: string;
+  roomId: string;
+  name: string;
+  kind: 'hsb';               // discriminant
+
+  // HSB colour constraints
+  hueCenter: number;   // 0–360 centre of the hue arc
+  hueWidth:  number;   // 0–360 total arc span (0 = one colour, 360 = all hues)
+  saturation: HsbRange;      // percentage 0–100
+  brightness: HsbRange;      // percentage 0–100
+
+  // Mode — same three as other generators
+  syncMode: PlaylistSyncMode;
+
+  // Auto mode timing
+  holdMs:     number;        // ms between steps (non-BPM)
+  bpmSync:    boolean;       // derive hold from global BPM
+  bpmDivider: number;        // beat multiplier (4, 2, 1, 0.5…)
+
+  // Crossfade
+  fadeMs: number;            // 0 = snap, >0 = crossfade duration ms
+
+  // Music mode
+  audioGain:      number;    // microphone gain (0–100)
+  audioThreshold: number;    // beat detection threshold (0–100)
+  audioCooldown?: number;    // min ms between triggers (default 300)
+
+  // Fixture targeting
+  target: FixtureTarget;
+}
+
 // ─── FX types ─────────────────────────────────────────────────────────────────
 
-export type FxType = 'strobe' | 'strobeColor' | 'breath' | 'fire' | 'candle' | 'twinkle';
+export type FxType = 'strobe' | 'strobeColor' | 'breath' | 'fire' | 'candle' | 'twinkle' | 'hueRotator';
 
 export interface FxConfig {
   type: FxType;
@@ -124,6 +227,34 @@ export interface FxConfig {
   fadeSpeed?: number;                 // 0–100 twinkle fade-out speed
   randomness?: number;                // 0–100 twinkle timing randomness
   amount?: number;                    // 0–100 twinkle: max LEDs that can trigger per tick
+
+  // ── Tempo sync ──────────────────────────────────────────────────────────
+  /** When true, timing is derived from globalBpm + tempoDivider instead of speed 0–100. */
+  syncToBpm?: boolean;
+  /**
+   * Beat multiplier that controls the effect period relative to one beat.
+   * 4 = 4 bars, 2 = 2 bars, 1 = 1/1, 0.5 = 1/2, 0.25 = 1/4,
+   * 0.125 = 1/8, 0.0625 = 1/16, 0.03125 = 1/32
+   */
+  tempoDivider?: number;
+  /** Current global BPM — included in the config so the engine needs no separate call. */
+  globalBpm?: number;
+
+  // ── Strobe quantisation ──────────────────────────────────────────────────
+  /**
+   * When true, the strobe period is snapped to the nearest multiple of 50ms
+   * (2 × DMX frame = 25ms). This guarantees a perfectly symmetric ON/OFF
+   * pattern with no frame-level jitter.
+   * Only relevant for 'strobe' and 'strobeColor'.
+   */
+  quantiseStrobe?: boolean;
+
+  // ── Hue Rotator ──────────────────────────────────────────────────────────────
+  /**
+   * Period for one full 360° hue rotation in milliseconds.
+   * Ignored when syncToBpm is true (BPM period used instead).
+   */
+  rotatePeriodMs?: number;
 }
 
 /** Describes one LED's RGB channel addresses (1-indexed DMX). */
@@ -223,12 +354,18 @@ export interface IpcResponse<T = unknown> {
 
 // ─── Hardware status ─────────────────────────────────────────────────────────
 
-export type SerialStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
+// DMX output protocol
+export type DmxOutputMode = 'baudRateBreak' | 'enttecOpen' | 'enttecPro' | 'eurolite';
+
+export type SerialStatus = 'disconnected' | 'connecting' | 'connected' | 'error' | 'reconnecting';
+
 
 export interface SerialPortInfo {
   path: string;
   manufacturer?: string;
   serialNumber?: string;
+  /** Best-guess protocol hint derived from VID/PID + manufacturer string. */
+  detectedMode?: DmxOutputMode;
 }
 
 // ─── Runner state ─────────────────────────────────────────────────────────────
@@ -252,6 +389,10 @@ export interface RoomFile {
     scenes: Scene[];
     playlists: Playlist[];
     controls?: ControlsLayout;  // v1.2: configurable control surface
+    colourPresets?: ColourPreset[];      // v1.3: custom preset swatches
+    colourPalettes?: ColourPalette[];    // v1.3: named colour palettes
+    paletteGenerators?: PalettePlaylist[]; // v1.3: palette generator playlists
+    hsbGenerators?: HsbPlaylist[];        // v1.3: HSB generator playlists
   };
 }
 
@@ -260,5 +401,5 @@ export interface RoomFile {
 export interface ShowFile {
   orbitshow: string;           // schema version, e.g. "1.0"
   room: RoomFile['room'];
-  rigs: Rig[];                 // embedded copies of all referenced rig definitions
+  fixtureProfiles: FixtureProfile[];                 // embedded copies of all referenced fixture profiles
 }

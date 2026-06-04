@@ -1,0 +1,135 @@
+{
+  "id": "ayra-ero-075-moving-head",
+  "brand": "Ayra",
+  "model": "ERO 075",
+  "defaultPersonality": "14CH mode",
+  "personalities": [
+    {
+      "name": "14CH mode",
+      "channelCount": 14,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Pan",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 1,
+          "name": "Pan Fine",
+          "type": "pan",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 2,
+          "name": "Tilt",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 3,
+          "name": "Tilt Fine",
+          "type": "tilt",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 4,
+          "name": "Pan/Tilt Speed",
+          "type": "speed",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-255 Fast-Slow"
+        },
+        {
+          "offset": 5,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 6,
+          "name": "Shutter/Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007 Blackout, 008-015 Open, 016-131 Strobe slow-fast, 132-139 Open, 140-181 Pulse slow open, fast close, 182-189 Open, 190-231 Pulse fast open, slow close, 232-239 Open, 240-247 Random Strobe, 248-255 Open"
+        },
+        {
+          "offset": 7,
+          "name": "Colour",
+          "type": "color-wheel",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-015 Open, 016-031 Colour 1, 032-047 Colour 2, 048-063 Colour 3, 064-079 Colour 4, 080-095 Colour 5, 096-101 Colour 6, 102-111 Colour 7, 112-127 Colour 8, 128-191 Rainbow effect clockwise fast-slow, 192-255 Rainbow effect counter-clockwise slow-fast"
+        },
+        {
+          "offset": 8,
+          "name": "Gobo",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-007 Open, 008-015 Gobo 1, 016-023 Gobo 2, 024-031 Gobo 3, 032-039 Gobo 4, 040-047 Gobo 5, 048-063 Gobo 6, 064-073 Gobo 1 shake, 074-082 Gobo 2 shake, 083-091 Gobo 3 shake, 092-100 Gobo 4 shake, 101-109 Gobo 5 shake, 110-127 Gobo 6 shake, 128-129 Gobo scroll effect clockwise fast-slow, 190-193 Stop, 194-255 Gobo scroll effect anti-clockwise slow-fast"
+        },
+        {
+          "offset": 9,
+          "name": "Gobo Rotation",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000-127 Gobo index, 128-189 Rotation clockwise fast-slow, 190-193 Stop, 194-255 Rotation anti-clockwise slow-fast"
+        },
+        {
+          "offset": 10,
+          "name": "Focus",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        },
+        {
+          "offset": 11,
+          "name": "Prisma",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Prisma On/Off control"
+        },
+        {
+          "offset": 12,
+          "name": "Auto Mode",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "000 No function, 001-255 Auto mode selection"
+        },
+        {
+          "offset": 13,
+          "name": "Reset",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "Hold value 255 until reset"
+        }
+      ]
+    }
+  ]
+}

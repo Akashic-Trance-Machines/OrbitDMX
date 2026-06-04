@@ -1,0 +1,47 @@
+{
+  "id": "ayra-led-uv-blaster",
+  "brand": "Ayra",
+  "model": "UV LED Blaster",
+  "defaultPersonality": "2-channel mode",
+  "personalities": [
+    {
+      "name": "1-channel mode",
+      "channelCount": 1,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        }
+      ]
+    },
+    {
+      "name": "2-channel mode",
+      "channelCount": 2,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100%"
+        },
+        {
+          "offset": 1,
+          "name": "Strobe Speed",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "slow-fast"
+        }
+      ]
+    }
+  ]
+}

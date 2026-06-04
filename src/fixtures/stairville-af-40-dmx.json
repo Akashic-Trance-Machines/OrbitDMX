@@ -1,0 +1,22 @@
+{
+  "id": "Stairville AF-40 DMX",
+  "brand": "Stairville",
+  "model": "AF-40 DMX",
+  "defaultPersonality": "1-channel mode",
+  "personalities": [
+    {
+      "name": "1-channel mode",
+      "channelCount": 1,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Fog",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0
+        }
+      ]
+    }
+  ]
+}

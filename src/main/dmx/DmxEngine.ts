@@ -3,10 +3,9 @@ import { Worker } from 'worker_threads';
 import path from 'node:path';
 import { DmxUniverse } from './DmxUniverse';
 import { FxProcessor } from './FxProcessor';
-import { UsbDmxDriver } from '../serial/UsbDmxDriver';
 import { UsbBulkDmxDriver, isUsbBulkPath } from '../serial/UsbBulkDmxDriver';
-import { DMX_TICK_INTERVAL_MS, SCENE_STATE } from '../../shared/constants';
-import type { RunnerStatus, Scene, SerialStatus, FxConfig, LedAddress } from '../../shared/types';
+import { DMX_TICK_INTERVAL_MS, SCENE_STATE, DMX_OUTPUT_MODE_DEFAULT } from '../../shared/constants';
+import type { RunnerStatus, Scene, SerialStatus, FxConfig, LedAddress, DmxOutputMode, SerialPortInfo } from '../../shared/types';
 import type { SceneState } from '../../shared/constants';
 
 type UniverseUpdateCallback = (snapshot: number[]) => void;
@@ -32,8 +31,13 @@ type SerialStatusCallback = (status: SerialStatus) => void;
 export class DmxEngine {
   private readonly universe: DmxUniverse;
 
-  /** UsbDmxDriver and UsbBulkDmxDriver are still used for listPorts() only. */
-  private readonly serialDriver: UsbDmxDriver;
+  /** UsbBulkDmxDriver is used for listPorts() of USB bulk devices only.
+   * NOTE: UsbDmxDriver (serialport) is intentionally NOT imported here.
+   * All SerialPort.list() calls happen inside the Worker thread to keep
+   * the native Poller UV handles off the main process event loop.
+   * Importing serialport in the main process registers UV io_poll handles
+   * on Thread 0; when USB is unplugged, those fire can_call_into_js() on
+   * the main isolate during teardown → SIGSEGV. */
   private readonly bulkDriver: UsbBulkDmxDriver;
 
   /** The dedicated DMX output worker thread. */
@@ -91,18 +95,36 @@ export class DmxEngine {
   // Track whether we're connected (worker handles the actual connection)
   private _isConnected = false;
 
+  /**
+   * Set to true when the user explicitly calls disconnect().
+   * Prevents the auto-reconnect loop from firing after a manual disconnect.
+   * Cleared on the next successful connect().
+   */
+  private intentionalDisconnect = false;
+
+  /** Auto-reconnect retry timer (USB unplug recovery). */
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // Pending listPorts requests: requestId → { resolve, reject }
+  private pendingListPorts = new Map<string, { resolve: (ports: SerialPortInfo[]) => void; reject: (e: Error) => void }>();
+
+  // Output protocol mode
+  private outputMode: DmxOutputMode = DMX_OUTPUT_MODE_DEFAULT;
+  private outputModeAutoDetected = false;
+
   constructor() {
     this.universe = new DmxUniverse();
-    this.serialDriver = new UsbDmxDriver();
     this.bulkDriver = new UsbBulkDmxDriver();
   }
 
   // ── Serial control ─────────────────────────────────────────────────────────
 
   async listPorts() {
-    // Merge serial ports + USB bulk devices
+    // Serial ports are enumerated inside the Worker (where serialport's native
+    // Poller handles are safely isolated from the main thread). USB bulk devices
+    // are enumerated in the main process via the usb module.
     const [serialPorts, bulkPorts] = await Promise.all([
-      this.serialDriver.listPorts(),
+      this.workerListPorts(),
       this.bulkDriver.listPorts(),
     ]);
     return [...bulkPorts, ...serialPorts]; // USB bulk first (more likely for this user)
@@ -117,6 +139,7 @@ export class DmxEngine {
       );
     }
 
+    this.intentionalDisconnect = false; // new explicit connect clears the flag
     this.lastConnectedPath = path;
 
     // Spawn the worker thread and connect
@@ -126,17 +149,23 @@ export class DmxEngine {
   }
 
   async disconnect(): Promise<void> {
+    this.intentionalDisconnect = true;
+    this._cancelReconnectTimer();
     this.stopFrameLoop();
-    await this.workerDisconnect();
+    // terminateWorker() sends the disconnect message and waits for the
+    // worker to close the serial port and exit naturally — do NOT call
+    // workerDisconnect() separately here. That would send a redundant
+    // disconnect and only wait 200ms total before terminateWorker() sends
+    // a second disconnect and starts its own (previously 300ms) grace period.
     await this.terminateWorker();
     // Intentionally do NOT clear lastConnectedPath — we need it for reconnect.
   }
 
   /**
    * Attempt to reconnect to the last-used serial port.
-   * Called after system resume (wake from sleep) to restore the DMX link.
-   * The USB-serial adapter may need a moment to re-enumerate, so we retry
-   * a few times with a delay.
+   * Called after system resume (wake from sleep) OR after an unexpected USB
+   * unplug. The USB-serial adapter may need a moment to re-enumerate, so we
+   * retry a few times with a delay.
    */
   async reconnect(): Promise<boolean> {
     if (!this.lastConnectedPath) {
@@ -170,6 +199,53 @@ export class DmxEngine {
     return false;
   }
 
+  /**
+   * Start the auto-reconnect loop after an unexpected USB disconnect.
+   * Polls every POLL_MS for up to MAX_WAIT_MS, notifying the renderer of
+   * 'reconnecting' status while retrying. On success: 'connected'.
+   * On timeout: 'disconnected' (user must reconnect manually).
+   */
+  private startAutoReconnect(): void {
+    if (this.intentionalDisconnect || !this.lastConnectedPath) return;
+
+    const POLL_MS     = 2000;
+    const MAX_WAIT_MS = 30_000;
+    const started     = Date.now();
+    const portPath    = this.lastConnectedPath;
+
+    console.log(`[DmxEngine] Auto-reconnect started for ${portPath}`);
+    this.onSerialStatus?.('reconnecting' as SerialStatus);
+
+    const attempt = async () => {
+      if (this.intentionalDisconnect || this._isConnected) return;
+      if (Date.now() - started > MAX_WAIT_MS) {
+        console.warn('[DmxEngine] Auto-reconnect timed out — user must reconnect manually');
+        this.currentSerialStatus = 'disconnected';
+        this.onSerialStatus?.('disconnected');
+        return;
+      }
+
+      try {
+        console.log(`[DmxEngine] Auto-reconnect attempt → ${portPath}`);
+        await this.connect(portPath);
+        console.log('[DmxEngine] Auto-reconnect successful');
+        // onSerialStatus('connected') is emitted by the worker via spawnWorker's message handler
+      } catch {
+        // Port not yet available — schedule next attempt
+        this.reconnectTimer = setTimeout(attempt, POLL_MS);
+      }
+    };
+
+    this.reconnectTimer = setTimeout(attempt, POLL_MS);
+  }
+
+  private _cancelReconnectTimer(): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+  }
+
   get isConnected(): boolean {
     return this._isConnected;
   }
@@ -180,6 +256,17 @@ export class DmxEngine {
 
   getConnectedPort(): string | null {
     return this._isConnected ? this.lastConnectedPath : null;
+  }
+
+  /** Set the DMX output protocol. Only takes effect on the next connect(). */
+  setOutputMode(mode: DmxOutputMode, autoDetected = false): void {
+    this.outputMode = mode;
+    this.outputModeAutoDetected = autoDetected;
+    console.log(`[DmxEngine] Output mode set to '${mode}' (autoDetected=${autoDetected})`);
+  }
+
+  getOutputMode(): { mode: DmxOutputMode; autoDetected: boolean } {
+    return { mode: this.outputMode, autoDetected: this.outputModeAutoDetected };
   }
 
   // ── DMX control ────────────────────────────────────────────────────────────
@@ -266,11 +353,15 @@ export class DmxEngine {
   // ── FX ──────────────────────────────────────────────────────────────────────
 
   setFx(config: FxConfig | null): void {
-    this.fxProcessor.setConfig(config);
+    this.fxProcessor.setFxConfig(config);
   }
 
   setFxLedAddresses(addresses: LedAddress[]): void {
     this.fxProcessor.setLedAddresses(addresses);
+  }
+
+  setFxLedAddressesForType(type: string, addresses: LedAddress[]): void {
+    this.fxProcessor.setLedAddressesForType(type as any, addresses);
   }
 
   // ── Color shift modifiers ──────────────────────────────────────────────────
@@ -353,26 +444,59 @@ export class DmxEngine {
         workerData: { sharedFrameBuffer: this.sharedFrameBuffer },
       });
 
-      this.worker.on('message', (msg: { type: string; status?: string; message?: string }) => {
+      this.worker.on('message', (msg: { type: string; status?: string; message?: string; fallback?: DmxOutputMode; requestId?: string; ports?: SerialPortInfo[]; error?: string }) => {
         if (msg.type === 'status') {
           const status = msg.status as SerialStatus;
           this.currentSerialStatus = status;
           this._isConnected = status === 'connected';
           this.onSerialStatus?.(status);
+          // If the worker reports disconnected on its own (hardware unplug),
+          // stop the frame loop immediately. The worker will self-exit shortly,
+          // then the 'exit' handler will trigger auto-reconnect.
+          if (status === 'disconnected' || status === 'error') {
+            this.stopFrameLoop();
+          }
         } else if (msg.type === 'error') {
           console.error('[DmxEngine] Worker error:', msg.message);
+        } else if (msg.type === 'probeFailed') {
+          // Pro probe timed out — worker already switched to baudRateBreak
+          this.outputMode = msg.fallback ?? 'baudRateBreak';
+          this.outputModeAutoDetected = false;
+          console.warn(`[DmxEngine] probeFailed — mode corrected to '${this.outputMode}'`);
+          // Notify renderer so the UI badge updates
+          this.onSerialStatus?.(this.currentSerialStatus);
+        } else if (msg.type === 'listPortsResult' && msg.requestId) {
+          const pending = this.pendingListPorts.get(msg.requestId);
+          if (pending) {
+            this.pendingListPorts.delete(msg.requestId);
+            if (msg.error) pending.reject(new Error(msg.error));
+            else pending.resolve(msg.ports ?? []);
+          }
         }
       });
 
       this.worker.on('error', (err) => {
+        // This fires for spawn errors (e.g. file not found). Log it — the exit
+        // handler below will clean up state regardless.
         console.error('[DmxEngine] Worker thread error:', err);
-        reject(err);
       });
 
       this.worker.on('exit', (code) => {
         console.log(`[DmxEngine] Worker thread exited (code=${code})`);
+        const wasConnected = this._isConnected;
         this.worker = null;
         this._isConnected = false;
+        this.stopFrameLoop();
+        // Notify renderer even on unexpected exit (e.g. USB unplug causing crash)
+        if (wasConnected || code !== 0) {
+          this.currentSerialStatus = 'disconnected';
+          this.onSerialStatus?.('disconnected');
+        }
+        // If the disconnect was unexpected (hardware removal), begin the
+        // auto-reconnect polling loop.
+        if (!this.intentionalDisconnect && this.lastConnectedPath) {
+          this.startAutoReconnect();
+        }
       });
 
       // Worker is ready once spawned (no async init needed)
@@ -380,14 +504,97 @@ export class DmxEngine {
     });
   }
 
-  private async terminateWorker(): Promise<void> {
-    if (!this.worker) return;
-    await this.worker.terminate();
-    this.worker = null;
-    this._isConnected = false;
+  /**
+   * Route SerialPort.list() through the Worker thread.
+   *
+   * CRITICAL: serialport MUST NOT be imported in the main process. Its native
+   * binding (bindings.node) registers UV io_poll handles on the main thread's
+   * event loop. When USB is unplugged, the kernel sends POLLHUP on the fd,
+   * the native Poller fires Poller::onData → napi_call_function →
+   * can_call_into_js() on the main isolate — causing SIGSEGV.
+   *
+   * By routing list() into the Worker, all Poller handles stay on Thread 51's
+   * event loop. The main thread's UV loop never sees a serialport fd.
+   */
+  private workerListPorts(): Promise<SerialPortInfo[]> {
+    return new Promise(async (resolve, reject) => {
+      const requestId = Math.random().toString(36).slice(2);
+
+      // If a worker is already running (connected), use it.
+      if (this.worker) {
+        this.pendingListPorts.set(requestId, { resolve, reject });
+        this.worker.postMessage({ type: 'listPorts', requestId });
+        return;
+      }
+
+      // No active worker — spawn a temporary one just for port listing.
+      const workerPath = path.join(__dirname, 'dmxWorker.js');
+      const tempWorker = new Worker(workerPath, {
+        workerData: { sharedFrameBuffer: this.sharedFrameBuffer },
+      });
+
+      const onMessage = (msg: { type: string; requestId?: string; ports?: SerialPortInfo[]; error?: string }) => {
+        if (msg.type === 'listPortsResult' && msg.requestId === requestId) {
+          tempWorker.removeListener('message', onMessage);
+          // Do NOT call tempWorker.terminate() here.
+          //
+          // The worker calls workerExitClean() (parentPort.unref) after sending
+          // listPortsResult, so it will exit naturally once the serialport
+          // Poller's uv_poll_t handle is released. If we terminate() immediately,
+          // we race with those in-flight native handles: terminate() tears down
+          // the worker's isolate from the main thread while the Poller callback
+          // is still pending → can_call_into_js() fires on Thread 0 → SIGSEGV.
+          //
+          // Instead, let the worker exit on its own. Add a 2 s timeout as a
+          // safety net in case something keeps the event loop alive unexpectedly.
+          const exitTimeout = setTimeout(() => {
+            tempWorker.terminate().catch(() => {});
+          }, 2000);
+          tempWorker.once('exit', () => clearTimeout(exitTimeout));
+
+          if (msg.error) reject(new Error(msg.error));
+          else resolve(msg.ports ?? []);
+        }
+      };
+      tempWorker.on('message', onMessage);
+      tempWorker.on('error', (e) => { reject(e); tempWorker.terminate().catch(() => {}); });
+
+      tempWorker.postMessage({ type: 'listPorts', requestId });
+    });
   }
 
-  /** Tell the worker to open the serial port. */
+  private async terminateWorker(): Promise<void> {
+    if (!this.worker) return;
+    const w = this.worker;
+    this.worker = null;
+    this._isConnected = false;
+
+    // With the @serialport/bindings-cpp Poller patch (napi_get_uv_event_loop),
+    // the Poller runs on the Worker's own event loop — all cleanup happens on
+    // the correct thread. We just need to send 'disconnect' and let the Worker
+    // close the port, unref parentPort, and exit naturally.
+    //
+    // The 3 s grace period is a last-resort safety net only. On macOS, USB CDC
+    // teardown can be slow in edge cases. If the worker exits before the
+    // timeout, clearTimeout ensures we don't wait unnecessarily.
+    try {
+      w.postMessage({ type: 'disconnect' });
+      await new Promise<void>((resolve) => {
+        const t = setTimeout(() => {
+          console.warn('[DmxEngine] terminateWorker: grace period expired, force-terminating');
+          resolve();
+        }, 3000);
+        w.once('exit', () => { clearTimeout(t); resolve(); });
+      });
+    } catch { /* worker already gone — safe to proceed */ }
+
+    // Force-terminate ONLY if the worker is still alive after the full grace
+    // period. If it exited naturally, terminate() is a safe no-op.
+    try { await w.terminate(); } catch { /* already exited */ }
+  }
+
+
+  /** Tell the worker to open the serial port with the configured output mode. */
   private workerConnect(portPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.worker) {
@@ -399,21 +606,30 @@ export class DmxEngine {
       const onMessage = (msg: { type: string; status?: string; message?: string }) => {
         if (msg.type === 'status' && msg.status === 'connected') {
           this.worker?.removeListener('message', onMessage);
+          clearTimeout(timer);
           resolve();
         } else if (msg.type === 'status' && msg.status === 'error') {
           this.worker?.removeListener('message', onMessage);
+          clearTimeout(timer);
           reject(new Error('Worker connect failed'));
         }
       };
       this.worker.on('message', onMessage);
 
-      this.worker.postMessage({ type: 'connect', path: portPath });
+      // skipProbe is always true: the user's (or auto-detector's) protocol choice
+      // is honoured as-is. The GET_WIDGET_PARAMS probe caused false negatives for
+      // Enttec-compatible clones (e.g. Eurolite USB-DMX512 Pro) that use the same
+      // framing but do not implement the Pro widget-params handshake.
+      this.worker.postMessage({ type: 'connect', path: portPath, mode: this.outputMode, skipProbe: true });
 
-      // Timeout after 5s
-      setTimeout(() => {
+      // 8s timeout: probe is 300ms + port open overhead, but give plenty of margin.
+      // IMPORTANT: on timeout, send a disconnect to let the port close cleanly
+      // before we reject — do NOT call terminateWorker() here, that is the caller's
+      // responsibility. Abruptly terminating while the Poller is active causes SIGSEGV.
+      const timer = setTimeout(() => {
         this.worker?.removeListener('message', onMessage);
         reject(new Error('Worker connect timeout'));
-      }, 5000);
+      }, 8000);
     });
   }
 

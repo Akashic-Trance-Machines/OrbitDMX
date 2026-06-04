@@ -1,0 +1,269 @@
+{
+  "id": "ayra-compar-10",
+  "brand": "Ayra",
+  "model": "ComPar 10",
+  "defaultPersonality": "8-channel mode",
+  "personalities": [
+    {
+      "name": "2-channel mode",
+      "channelCount": 2,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Master Dimmer"
+        },
+        {
+          "offset": 1,
+          "name": "Color Macro",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-8: Red, 9-16: Green, 17-24: Blue, 25-32: White, 33-40: Amber, 41-48: Red+Green, 49-56: Red+Blue, 57-64: Red+White, 65-72: Red+Amber, 73-80: Green+Blue, 81-88: Green+White, 89-96: Green+Amber, 97-104: Blue+White, 105-112: Blue+Amber, 113-120: White+Amber, 121-128: Red+Green+Blue, 129-136: Red+Green+White, 137-144: Red+Green+Amber, 145-152: Red+Blue+White, 153-160: Red+Blue+Amber, 161-168: Red+White+Amber, 169-176: Green+Blue+White, 177-184: Green+Blue+Amber, 185-192: Green+White+Amber, 193-200: Blue+White+Amber, 201-208: Red+Green+Blue+White, 209-216: Red+Green+White+Amber, 217-224: Red+Green+Blue+Amber, 225-232: Red+Blue+White+Amber, 233-240: Green+Blue+White+Amber, 241-255: Red+Green+Blue+White+Amber"
+        }
+      ]
+    },
+    {
+      "name": "3-channel mode (RGB)",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Red intensity"
+        },
+        {
+          "offset": 1,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Green intensity"
+        },
+        {
+          "offset": 2,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Blue intensity"
+        }
+      ]
+    },
+    {
+      "name": "3-channel mode (Effects)",
+      "channelCount": 3,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Master Dimmer"
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-7: No Function, 8-255: Strobe slow to fast"
+        },
+        {
+          "offset": 2,
+          "name": "Effect",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-4: Blackout, 5-80: Colour Macro (Colour 1 ~ Colour 31), 81-150: Colour Jumping (slow to fast), 151-220: Colour Fading (slow to fast), 221-255: Sound Control (microphone sensitivity)"
+        }
+      ]
+    },
+    {
+      "name": "4-channel mode",
+      "channelCount": 4,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Red intensity"
+        },
+        {
+          "offset": 1,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Green intensity"
+        },
+        {
+          "offset": 2,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Blue intensity"
+        },
+        {
+          "offset": 3,
+          "name": "White",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% White intensity"
+        }
+      ]
+    },
+    {
+      "name": "5-channel mode",
+      "channelCount": 5,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Red intensity"
+        },
+        {
+          "offset": 1,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Green intensity"
+        },
+        {
+          "offset": 2,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Blue intensity"
+        },
+        {
+          "offset": 3,
+          "name": "White",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% White intensity"
+        },
+        {
+          "offset": 4,
+          "name": "Amber",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Amber intensity"
+        }
+      ]
+    },
+    {
+      "name": "8-channel mode",
+      "channelCount": 8,
+      "channels": [
+        {
+          "offset": 0,
+          "name": "Master Dimmer",
+          "type": "dimmer",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Master Dimmer"
+        },
+        {
+          "offset": 1,
+          "name": "Strobe",
+          "type": "strobe",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-7: No Function, 8-255: Strobe slow to fast"
+        },
+        {
+          "offset": 2,
+          "name": "Red",
+          "type": "red",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Red intensity"
+        },
+        {
+          "offset": 3,
+          "name": "Green",
+          "type": "green",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Green intensity"
+        },
+        {
+          "offset": 4,
+          "name": "Blue",
+          "type": "blue",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Blue intensity"
+        },
+        {
+          "offset": 5,
+          "name": "White",
+          "type": "white",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% White intensity"
+        },
+        {
+          "offset": 6,
+          "name": "Amber",
+          "type": "other",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-100% Amber intensity"
+        },
+        {
+          "offset": 7,
+          "name": "Effect",
+          "type": "macro",
+          "minValue": 0,
+          "maxValue": 255,
+          "defaultValue": 0,
+          "notes": "0-4: Blackout, 5-80: Colour Macro (Colour 1 ~ Colour 31), 81-150: Colour Jumping (slow to fast), 151-220: Colour Fading (slow to fast), 221-255: Sound Control (microphone sensitivity)"
+        }
+      ]
+    }
+  ]
+}

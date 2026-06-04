@@ -38,11 +38,13 @@ export default function SceneCard({ scene, fixtures, isActive, onRecall, onSave,
 
   return (
     <>
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         className={`scene-card ${isActive ? 'scene-card-active' : ''}`}
         id={`scene-card-${scene.id}`}
         onClick={handleRecall}
-        type="button"
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleRecall(); } }}
       >
         <div className="scene-card-info">
           <span className="scene-card-name">{scene.name}</span>
@@ -81,7 +83,7 @@ export default function SceneCard({ scene, fixtures, isActive, onRecall, onSave,
             Delete
           </button>
         </div>
-      </button>
+      </div>
 
       {confirmAction === 'delete' && (
         <ConfirmDialog

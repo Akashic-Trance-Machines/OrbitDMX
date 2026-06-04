@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import type { FixtureInstance, ChannelDefinition, ChannelType } from '../../shared/types';
-import { getRigById } from '../../rigs';
+import { getFixtureProfileById } from '../../fixtures';
 import { useSceneStore } from '../store/useSceneStore';
-import { useRoomStore } from '../store/useRoomStore';
+import { useColourStore } from '../store/useColourStore';
+import { HtsColorPicker } from './HtsColorPicker';
 import './FixtureControlPanel.css';
 
 interface FixtureControlPanelProps {
@@ -52,7 +53,7 @@ function detectRgbGroups(channels: ChannelDefinition[]): { groups: RgbGroup[]; u
       !used.has(a.offset)
     ) {
       const match = a.name.match(/\d+$/);
-      const label = match ? `LED ${match[0]}` : `LED ${groups.length + 1}`;
+      const label = match ? `Spot ${match[0]}` : `Spot ${groups.length + 1}`;
 
       // Check if a White channel immediately follows the RGB triple
       const w = channels[i + 3];
@@ -76,11 +77,14 @@ function detectRgbGroups(channels: ChannelDefinition[]): { groups: RgbGroup[]; u
   return { groups, ungrouped };
 }
 
+
 export default function FixtureControlPanel({ fixture, onClose, onEditSetup }: FixtureControlPanelProps) {
-  const rig = getRigById(fixture.rigId);
-  const personality = rig?.personalities.find((p) => p.name === fixture.personalityName);
+  const profile = getFixtureProfileById(fixture.profileId);
+  const personality = profile?.personalities.find((p) => p.name === fixture.personalityName);
   const channels = personality?.channels ?? [];
-  const updateFixture = useRoomStore((s) => s.updateFixture);
+
+  // Colour presets from store — passed to all HtsColorPicker instances
+  const presets = useColourStore((s) => s.presets);
 
   // Channel values: offset → value
   const [values, setValues] = useState<Record<number, number>>(() => {
@@ -176,6 +180,20 @@ export default function FixtureControlPanel({ fixture, onClose, onEditSetup }: F
 
   const { groups, ungrouped: rawUngrouped } = detectRgbGroups(channels);
 
+  // Track which spot cards are expanded — starts empty so all are collapsed by default
+  const [expandedSpots, setExpandedSpots] = useState<Set<string>>(new Set());
+  const toggleSpot = useCallback((label: string) => {
+    setExpandedSpots((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
+  }, []);
+
+  // All Spots master — collapsed by default
+  const [allSpotsCollapsed, setAllSpotsCollapsed] = useState(true);
+
   // Separate dimmer(s) from other ungrouped channels
   const dimmerChannels = rawUngrouped.filter((ch) => ch.type === 'dimmer');
   const otherChannels = rawUngrouped.filter((ch) => ch.type !== 'dimmer');
@@ -188,19 +206,6 @@ export default function FixtureControlPanel({ fixture, onClose, onEditSetup }: F
         b: values[groups[0].blueCh.offset] ?? 0,
       }
     : { r: 0, g: 0, b: 0 };
-
-  const allColorHex = `#${[allRgb.r, allRgb.g, allRgb.b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
-
-  const setAllRgb = (hex: string) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    for (const grp of groups) {
-      setChannelValue(grp.redCh.offset, r);
-      setChannelValue(grp.greenCh.offset, g);
-      setChannelValue(grp.blueCh.offset, b);
-    }
-  };
 
   const handleBlackout = () => {
     channels.forEach((ch) => setChannelValue(ch.offset, 0));
@@ -269,66 +274,109 @@ export default function FixtureControlPanel({ fixture, onClose, onEditSetup }: F
           <section className="fcp-section" id="section-colour">
             <h3 className="fcp-section-title">Colour</h3>
 
-            {/* Master colour picker — sets ALL LEDs at once */}
+            {/* Master colour picker — sets ALL Spots at once */}
             {groups.length > 1 && (
-              <div className="fcp-color-master">
-                <label className="fcp-color-label">All LEDs</label>
-                <div className="fcp-color-row">
-                  <input
-                    type="color"
-                    className="fcp-color-input"
-                    id="input-color-all"
-                    value={allColorHex}
-                    onChange={(e) => { setAllRgb(e.target.value); handleInteractionEnd(); }}
-                  />
-                  <div
-                    className="fcp-color-preview"
-                    style={{ background: allColorHex }}
-                  />
-                  <span className="fcp-color-hex mono">{allColorHex.toUpperCase()}</span>
+              <div className={`fcp-color-master fcp-color-master--all${allSpotsCollapsed ? ' fcp-color-led--collapsed' : ''}`}>
+                {/* All Spots header */}
+                <button
+                  className="fcp-spot-header"
+                  onClick={() => setAllSpotsCollapsed((v) => !v)}
+                  aria-expanded={!allSpotsCollapsed}
+                  title={allSpotsCollapsed ? 'Expand All Spots' : 'Collapse All Spots'}
+                >
+                  <span className="fcp-spot-label">All Spots</span>
+                  <span className="fcp-spot-header-right">
+                    <span
+                      className="fcp-spot-swatch"
+                      style={{ background: `#${[allRgb.r, allRgb.g, allRgb.b].map((v) => v.toString(16).padStart(2, '0')).join('')}` }}
+                    />
+                    <span className={`fcp-spot-chevron${allSpotsCollapsed ? ' fcp-spot-chevron--closed' : ''}`}>
+                      ▾
+                    </span>
+                  </span>
+                </button>
+                {/* Collapsible body */}
+                <div className="fcp-spot-body">
+                  <div className="fcp-spot-body-inner">
+                    <HtsColorPicker
+                      label="All Spots"
+                      r={allRgb.r}
+                      g={allRgb.g}
+                      b={allRgb.b}
+                      onChange={(rVal, gVal, bVal) => {
+                        for (const grp of groups) {
+                          setChannelValue(grp.redCh.offset, rVal);
+                          setChannelValue(grp.greenCh.offset, gVal);
+                          setChannelValue(grp.blueCh.offset, bVal);
+                        }
+                      }}
+                      onInteractionEnd={handleInteractionEnd}
+                      presets={presets}
+                    />
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Per-LED colour pickers */}
+            {/* Per-Spot colour pickers */}
             <div className="fcp-color-grid">
               {groups.map((grp) => {
                 const r = values[grp.redCh.offset] ?? 0;
                 const g = values[grp.greenCh.offset] ?? 0;
                 const b = values[grp.blueCh.offset] ?? 0;
                 const hex = `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+                const isCollapsed = !expandedSpots.has(grp.label);
                 return (
-                  <div className="fcp-color-led" key={grp.label} id={`color-${grp.label.replace(/\s/g, '-')}`}>
-                    <label className="fcp-color-label">{grp.label}</label>
-                    <div className="fcp-color-row">
-                      <input
-                        type="color"
-                        className="fcp-color-input"
-                        value={hex}
-                        onChange={(e) => {
-                          const rv = parseInt(e.target.value.slice(1, 3), 16);
-                          const gv = parseInt(e.target.value.slice(3, 5), 16);
-                          const bv = parseInt(e.target.value.slice(5, 7), 16);
-                          setChannelValue(grp.redCh.offset, rv);
-                          setChannelValue(grp.greenCh.offset, gv);
-                          setChannelValue(grp.blueCh.offset, bv);
-                          handleInteractionEnd();
-                        }}
-                      />
-                      <div className="fcp-color-preview" style={{ background: hex }} />
+                  <div
+                    className={`fcp-color-led${isCollapsed ? ' fcp-color-led--collapsed' : ''}`}
+                    key={grp.label}
+                    id={`color-${grp.label.replace(/\s/g, '-')}`}
+                  >
+                    {/* Spot header — always visible, click to toggle */}
+                    <button
+                      className="fcp-spot-header"
+                      onClick={() => toggleSpot(grp.label)}
+                      aria-expanded={!isCollapsed}
+                      title={isCollapsed ? `Expand ${grp.label}` : `Collapse ${grp.label}`}
+                    >
+                      <span className="fcp-spot-label">{grp.label}</span>
+                      <span className="fcp-spot-header-right">
+                        <span
+                          className="fcp-spot-swatch"
+                          style={{ background: hex }}
+                        />
+                        <span className={`fcp-spot-chevron${isCollapsed ? ' fcp-spot-chevron--closed' : ''}`}>
+                          ▾
+                        </span>
+                      </span>
+                    </button>
+
+                    {/* Collapsible body — grid-rows trick needs a single direct child */}
+                    <div className="fcp-spot-body">
+                      <div className="fcp-spot-body-inner">
+                        <HtsColorPicker
+                          label={grp.label}
+                          r={r}
+                          g={g}
+                          b={b}
+                          onChange={(rVal, gVal, bVal) => {
+                            setChannelValue(grp.redCh.offset, rVal);
+                            setChannelValue(grp.greenCh.offset, gVal);
+                            setChannelValue(grp.blueCh.offset, bVal);
+                          }}
+                          onInteractionEnd={handleInteractionEnd}
+                          presets={presets}
+                        />
+                        {grp.whiteCh && (
+                          <ChannelSlider
+                            channel={{ ...grp.whiteCh, name: 'White' }}
+                            value={values[grp.whiteCh.offset] ?? grp.whiteCh.defaultValue}
+                            onChange={setChannelValue}
+                            onInteractionEnd={handleInteractionEnd}
+                          />
+                        )}
+                      </div>
                     </div>
-                    {/* R/G/B/W sliders */}
-                    <ChannelSlider channel={grp.redCh}   value={r} onChange={setChannelValue} onInteractionEnd={handleInteractionEnd} />
-                    <ChannelSlider channel={grp.greenCh} value={g} onChange={setChannelValue} onInteractionEnd={handleInteractionEnd} />
-                    <ChannelSlider channel={grp.blueCh}  value={b} onChange={setChannelValue} onInteractionEnd={handleInteractionEnd} />
-                    {grp.whiteCh && (
-                      <ChannelSlider
-                        channel={grp.whiteCh}
-                        value={values[grp.whiteCh.offset] ?? grp.whiteCh.defaultValue}
-                        onChange={setChannelValue}
-                        onInteractionEnd={handleInteractionEnd}
-                      />
-                    )}
                   </div>
                 );
               })}

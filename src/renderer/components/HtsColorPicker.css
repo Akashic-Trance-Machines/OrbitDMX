@@ -1,0 +1,113 @@
+/* HtsColorPicker — shared styles used by both FixtureControlPanel and ColoursView */
+
+.hts-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.hts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border-dim);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+.hts-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.hts-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hts-preview-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.06);
+}
+
+.hts-hex {
+  font-size: 11px;
+  color: var(--color-text-dim);
+}
+
+/* Canvas + swatches side-by-side */
+.hts-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.hts-canvas-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.hts-canvas {
+  cursor: crosshair;
+  background: transparent;
+  display: block;
+  user-select: none;
+  touch-action: none;
+  border-radius: 50%;
+  transition: transform 0.15s ease;
+}
+
+.hts-canvas:hover {
+  transform: scale(1.01);
+}
+
+/* 4-column swatch grid (3 rows × 4 cols = 12 presets) */
+.hts-swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.hts-swatch {
+  all: unset;
+  box-sizing: border-box;
+  aspect-ratio: 1;
+  width: 100%;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.hts-swatch:hover {
+  transform: scale(1.12);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.hts-swatch:active {
+  transform: scale(0.96);
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Colours page: standalone picker (no swatches, centred) ─────────────── */
+.hts-picker--standalone .hts-body {
+  justify-content: center;
+}

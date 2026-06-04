@@ -5,6 +5,7 @@ import { usePlaylistStore } from '../store/usePlaylistStore';
 import { useControlsStore } from '../store/useControlsStore';
 import { useHistoryStore, type RoomSnapshot } from '../store/useHistoryStore';
 import { useRoomFileStore } from '../store/useRoomFileStore';
+import { useColourStore, DEFAULT_PRESETS } from '../store/useColourStore';
 import type { RoomFile } from '../../shared/types';
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
@@ -13,9 +14,10 @@ const AUTOSAVE_DEBOUNCE_MS = 500;
 function buildRoomFile(): RoomFile {
   const { fixtures, floorPlan } = useRoomStore.getState();
   const { scenes } = useSceneStore.getState();
-  const { playlists } = usePlaylistStore.getState();
+  const { playlists, palettePlayists, hsbPlaylists } = usePlaylistStore.getState();
   const { widgets } = useControlsStore.getState();
   const { fileName } = useRoomFileStore.getState();
+  const { presets, palettes } = useColourStore.getState();
 
   return {
     orbitdmx: '1.0',
@@ -27,6 +29,10 @@ function buildRoomFile(): RoomFile {
       scenes,
       playlists,
       controls: { widgets },
+      colourPresets:      presets,
+      colourPalettes:     palettes,
+      paletteGenerators:  palettePlayists,
+      hsbGenerators:      hsbPlaylists,
     },
   };
 }
@@ -109,7 +115,13 @@ export function useAutosave() {
           }
           useSceneStore.getState().setScenes(roomFile.room.scenes ?? []);
           usePlaylistStore.getState().setPlaylists(roomFile.room.playlists ?? []);
+          usePlaylistStore.getState().setPaletteGenerators(roomFile.room.paletteGenerators ?? []);
+          usePlaylistStore.getState().setHsbGenerators(roomFile.room.hsbGenerators ?? []);
           useControlsStore.getState().setControls(roomFile.room.controls?.widgets ?? []);
+          useColourStore.getState().setColours(
+            roomFile.room.colourPresets ?? DEFAULT_PRESETS,
+            roomFile.room.colourPalettes ?? [],
+          );
 
           const fileName = lastPath.split('/').pop()?.replace('.orbitdmx', '') ?? 'Untitled Room';
           useRoomFileStore.getState().setFilePath(lastPath);
@@ -187,6 +199,7 @@ export function useAutosave() {
       useSceneStore.subscribe(() => scheduleAutosave()),
       usePlaylistStore.subscribe(() => scheduleAutosave()),
       useControlsStore.subscribe(() => scheduleAutosave()),
+      useColourStore.subscribe(() => scheduleAutosave()),
     ];
 
     function scheduleAutosave() {
@@ -274,6 +287,14 @@ export async function loadRoomFromFile(filePath: string): Promise<boolean> {
   usePlaylistStore.getState().setPlaylists(roomFile.room.playlists ?? []);
   useControlsStore.getState().setControls(roomFile.room.controls?.widgets ?? []);
 
+  // Restore generators and colour data (v1.3+)
+  usePlaylistStore.getState().setPaletteGenerators(roomFile.room.paletteGenerators ?? []);
+  usePlaylistStore.getState().setHsbGenerators(roomFile.room.hsbGenerators ?? []);
+  useColourStore.getState().setColours(
+    roomFile.room.colourPresets ?? DEFAULT_PRESETS,
+    roomFile.room.colourPalettes ?? [],
+  );
+
   const fileName = filePath.split('/').pop()?.replace('.orbitdmx', '') ?? 'Untitled Room';
   useRoomFileStore.getState().setFilePath(filePath);
   useRoomFileStore.getState().setFileName(fileName);
@@ -291,7 +312,10 @@ export async function newRoom(): Promise<void> {
   useRoomStore.getState().setFloorPlan({ widthM: 10, depthM: 8 });
   useSceneStore.getState().setScenes([]);
   usePlaylistStore.getState().setPlaylists([]);
+  usePlaylistStore.getState().setPaletteGenerators([]);
+  usePlaylistStore.getState().setHsbGenerators([]);
   useControlsStore.getState().setControls([]);
+  useColourStore.getState().setColours(DEFAULT_PRESETS, []);
   useHistoryStore.getState().clear();
 
   if (typeof window.dmx !== 'undefined') {

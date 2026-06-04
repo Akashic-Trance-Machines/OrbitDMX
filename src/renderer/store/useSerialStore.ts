@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { SerialStatus } from '../../shared/types';
+import type { SerialStatus, DmxOutputMode } from '../../shared/types';
 
 /**
  * Global serial connection store.
@@ -14,6 +14,11 @@ interface SerialStore {
   connectedPort: string | null;
   setStatus: (status: SerialStatus) => void;
   setConnectedPort: (port: string | null) => void;
+
+  // Output mode — persisted in the engine; mirrored here for UI reactivity
+  outputMode: DmxOutputMode;
+  outputModeAutoDetected: boolean;
+  setOutputMode: (mode: DmxOutputMode, autoDetected?: boolean) => void;
 }
 
 export const useSerialStore = create<SerialStore>()((set) => ({
@@ -21,4 +26,9 @@ export const useSerialStore = create<SerialStore>()((set) => ({
   connectedPort: null,
   setStatus: (status) => set({ status }),
   setConnectedPort: (connectedPort) => set({ connectedPort }),
+
+  outputMode: 'baudRateBreak',
+  outputModeAutoDetected: false,
+  setOutputMode: (outputMode, outputModeAutoDetected = false) =>
+    set({ outputMode, outputModeAutoDetected }),
 }));
