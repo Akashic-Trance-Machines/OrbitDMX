@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-06-06
+
+### Added
+- **Twinkle Colour Picker**: Twinkle FX now has a full colour picker (custom HtsColorPicker circle) — sparkles flash toward the chosen colour instead of always white.
+- **Status Bar Navigation**: Clicking any active playlist or FX pill in the status bar navigates directly to the relevant page. Playlist pills also open the correct right-hand settings panel automatically.
+- **Custom Colour Picker for All FX**: Replaced native `<input type="color">` in the FX panel with the custom hue-ring + triangle `HtsColorPicker` for both Strobe Color and Twinkle.
+
+### Changed
+- **Strobe / Strobe Color Intensity Blending**: Both strobe processors now implement a full symmetric blend. ON phase lerps scene → white/color at `intensity`; OFF phase lerps scene → black at `intensity`. At 0% intensity neither phase changes the scene; at 100% the output is pure white/color or pure black regardless of scene content. Previously the strobe ON phase left the scene unchanged and strobeColor OFF phase left the scene unchanged.
+- **Twinkle Defaults**: Changed to intensity 100%, fade ≈250 ms, randomness 15%, amount 10% — better out-of-the-box sparkle behaviour.
+- **Playlist / HSB Fade Loops**: Replaced `requestAnimationFrame` with `setTimeout(16 ms)` in both `useHsbPlaylistRunner` and `usePalettePlaylistRunner`. RAF is a visual rendering hint that the OS may pause when the window loses focus; `setTimeout` with `backgroundThrottling: false` is guaranteed to keep firing, ensuring playlists continue running while the app is in the background.
+- **Electron Background Throttling**: Added `backgroundThrottling: false` to the main `BrowserWindow` `webPreferences` and Chromium command-line flags (`disable-renderer-backgrounding`, `disable-background-timer-throttling`) so renderer timers are not throttled when the app loses focus.
+
+### Fixed
+- **HSB & Palette Settings Not Saved**: `buildSnapshot()` and `snapshotKey()` only included classic scene playlists; changes to HSB or palette generators produced an identical snapshot key and hit the early-exit guard, silently skipping the autosave. Both stores are now included in the snapshot, and `restoreSnapshot()` / undo-redo also cover them.
+- **Undo/Redo Missing HSB & Palette**: `RoomSnapshot` type extended with optional `palettePlayists` and `hsbPlaylists` fields; undo/redo now correctly restores generator state.
+- **Twinkle Always White**: `buildConfig` was not passing `color` for the `twinkle` type, so the processor always fell back to `[255, 255, 255]`. Fixed — colour is now forwarded and used as the sparkle target.
+
 ## [1.3.0] - 2026-06-04
 
 ### Added
