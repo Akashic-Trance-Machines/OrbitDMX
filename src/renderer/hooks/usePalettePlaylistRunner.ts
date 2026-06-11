@@ -56,11 +56,11 @@ export function usePalettePlaylistRunner() {
   }, []);
 
   const clearFadeRaf = useCallback(() => {
-    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    if (rafRef.current) { clearTimeout(rafRef.current); rafRef.current = null; }
   }, []);
 
   const cleanupAudio = useCallback(() => {
-    if (audioRafRef.current) { cancelAnimationFrame(audioRafRef.current); audioRafRef.current = null; }
+    if (audioRafRef.current) { clearTimeout(audioRafRef.current); audioRafRef.current = null; }
     if (streamRef.current) { streamRef.current.getTracks().forEach((t) => t.stop()); streamRef.current = null; }
     if (audioCtxRef.current) { audioCtxRef.current.close().catch((_e) => { /* noop */ }); audioCtxRef.current = null; }
     analyserRef.current = null;
@@ -151,11 +151,11 @@ export function usePalettePlaylistRunner() {
           }
           void window.dmx.setChannelBatch(updates);
 
-          if (t < 1) { rafRef.current = requestAnimationFrame(tick); }
+          if (t < 1) { rafRef.current = setTimeout(() => tick(performance.now()), 16) as unknown as number; }
           else { rafRef.current = null; resolve(); }
         };
 
-        rafRef.current = requestAnimationFrame(tick);
+        rafRef.current = setTimeout(() => tick(performance.now()), 16) as unknown as number;
       }),
     [writeSpots],
   );
@@ -246,10 +246,10 @@ export function usePalettePlaylistRunner() {
             void crossfadeSpots(addresses, colours, fromIndex, nextIndex, pl.fadeMs);
           }
 
-          audioRafRef.current = requestAnimationFrame(detect);
+          audioRafRef.current = setTimeout(() => detect(), 16) as unknown as number;
         };
 
-        audioRafRef.current = requestAnimationFrame(detect);
+        audioRafRef.current = setTimeout(() => detect(), 16) as unknown as number;
       } catch (err) {
         console.error('[PalettePlaylistRunner] Mic error:', err);
       }

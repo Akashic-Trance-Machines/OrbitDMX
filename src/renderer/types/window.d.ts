@@ -1,4 +1,4 @@
-import type { SerialPortInfo, SerialStatus, RunnerStatus, Scene, ChannelDefinition, FxConfig, LedAddress, RoomFile, FixtureProfile, ShowFile } from '../../shared/types';
+import type { SerialPortInfo, SerialStatus, RunnerStatus, Scene, ChannelDefinition, FxConfig, LedAddress, RoomFile, FixtureProfile, ShowFile, ObdProgress } from '../../shared/types';
 import type { IpcResponse } from '../../shared/types';
 
 /**
@@ -55,9 +55,14 @@ declare global {
       exportShow: (roomData: RoomFile, fixtureProfiles: FixtureProfile[]) => Promise<IpcResponse<string | null>>;
       importShow: () => Promise<IpcResponse<ShowFile | null>>;
 
+      // OBD standalone push
+      pushToObd: (roomData: RoomFile, fixtureProfiles: FixtureProfile[], bpm: number) => Promise<IpcResponse>;
+      queryObdShow: () => Promise<IpcResponse>;
+
       onUniverseUpdate: (cb: (snapshot: number[]) => void) => () => void;
       onSerialStatus: (cb: (status: SerialStatus) => void) => () => void;
       onRunnerState: (cb: (status: RunnerStatus) => void) => () => void;
+      onObdProgress: (cb: (progress: ObdProgress) => void) => () => void;
     };
   }
 }

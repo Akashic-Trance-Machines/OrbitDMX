@@ -152,7 +152,7 @@ export class FxProcessor {
     }
   }
 
-  // ── Strobe ───────────────────────────────────────────────────────────────────
+  // ── Strobe ────────────────────────────────────────────────────────────────────────────────
 
   private processStrobe(
     config: FxConfig, leds: LedAddress[],
@@ -164,22 +164,32 @@ export class FxProcessor {
     if (config.quantiseStrobe) period = this.quantisePeriod(period);
     const phase = (elapsed % period) / period;
     const isOn = phase < 0.5;
-    const dimFactor = 1 - (config.intensity / 100);
+    const f = config.intensity / 100;    // 0 = no effect, 1 = full override
+    const dimFactor = 1 - f;             // factor for scene on OFF phase
 
-    if (!isOn) {
-      for (const led of leds) {
-        output[led.r - 1] = Math.round(output[led.r - 1] * dimFactor);
-        output[led.g - 1] = Math.round(output[led.g - 1] * dimFactor);
-        output[led.b - 1] = Math.round(output[led.b - 1] * dimFactor);
+    // ON  phase: lerp scene → white  (at f=1: pure white; at f=0: unchanged)
+    // OFF phase: lerp scene → black  (at f=1: pure black; at f=0: unchanged)
+    for (const led of leds) {
+      const sr = clean[led.r - 1];
+      const sg = clean[led.g - 1];
+      const sb = clean[led.b - 1];
+      if (isOn) {
+        output[led.r - 1] = Math.round(sr + (255 - sr) * f);
+        output[led.g - 1] = Math.round(sg + (255 - sg) * f);
+        output[led.b - 1] = Math.round(sb + (255 - sb) * f);
+      } else {
+        output[led.r - 1] = Math.round(sr * dimFactor);
+        output[led.g - 1] = Math.round(sg * dimFactor);
+        output[led.b - 1] = Math.round(sb * dimFactor);
       }
     }
   }
 
-  // ── Strobe Color ─────────────────────────────────────────────────────────────
+  // ── Strobe Color ──────────────────────────────────────────────────────────────────────────
 
   private processStrobeColor(
     config: FxConfig, leds: LedAddress[],
-    output: number[], _clean: number[], elapsed: number,
+    output: number[], clean: number[], elapsed: number,
   ): void {
     const hz = 1 + (config.speed / 100) * 19;
     const legacyPeriodMs = 1000 / hz;
@@ -188,16 +198,23 @@ export class FxProcessor {
     const phase = (elapsed % period) / period;
     const isOn = phase < 0.5;
     const [cr, cg, cb] = config.color ?? [255, 255, 255];
-    const flashFactor = config.intensity / 100;
+    const f = config.intensity / 100;    // 0 = no effect, 1 = full override
+    const dimFactor = 1 - f;             // factor for scene on OFF phase
 
-    if (isOn) {
-      for (const led of leds) {
-        const origR = output[led.r - 1];
-        const origG = output[led.g - 1];
-        const origB = output[led.b - 1];
-        output[led.r - 1] = Math.round(origR + (cr - origR) * flashFactor);
-        output[led.g - 1] = Math.round(origG + (cg - origG) * flashFactor);
-        output[led.b - 1] = Math.round(origB + (cb - origB) * flashFactor);
+    // ON  phase: lerp scene → color   (at f=1: pure color; at f=0: unchanged)
+    // OFF phase: lerp scene → black   (at f=1: pure black; at f=0: unchanged)
+    for (const led of leds) {
+      const sr = clean[led.r - 1];
+      const sg = clean[led.g - 1];
+      const sb = clean[led.b - 1];
+      if (isOn) {
+        output[led.r - 1] = Math.round(sr + (cr - sr) * f);
+        output[led.g - 1] = Math.round(sg + (cg - sg) * f);
+        output[led.b - 1] = Math.round(sb + (cb - sb) * f);
+      } else {
+        output[led.r - 1] = Math.round(sr * dimFactor);
+        output[led.g - 1] = Math.round(sg * dimFactor);
+        output[led.b - 1] = Math.round(sb * dimFactor);
       }
     }
   }
@@ -274,6 +291,7 @@ export class FxProcessor {
     const randomness = (config.randomness ?? 50) / 100;
     const fadeMs = 2000 - ((config.fadeSpeed ?? 50) / 100) * 1950;
     const flashIntensity = config.intensity / 100;
+    const [cr, cg, cb] = config.color ?? [255, 255, 255];  // sparkle target colour
     const totalLeds = leds.length;
     const targetAmount = Math.max(1, Math.round(((config.amount ?? 50) / 100) * totalLeds));
     const twinkle = this.twinkleActive.get(type)!;
@@ -312,9 +330,9 @@ export class FxProcessor {
       const origR = clean[led.r - 1] ?? 0;
       const origG = clean[led.g - 1] ?? 0;
       const origB = clean[led.b - 1] ?? 0;
-      output[led.r - 1] = Math.round(origR + (255 - origR) * brightness);
-      output[led.g - 1] = Math.round(origG + (255 - origG) * brightness);
-      output[led.b - 1] = Math.round(origB + (255 - origB) * brightness);
+      output[led.r - 1] = Math.round(origR + (cr - origR) * brightness);
+      output[led.g - 1] = Math.round(origG + (cg - origG) * brightness);
+      output[led.b - 1] = Math.round(origB + (cb - origB) * brightness);
     }
   }
 

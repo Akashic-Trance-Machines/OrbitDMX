@@ -37,9 +37,26 @@ const DEFAULT_FX_STATE: FxTypeState = {
 
 const ALL_FX_TYPES: FxType[] = ['strobe', 'strobeColor', 'breath', 'fire', 'candle', 'twinkle', 'hueRotator'];
 
+/** Per-type overrides on top of DEFAULT_FX_STATE. */
+const FX_TYPE_OVERRIDES: Partial<Record<FxType, Partial<FxTypeState>>> = {
+  twinkle: {
+    intensity: 100,
+    fadeSpeed: 90,   // 2000 - (90/100)*1950 ≈ 245ms ≈ 250ms
+    randomness: 15,
+    amount: 10,
+  },
+};
+
 function makeDefaultStates(): Record<FxType, FxTypeState> {
   return Object.fromEntries(
-    ALL_FX_TYPES.map((t) => [t, { ...DEFAULT_FX_STATE, color: [...DEFAULT_FX_STATE.color] as [number, number, number] }]),
+    ALL_FX_TYPES.map((t) => [
+      t,
+      {
+        ...DEFAULT_FX_STATE,
+        color: [...DEFAULT_FX_STATE.color] as [number, number, number],
+        ...(FX_TYPE_OVERRIDES[t] ?? {}),
+      },
+    ]),
   ) as Record<FxType, FxTypeState>;
 }
 
@@ -79,7 +96,7 @@ function buildConfig(type: FxType, state: FxTypeState): FxConfig {
     active: state.isActive,
     speed: state.speed,
     intensity: state.intensity,
-    color: type === 'strobeColor' ? state.color : undefined,
+    color: (type === 'strobeColor' || type === 'twinkle') ? state.color : undefined,
     fadeSpeed: type === 'twinkle' ? state.fadeSpeed : undefined,
     randomness: type === 'twinkle' ? state.randomness : undefined,
     amount: type === 'twinkle' ? state.amount : undefined,

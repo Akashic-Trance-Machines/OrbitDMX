@@ -41,9 +41,9 @@ function buildRoomFile(): RoomFile {
 function buildSnapshot(): RoomSnapshot {
   const { fixtures, floorPlan } = useRoomStore.getState();
   const { scenes } = useSceneStore.getState();
-  const { playlists } = usePlaylistStore.getState();
+  const { playlists, palettePlayists, hsbPlaylists } = usePlaylistStore.getState();
   const { widgets } = useControlsStore.getState();
-  return { fixtures, scenes, playlists, floorPlan, controls: widgets };
+  return { fixtures, scenes, playlists, palettePlayists, hsbPlaylists, floorPlan, controls: widgets };
 }
 
 /** Restore a RoomSnapshot to all stores. */
@@ -52,6 +52,8 @@ function restoreSnapshot(snap: RoomSnapshot): void {
   useRoomStore.getState().setFloorPlan(snap.floorPlan);
   useSceneStore.getState().setScenes(snap.scenes);
   usePlaylistStore.getState().setPlaylists(snap.playlists);
+  usePlaylistStore.getState().setPaletteGenerators(snap.palettePlayists ?? []);
+  usePlaylistStore.getState().setHsbGenerators(snap.hsbPlaylists ?? []);
   useControlsStore.getState().setControls(snap.controls ?? []);
 }
 
@@ -61,6 +63,8 @@ function snapshotKey(snap: RoomSnapshot): string {
     f: snap.fixtures,
     s: snap.scenes,
     p: snap.playlists,
+    pg: snap.palettePlayists,
+    hg: snap.hsbPlaylists,
     fp: snap.floorPlan,
     c: snap.controls,
   });

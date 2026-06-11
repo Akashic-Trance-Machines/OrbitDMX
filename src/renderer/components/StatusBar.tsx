@@ -3,6 +3,7 @@ import './StatusBar.css';
 import { useSerialStore } from '../store/useSerialStore';
 import { usePlaylistStore } from '../store/usePlaylistStore';
 import { useFxStore } from '../store/useFxStore';
+import type { AppView } from '../App';
 import { useTempoStore } from '../store/useTempoStore';
 import type { SerialStatus } from '../../shared/types';
 
@@ -31,7 +32,7 @@ const FX_ICONS: Record<string, string> = {
   twinkle: '✨',
 };
 
-export default function StatusBar() {
+export default function StatusBar({ onNavigate }: { onNavigate?: (view: AppView) => void }) {
   const status = useSerialStore((s) => s.status);
 
   // Scene playlist
@@ -75,7 +76,15 @@ export default function StatusBar() {
 
       {/* Scene playlist */}
       {isScenePlaying && (
-        <div className={`status-indicator status-playlist ${playbackState === 'paused' ? 'paused' : ''}`}>
+        <div
+          className={`status-indicator status-playlist clickable ${playbackState === 'paused' ? 'paused' : ''}`}
+          onClick={() => {
+            usePlaylistStore.getState().setRequestedPanelKey(`scene:${activePlaylistId}`);
+            onNavigate?.('playlists');
+          }}
+          title="Go to Playlists"
+          role="button"
+        >
           <span className="status-playlist-icon">{playbackState === 'playing' ? '▶' : '⏸'}</span>
           <span className="status-label">
             {activePlaylist!.name} — {currentCueIndex + 1}/{activePlaylist!.cues.length}
@@ -85,7 +94,15 @@ export default function StatusBar() {
 
       {/* Palette generator */}
       {isPalettePlaying && (
-        <div className={`status-indicator status-playlist ${palettePlaybackState === 'paused' ? 'paused' : ''}`}>
+        <div
+          className={`status-indicator status-playlist clickable ${palettePlaybackState === 'paused' ? 'paused' : ''}`}
+          onClick={() => {
+            usePlaylistStore.getState().setRequestedPanelKey(`palette:${activePalettePlaylistId}`);
+            onNavigate?.('playlists');
+          }}
+          title="Go to Playlists"
+          role="button"
+        >
           <span className="status-playlist-icon">{palettePlaybackState === 'playing' ? '▶' : '⏸'}</span>
           <span className="status-label">{activePalettePlaylist!.name}</span>
         </div>
@@ -93,7 +110,15 @@ export default function StatusBar() {
 
       {/* HSB generator */}
       {isHsbPlaying && (
-        <div className={`status-indicator status-playlist ${hsbPlaybackState === 'paused' ? 'paused' : ''}`}>
+        <div
+          className={`status-indicator status-playlist clickable ${hsbPlaybackState === 'paused' ? 'paused' : ''}`}
+          onClick={() => {
+            usePlaylistStore.getState().setRequestedPanelKey(`hsb:${activeHsbPlaylistId}`);
+            onNavigate?.('playlists');
+          }}
+          title="Go to Playlists"
+          role="button"
+        >
           <span className="status-playlist-icon">{hsbPlaybackState === 'playing' ? '▶' : '⏸'}</span>
           <span className="status-label">{activeHsbPlaylist!.name}</span>
         </div>
@@ -101,7 +126,16 @@ export default function StatusBar() {
 
       {/* FX indicators — one per active type */}
       {activeFxTypes.map((type) => (
-        <div key={type} className="status-indicator status-fx">
+        <div
+          key={type}
+          className="status-indicator status-fx clickable"
+          onClick={() => {
+            useFxStore.getState().setSelectedType(type);
+            onNavigate?.('fx');
+          }}
+          title={`Go to ${type} FX`}
+          role="button"
+        >
           <span className="status-fx-icon">{FX_ICONS[type] ?? '✦'}</span>
           <span className="status-label">FX</span>
         </div>

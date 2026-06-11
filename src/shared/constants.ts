@@ -16,7 +16,10 @@ export const ENTTEC_PRO_BAUD      = 57600;
 export const ENTTEC_PRO_DATA_BITS = 8;
 export const ENTTEC_PRO_STOP_BITS = 1;
 export const ENTTEC_PRO_PARITY    = 'none' as const;
-export const ENTTEC_PRO_PROBE_TIMEOUT_MS = 300;
+// Raised from 300ms: USB CDC on RP2350 (Pico 2) needs ~200–500ms after port.open()
+// before it is ready to respond. 300ms was too short and caused silent fallback
+// to baudRateBreak, which the Enttec parser ignores entirely.
+export const ENTTEC_PRO_PROBE_TIMEOUT_MS = 1500;
 
 // Default output mode (used when no auto-detection result is available)
 export const DMX_OUTPUT_MODE_DEFAULT = 'baudRateBreak' as const;

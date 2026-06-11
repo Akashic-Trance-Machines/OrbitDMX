@@ -54,6 +54,12 @@ interface PlaylistStore {
   setHsbPlaybackState: (state: PlaybackState) => void;
   /** Bulk-replace all HSB generators (used by file load / undo). */
   setHsbGenerators: (playlists: HsbPlaylist[]) => void;
+
+  /** Request that PlaylistView opens a specific panel on next render.
+   *  Format: 'scene:<id>' | 'palette:<id>' | 'hsb:<id>'
+   *  PlaylistView consumes and clears this after applying it. */
+  requestedPanelKey: string | null;
+  setRequestedPanelKey: (key: string | null) => void;
 }
 
 export const usePlaylistStore = create<PlaylistStore>()((set) => ({
@@ -73,6 +79,9 @@ export const usePlaylistStore = create<PlaylistStore>()((set) => ({
   hsbPlaylists: [],
   activeHsbPlaylistId: null,
   hsbPlaybackState: 'stopped',
+
+  // Panel open request (consumed by PlaylistView)
+  requestedPanelKey: null,
 
   // ── Scene playlist actions ────────────────────────────────────────────────────
 
@@ -200,4 +209,6 @@ export const usePlaylistStore = create<PlaylistStore>()((set) => ({
 
   setHsbPlaybackState: (hsbPlaybackState) => set({ hsbPlaybackState }),
   setHsbGenerators: (hsbPlaylists) => set({ hsbPlaylists }),
+  setRequestedPanelKey: (requestedPanelKey) => set({ requestedPanelKey }),
+
 }));

@@ -5,11 +5,21 @@ import { DmxEngine } from './main/dmx/DmxEngine';
 import { registerIpcHandlers } from './main/ipc/handlers';
 import { registerRoomFileHandlers } from './main/ipc/roomFileHandlers';
 import { registerShowFileHandlers } from './main/ipc/showFileHandlers';
+import { registerObdPushHandlers } from './main/ipc/obdPushHandlers';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
+
+// ── Background throttling — prevent Chromium from stalling renderer timers ───
+// Without these flags, Chromium throttles setTimeout / requestAnimationFrame
+// in the renderer to ~1 Hz when the window loses focus. This causes playlist
+// auto-advance timers to freeze while the main-process DmxEngine setInterval
+// (Node.js, never throttled) keeps the FX running — producing the symptom of
+// "FX still playing but playlist stopped" when OD is not in focus.
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
 
 // Single shared engine instance — lives for the lifetime of the app
 const engine = new DmxEngine();
@@ -137,6 +147,10 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      // Prevent Chromium from throttling setTimeout / requestAnimationFrame
+      // when the window loses focus. Without this, playlist RAF fade loops
+      // freeze while the main-process DMX engine keeps running.
+      backgroundThrottling: false,
     },
   });
 
@@ -162,6 +176,7 @@ app.on('ready', () => {
   registerIpcHandlers(engine, () => mainWindow?.webContents ?? null);
   registerRoomFileHandlers();
   registerShowFileHandlers();
+  registerObdPushHandlers(engine, () => mainWindow?.webContents ?? null);
   buildMenu();
   createWindow();
 

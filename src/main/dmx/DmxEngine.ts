@@ -774,6 +774,246 @@ export class DmxEngine {
       sceneId: this.currentSceneId,
     });
   }
+
+  // ── OBD Show Push ───────────────────────────────────────────────────────────
+
+  /** Counter for unique request IDs. */
+  private workerRequestId = 0;
+
+  /** Pause the DMX tick loop (for show upload). */
+  private workerPauseTick(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.worker) { resolve(); return; }
+      const onMessage = (msg: any) => {
+        if (msg.type === 'tickPaused') {
+          this.worker?.removeListener('message', onMessage);
+          resolve();
+        }
+      };
+      this.worker.on('message', onMessage);
+      this.worker.postMessage({ type: 'pauseTick' });
+      setTimeout(() => { this.worker?.removeListener('message', onMessage); resolve(); }, 1000);
+    });
+  }
+
+  /** Resume the DMX tick loop. */
+  private workerResumeTick(): void {
+    this.worker?.postMessage({ type: 'resumeTick' });
+  }
+
+  /** Send raw bytes through the worker's serial port. */
+  private workerSendRaw(data: Uint8Array): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.worker) { reject(new Error('No worker')); return; }
+
+      const requestId = `raw-${++this.workerRequestId}`;
+
+      const onMessage = (msg: any) => {
+        if (msg.type === 'sendRawResult' && msg.requestId === requestId) {
+          this.worker?.removeListener('message', onMessage);
+          if (msg.error) reject(new Error(msg.error));
+          else resolve();
+        }
+      };
+      this.worker.on('message', onMessage);
+      this.worker.postMessage({ type: 'sendRaw', requestId, data: Array.from(data) });
+
+      // Timeout safety
+      setTimeout(() => {
+        this.worker?.removeListener('message', onMessage);
+        reject(new Error('sendRaw timeout'));
+      }, 5000);
+    });
+  }
+
+  /** Read a response from the serial port with timeout. */
+  private workerReadResponse(timeout: number): Promise<Uint8Array | null> {
+    return new Promise((resolve) => {
+      if (!this.worker) { resolve(null); return; }
+
+      const requestId = `read-${++this.workerRequestId}`;
+
+      const onMessage = (msg: any) => {
+        if (msg.type === 'readResponseResult' && msg.requestId === requestId) {
+          this.worker?.removeListener('message', onMessage);
+          if (msg.data) resolve(new Uint8Array(msg.data));
+          else resolve(null);
+        }
+      };
+      this.worker.on('message', onMessage);
+      this.worker.postMessage({ type: 'readResponse', requestId, timeout });
+
+      // Outer timeout (slightly longer than inner)
+      setTimeout(() => {
+        this.worker?.removeListener('message', onMessage);
+        resolve(null);
+      }, timeout + 1000);
+    });
+  }
+
+  /** Wrap a payload in Enttec Pro framing. */
+  private enttecFrame(label: number, data: Uint8Array): Uint8Array {
+    const len = data.length;
+    const frame = new Uint8Array(4 + len + 1);
+    frame[0] = 0x7E;
+    frame[1] = label;
+    frame[2] = len & 0xFF;
+    frame[3] = (len >> 8) & 0xFF;
+    frame.set(data, 4);
+    frame[4 + len] = 0xE7;
+    return frame;
+  }
+
+  /** Extract Enttec payload from a response frame. */
+  private extractEnttecPayload(frame: Uint8Array, expectedLabel: number): Uint8Array | null {
+    let start = -1;
+    for (let i = 0; i < frame.length; i++) {
+      if (frame[i] === 0x7E) { start = i; break; }
+    }
+    if (start < 0 || start + 4 >= frame.length) return null;
+    if (frame[start + 1] !== expectedLabel) return null;
+
+    const len = frame[start + 2] | (frame[start + 3] << 8);
+    if (start + 4 + len >= frame.length) return null;
+    if (frame[start + 4 + len] !== 0xE7) return null;
+
+    return frame.slice(start + 4, start + 4 + len);
+  }
+
+  /** Wait for a SHOW_ACK response. */
+  private async waitForShowAck(timeout = 2000): Promise<string> {
+    const resp = await this.workerReadResponse(timeout);
+    if (!resp) return 'timeout';
+
+    const payload = this.extractEnttecPayload(resp, 0x96);
+    if (!payload || payload.length < 1) return 'error';
+
+    switch (payload[0]) {
+      case 0x00: return 'ok';
+      case 0x01: return 'crc_fail';
+      case 0x02: return 'flash_error';
+      case 0x03: return 'size_error';
+      default:   return 'error';
+    }
+  }
+
+  /**
+   * Upload a compiled .osb to the connected OBD.
+   *
+   * @param osbData     Compiled .osb binary
+   * @param onProgress  Progress callback (0.0–1.0)
+   * @returns           Upload result
+   */
+  async pushShowToObd(
+    osbData: Uint8Array,
+    onProgress?: (progress: number) => void,
+  ): Promise<string> {
+    // Pause DMX output so show protocol ACKs aren't drowned by tick frames
+    await this.workerPauseTick();
+    console.log('[OBD] DMX tick paused for upload');
+
+    try {
+      return await this._doPushShow(osbData, onProgress);
+    } finally {
+      this.workerResumeTick();
+      console.log('[OBD] DMX tick resumed');
+    }
+  }
+
+  /** Internal push logic (called while tick is paused). */
+  private async _doPushShow(
+    osbData: Uint8Array,
+    onProgress?: (progress: number) => void,
+  ): Promise<string> {
+    const totalSize = osbData.length;
+    const CHUNK_SIZE = 256;
+
+    // Extract CRC from the last 4 bytes
+    const crcView = new DataView(osbData.buffer, osbData.byteOffset + totalSize - 4, 4);
+    const osbCrc = crcView.getUint32(0, true);
+
+    // Extract name from header (bytes 12–43)
+    const nameBytes = osbData.slice(12, 44);
+    const versionMajor = osbData[4];
+    const versionMinor = osbData[5];
+
+    // ── SHOW_BEGIN ──
+    const beginPayload = new Uint8Array(42);
+    beginPayload.set(nameBytes, 0);
+    const beginView = new DataView(beginPayload.buffer);
+    beginView.setUint32(32, totalSize, true);
+    beginPayload[36] = versionMajor;
+    beginPayload[37] = versionMinor;
+    beginView.setUint32(38, osbCrc, true);
+
+    await this.workerSendRaw(this.enttecFrame(0x90, beginPayload));
+
+    const beginAck = await this.waitForShowAck();
+    if (beginAck !== 'ok') return beginAck;
+
+    onProgress?.(0);
+
+    // ── SHOW_CHUNK × N ──
+    let offset = 0;
+    while (offset < totalSize) {
+      const chunkLen = Math.min(CHUNK_SIZE, totalSize - offset);
+      const chunkPayload = new Uint8Array(4 + chunkLen);
+      const chunkView = new DataView(chunkPayload.buffer);
+      chunkView.setUint32(0, offset, true);
+      chunkPayload.set(osbData.slice(offset, offset + chunkLen), 4);
+
+      await this.workerSendRaw(this.enttecFrame(0x91, chunkPayload));
+
+      const chunkAck = await this.waitForShowAck();
+      if (chunkAck !== 'ok') return chunkAck;
+
+      offset += chunkLen;
+      onProgress?.(offset / totalSize);
+    }
+
+    // ── SHOW_COMMIT ──
+    await this.workerSendRaw(this.enttecFrame(0x92, new Uint8Array(0)));
+
+    const commitAck = await this.waitForShowAck(5000);
+    if (commitAck !== 'ok') return commitAck;
+
+    onProgress?.(1.0);
+    return 'ok';
+  }
+
+  /**
+   * Query the show info stored on the connected OBD.
+   */
+  async queryObdShowInfo(): Promise<{ name: string; size: number; bpmCenti: number; versionMajor: number; versionMinor: number } | null> {
+    // Pause DMX output briefly for the query
+    await this.workerPauseTick();
+
+    try {
+      await this.workerSendRaw(this.enttecFrame(0x93, new Uint8Array(0)));
+
+      const resp = await this.workerReadResponse(3000);
+      if (!resp) return null;
+
+      const payload = this.extractEnttecPayload(resp, 0x93);
+      if (!payload || payload.length < 40) return null;
+
+      const nameBytes = payload.slice(0, 32);
+      const nameEnd = nameBytes.indexOf(0);
+      const name = new TextDecoder().decode(nameBytes.slice(0, nameEnd >= 0 ? nameEnd : 32));
+
+      const view = new DataView(payload.buffer, payload.byteOffset);
+      const size = view.getUint32(32, true);
+      const bpmCenti = view.getUint16(36, true);
+      const vMajor = payload[38];
+      const vMinor = payload[39];
+
+      if (size === 0) return null;
+
+      return { name, size, bpmCenti, versionMajor: vMajor, versionMinor: vMinor };
+    } finally {
+      this.workerResumeTick();
+    }
+  }
 }
 
 // ── HSL helpers for color shift ──────────────────────────────────────────────

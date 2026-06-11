@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import type { SerialPortInfo, DmxOutputMode } from '../../shared/types';
+import type { SerialPortInfo, DmxOutputMode, ObdProgress } from '../../shared/types';
 import { useSerialStore } from '../store/useSerialStore';
 import { useMidiStore } from '../store/useMidiStore';
 import { useTempoStore } from '../store/useTempoStore';
+import { useRoomStore } from '../store/useRoomStore';
+import { buildCurrentRoomFile } from '../hooks/useAutosave';
 import './SettingsView.css';
 
 const MODE_LABELS: Record<DmxOutputMode, string> = {
@@ -174,6 +176,13 @@ export default function SettingsView() {
         useSerialStore.getState().setStatus('connected');
         setConnectedPort(selectedPort);
         return;
+      }
+      // Always push the current device's mode to the engine before connecting,
+      // regardless of whether the dropdown changed since last mount.
+      const dev = TESTED_DEVICES.find((d) => d.id === selectedDeviceId);
+      if (dev) {
+        storeSetOutputMode(dev.mode, false);
+        await window.dmx.setOutputMode(dev.mode);
       }
       const result = await window.dmx.connect(selectedPort);
       if (!result.success) {
@@ -365,6 +374,9 @@ export default function SettingsView() {
             </button>
           </div>
         </section>
+
+        {/* OBD Standalone Push section */}
+        <ObdPushSection />
 
         {/* About section */}
         <section className="settings-section" id="section-about">
@@ -575,3 +587,148 @@ function MidiTempoSyncPanel() {
   );
 }
 
+/* ── OBD Standalone Push Section ────────────────────────────────────────────── */
+
+function ObdPushSection() {
+  const isConnected = useSerialStore((s) => s.status === 'connected');
+  const fixtures = useRoomStore((s) => s.fixtures);
+  const bpm = useTempoStore((s) => s.bpm);
+
+  const [pushing, setPushing] = useState(false);
+  const [progress, setProgress] = useState<ObdProgress | null>(null);
+  const [storedShow, setStoredShow] = useState<{ name: string; size: number } | null>(null);
+
+  // Subscribe to OBD progress events
+  useEffect(() => {
+    if (typeof window.dmx === 'undefined') return;
+    return window.dmx.onObdProgress((p: ObdProgress) => {
+      setProgress(p);
+      if (p.phase === 'done' || p.phase === 'error') {
+        setPushing(false);
+        // Refresh stored show info after push
+        if (p.phase === 'done') {
+          setTimeout(() => queryStoredShow(), 500);
+        }
+      }
+    });
+  }, []);
+
+  // Query stored show on mount (if connected)
+  useEffect(() => {
+    if (isConnected) queryStoredShow();
+  }, [isConnected]);
+
+  async function queryStoredShow() {
+    if (typeof window.dmx === 'undefined') return;
+    try {
+      const res = await window.dmx.queryObdShow();
+      if (res.success && res.data) {
+        setStoredShow(res.data as { name: string; size: number });
+      } else {
+        setStoredShow(null);
+      }
+    } catch {
+      setStoredShow(null);
+    }
+  }
+
+  async function handlePush() {
+    if (typeof window.dmx === 'undefined') return;
+    if (pushing) return;
+
+    setPushing(true);
+    setProgress({ phase: 'compiled', progress: 0 });
+
+    try {
+      const data = buildCurrentRoomFile();
+      const profileIds = new Set(data.room.fixtures.map((f) => f.profileId));
+      const { FIXTURE_PROFILES } = await import('../../fixtures');
+      const fixtureProfiles = FIXTURE_PROFILES.filter((r) => profileIds.has(r.id));
+
+      const res = await window.dmx.pushToObd(data, fixtureProfiles, bpm);
+      if (!res.success) {
+        setProgress({ phase: 'error', progress: 0, error: res.error });
+        setPushing(false);
+      }
+    } catch (e) {
+      setProgress({ phase: 'error', progress: 0, error: String(e) });
+      setPushing(false);
+    }
+  }
+
+  const hasFixtures = fixtures.length > 0;
+  const canPush = isConnected && hasFixtures && !pushing;
+
+  const progressPercent = progress?.progress ? Math.round(progress.progress * 100) : 0;
+
+  return (
+    <section className="settings-section" id="section-obd-push">
+      <div className="settings-section-header">
+        <h2>OrbitBridgeDeck Standalone</h2>
+        <p className="settings-section-desc">
+          Compile the current room into a standalone show and push it to the connected OrbitBridgeDeck.
+          The show will play autonomously without a laptop connected.
+        </p>
+      </div>
+
+      {/* Stored show info */}
+      {storedShow && (
+        <div className="obd-stored-show">
+          <span className="obd-stored-label">Stored on device:</span>
+          <span className="obd-stored-name">{storedShow.name}</span>
+          <span className="obd-stored-size">({(storedShow.size / 1024).toFixed(1)} KB)</span>
+        </div>
+      )}
+
+      {/* Progress bar */}
+      {progress && (progress.phase === 'compiled' || progress.phase === 'uploading') && (
+        <div className="obd-progress-container">
+          <div className="obd-progress-bar">
+            <div
+              className="obd-progress-fill"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <span className="obd-progress-label">
+            {progress.phase === 'compiled' ? 'Compiled, uploading…' : `Uploading… ${progressPercent}%`}
+          </span>
+        </div>
+      )}
+
+      {/* Status messages */}
+      {progress?.phase === 'done' && (
+        <div className="obd-status obd-status-success">
+          ✅ Show uploaded successfully!
+        </div>
+      )}
+      {progress?.phase === 'error' && (
+        <div className="obd-status obd-status-error">
+          ❌ {progress.error || 'Upload failed'}
+        </div>
+      )}
+
+      {/* Push button */}
+      <div className="connector-actions">
+        <button
+          className="btn-primary connect-full-width"
+          disabled={!canPush}
+          onClick={handlePush}
+          id="btn-push-obd"
+        >
+          {pushing ? '⏳ Uploading…' : '🚀 Push to OrbitBridgeDeck'}
+        </button>
+      </div>
+
+      {!isConnected && (
+        <p className="settings-section-desc" style={{ color: 'var(--color-warning)', marginTop: 4 }}>
+          Connect to an OrbitBridgeDeck first.
+        </p>
+      )}
+      {isConnected && !hasFixtures && (
+        <p className="settings-section-desc" style={{ color: 'var(--color-warning)', marginTop: 4 }}>
+          Add fixtures to the room before pushing.
+        </p>
+      )}
+    </section>
+  );
+}

@@ -149,3 +149,52 @@
   font-size: 11px;
   padding: 2px 12px;
 }
+
+/* ── Hardware sub-item (OrbitBridgeDeck) ─────────────────────────────────── */
+
+.sidebar-nav-sub {
+  /* Slight indent to visually nest under Controls */
+  padding-left: 28px !important;
+  font-size: 12px !important;
+  opacity: 0.85;
+  position: relative;
+}
+
+.sidebar-nav-sub::before {
+  content: '';
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 60%;
+  background: var(--color-border);
+}
+
+.sidebar-nav-sub:hover,
+.sidebar-nav-sub.active {
+  opacity: 1;
+}
+
+.sidebar-nav-icon-hw {
+  color: var(--color-accent) !important;
+  filter: drop-shadow(0 0 4px var(--color-accent-glow));
+}
+
+/* Pulsing dot indicating live connection */
+.sidebar-hw-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-green);
+  margin-left: 5px;
+  vertical-align: middle;
+  box-shadow: 0 0 5px var(--color-green);
+  animation: hw-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes hw-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}

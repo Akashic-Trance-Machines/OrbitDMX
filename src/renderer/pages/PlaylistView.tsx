@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 
 import { usePlaylistStore } from '../store/usePlaylistStore';
 import { useColourStore } from '../store/useColourStore';
@@ -79,6 +79,14 @@ export default function PlaylistView() {
   const expandedSceneId   = expandedKey?.startsWith('scene:')   ? expandedKey.slice(6)   : null;
   const expandedPaletteId = expandedKey?.startsWith('palette:') ? expandedKey.slice(8) : null;
   const expandedHsbId     = expandedKey?.startsWith('hsb:')     ? expandedKey.slice(4)   : null;
+
+  // ── Consume panel-open request from StatusBar pill clicks ────────────────
+  const requestedPanelKey = usePlaylistStore((s) => s.requestedPanelKey);
+  useEffect(() => {
+    if (!requestedPanelKey) return;
+    setExpandedKey(requestedPanelKey);
+    usePlaylistStore.getState().setRequestedPanelKey(null);
+  }, [requestedPanelKey]);
 
   const expandedPlaylist        = playlists.find((p) => p.id === expandedSceneId) ?? null;
   const expandedPalettePlaylist = palettePlayists.find((p) => p.id === expandedPaletteId) ?? null;

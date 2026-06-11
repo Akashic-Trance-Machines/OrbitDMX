@@ -51,6 +51,7 @@ const ENTTEC_DATA_LEN  = DMX_UNIVERSE_SIZE + 1; // start code + 512 channels
 let port: SerialPort | null = null;
 let mode: DmxOutputMode = 'baudRateBreak';
 let tickRunning = false;
+let tickPaused = false;  // Pause DMX output during show upload
 
 // Shared memory for zero-copy frame transfer from main thread
 const sharedFrame = new Uint8Array(workerData.sharedFrameBuffer as SharedArrayBuffer);
@@ -78,10 +79,14 @@ proFrame[DMX_UNIVERSE_SIZE + 5] = ENTTEC_END;
 
 // ── Message handler ──────────────────────────────────────────────────────────
 
-parentPort!.on('message', (msg: { type: string; path?: string; mode?: DmxOutputMode; skipProbe?: boolean; requestId?: string }) => {
-  if      (msg.type === 'connect')    handleConnect(msg.path!, msg.mode ?? 'baudRateBreak', msg.skipProbe ?? false);
-  else if (msg.type === 'disconnect') handleDisconnect();
-  else if (msg.type === 'listPorts')  handleListPorts(msg.requestId!);
+parentPort!.on('message', (msg: { type: string; path?: string; mode?: DmxOutputMode; skipProbe?: boolean; requestId?: string; data?: number[]; timeout?: number }) => {
+  if      (msg.type === 'connect')      handleConnect(msg.path!, msg.mode ?? 'baudRateBreak', msg.skipProbe ?? false);
+  else if (msg.type === 'disconnect')   handleDisconnect();
+  else if (msg.type === 'listPorts')    handleListPorts(msg.requestId!);
+  else if (msg.type === 'sendRaw')      handleSendRaw(msg.requestId!, msg.data!);
+  else if (msg.type === 'readResponse') handleReadResponse(msg.requestId!, msg.timeout ?? 2000);
+  else if (msg.type === 'pauseTick')    { tickPaused = true; parentPort!.postMessage({ type: 'tickPaused' }); }
+  else if (msg.type === 'resumeTick')   { tickPaused = false; parentPort!.postMessage({ type: 'tickResumed' }); }
 });
 
 // ── Safety net: prevent unhandled errors from crashing Electron ──────────────
@@ -375,6 +380,14 @@ async function tickLoop(): Promise<void> {
   while (tickRunning) {
     const t0 = process.hrtime.bigint();
 
+    // When paused (during show upload), skip sending DMX but still sleep
+    // so we yield CPU and allow the event loop to process sendRaw/readResponse.
+    if (tickPaused) {
+      // Use a short setTimeout to yield to the event loop for message processing
+      await new Promise<void>(resolve => setTimeout(resolve, TICK_INTERVAL_MS));
+      continue;
+    }
+
     try {
       // Copy latest frame from shared memory (single memcpy, no allocation)
       dmxFrame.set(sharedFrame, 1);
@@ -520,4 +533,77 @@ function emitError(m: string): void {
 }
 function emitProbeFailed(fallback: DmxOutputMode): void {
   parentPort!.postMessage({ type: 'probeFailed', fallback });
+}
+
+// ── Raw write / read for OBD show upload ──────────────────────────────────────
+
+/**
+ * Write raw bytes to the serial port. Used by the OBD push protocol.
+ * Pauses the DMX tick loop during the write to avoid interleaving issues.
+ */
+function handleSendRaw(requestId: string, data: number[]): void {
+  if (!port?.isOpen) {
+    parentPort!.postMessage({ type: 'sendRawResult', requestId, error: 'Port not open' });
+    return;
+  }
+
+  const buf = Buffer.from(data);
+  port.write(buf, (err) => {
+    if (err) {
+      parentPort!.postMessage({ type: 'sendRawResult', requestId, error: err.message });
+    } else {
+      parentPort!.postMessage({ type: 'sendRawResult', requestId });
+    }
+  });
+}
+
+/**
+ * Read incoming data from the serial port with a timeout.
+ * Collects all bytes received until timeout expires, returns them.
+ */
+function handleReadResponse(requestId: string, timeout: number): void {
+  if (!port?.isOpen) {
+    parentPort!.postMessage({ type: 'readResponseResult', requestId, data: null, error: 'Port not open' });
+    return;
+  }
+
+  const chunks: number[] = [];
+  let resolved = false;
+
+  const timer = setTimeout(() => {
+    if (!resolved) {
+      resolved = true;
+      port?.removeListener('data', onData);
+      parentPort!.postMessage({
+        type: 'readResponseResult',
+        requestId,
+        data: chunks.length > 0 ? chunks : null,
+      });
+    }
+  }, timeout);
+
+  const onData = (data: Buffer) => {
+    if (resolved) return;
+    // Check if we have a complete Enttec frame (starts 0x7E, ends 0xE7)
+    for (const b of data) chunks.push(b);
+
+    // Look for a complete frame
+    const startIdx = chunks.indexOf(0x7E);
+    if (startIdx >= 0) {
+      const endIdx = chunks.indexOf(0xE7, startIdx + 4);
+      if (endIdx >= 0) {
+        // Complete frame found — return immediately
+        resolved = true;
+        clearTimeout(timer);
+        port?.removeListener('data', onData);
+        parentPort!.postMessage({
+          type: 'readResponseResult',
+          requestId,
+          data: chunks,
+        });
+      }
+    }
+  };
+
+  port.on('data', onData);
 }

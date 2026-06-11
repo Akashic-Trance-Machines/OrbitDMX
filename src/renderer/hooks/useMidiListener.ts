@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useMidiStore } from '../store/useMidiStore';
+import { useOrbitBridgeDeckStore } from '../store/useOrbitBridgeDeckStore';
 import { useControlsStore, getWidgetKind, getChannelTypeForControl, getFxTypeForControl, isMomentary } from '../store/useControlsStore';
 import { useRoomStore } from '../store/useRoomStore';
 import { useFxStore } from '../store/useFxStore';
@@ -7,17 +8,44 @@ import { usePlaylistStore } from '../store/usePlaylistStore';
 import { useTempoStore } from '../store/useTempoStore';
 import type { ControlWidget, FxType } from '../../shared/types';
 
+// ── OrbitBridgeDeck MIDI output for SysEx sending ────────────────────────────
+// Module-level ref — not stored in Zustand to avoid serialization issues.
+let _orbitOutput: WebMidi.MIDIOutput | null = null;
+
+const ORBIT_DEVICE_NAME = 'OrbitBridgeDeck';
+
+// OrbitBridgeDeck SysEx header: F0 7D 00 00
+const SYSEX_HEADER = [0xF0, 0x7D, 0x00, 0x00];
+
+/**
+ * Send a SysEx command to the connected OrbitBridgeDeck.
+ * @returns true if the output port was available and the message was sent.
+ */
+export function sendOrbitBridgeDeckSysEx(cmd: number, payload: number[]): boolean {
+  if (!_orbitOutput) return false;
+  try {
+    _orbitOutput.send([...SYSEX_HEADER, cmd, ...payload, 0xF7]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * useMidiListener — app-level hook for Web MIDI API.
  *
  * Mounted once in App.tsx so MIDI works regardless of which page is active.
  *
- * Device selection model (mirrors the DMX adapter UX):
+ * Device selection model:
  *  - All available inputs are discovered and listed in the store.
  *  - Only the device whose id === connectedDeviceId receives midimessage events.
- *  - Auto-reconnect: when the connected device reappears after being unplugged
- *    (onstatechange fires), the listener re-attaches automatically.
+ *  - Auto-reconnect: when the connected device reappears, listener re-attaches.
  *  - connectedDeviceId is persisted in localStorage by the store.
+ *
+ * OrbitBridgeDeck detection:
+ *  - When the connected device name contains 'OrbitBridgeDeck', the output port
+ *    is found and stored in _orbitOutput for SysEx sending.
+ *  - isOrbitBridgeDeckConnected is set in useMidiStore.
  */
 export function useMidiListener() {
   const midiAccessRef = useRef<WebMidi.MIDIAccess | null>(null);
@@ -25,7 +53,7 @@ export function useMidiListener() {
   const activeHandlerRef = useRef<{ inputId: string; fn: (e: WebMidi.MIDIMessageEvent) => void } | null>(null);
 
   // Detach any existing listener and re-attach to the currently connectedDeviceId.
-  // Called on init, onstatechange, and whenever connectedDeviceId changes.
+  // Also locates the OrbitBridgeDeck output port if the connected device matches.
   function rewireListener(access: WebMidi.MIDIAccess) {
     // Detach old listener
     if (activeHandlerRef.current) {
@@ -35,13 +63,15 @@ export function useMidiListener() {
       activeHandlerRef.current = null;
     }
 
+    // Reset OrbitBridgeDeck output
+    _orbitOutput = null;
+    useMidiStore.getState().setIsOrbitBridgeDeckConnected(false);
+
     const connectedId = useMidiStore.getState().connectedDeviceId;
     if (!connectedId) return;
 
     const input = access.inputs.get(connectedId);
     if (!input) {
-      // Device selected but not currently present (unplugged). Will re-attach
-      // when onstatechange fires and the device reappears.
       console.log(`[MIDI] Selected device ${connectedId} not found — waiting for reconnect`);
       return;
     }
@@ -50,6 +80,17 @@ export function useMidiListener() {
     input.addEventListener('midimessage', handler as EventListener);
     activeHandlerRef.current = { inputId: connectedId, fn: handler };
     console.log(`[MIDI] Active device: ${input.name || input.id}`);
+
+    // Detect OrbitBridgeDeck: find matching output port
+    if (input.name?.includes(ORBIT_DEVICE_NAME)) {
+      access.outputs.forEach((output) => {
+        if (output.name?.includes(ORBIT_DEVICE_NAME)) {
+          _orbitOutput = output;
+          console.log(`[MIDI] OrbitBridgeDeck output: ${output.name}`);
+        }
+      });
+      useMidiStore.getState().setIsOrbitBridgeDeckConnected(true);
+    }
   }
 
   useEffect(() => {
@@ -63,7 +104,7 @@ export function useMidiListener() {
       }
 
       try {
-        const access = await navigator.requestMIDIAccess({ sysex: false });
+        const access = await navigator.requestMIDIAccess({ sysex: true });
         if (cancelled) return;
 
         midiAccessRef.current = access;
@@ -161,8 +202,51 @@ export function useMidiListener() {
 }
 
 /**
+ * Parse SysEx reply from OrbitBridgeDeck and update the config store.
+ * Firmware SysEx format: F0 7D 00 00 <cmd> [payload…] F7
+ *
+ * Reply commands we handle:
+ *   0x01  button config:  <idx> <ch_0idx> <cc>
+ *   0x02  slider config:  <idx> <ch_0idx> <cc> <min> <max> <inv>
+ *   0x7F  ACK:            <status>  (0x00 = OK, 0x01 = error)
+ */
+function handleSysExMessage(data: Uint8Array) {
+  // Minimum: F0 7D 00 00 <cmd> F7 = 6 bytes
+  if (data.length < 6) return;
+  // Manufacturer ID check
+  if (data[1] !== 0x7D || data[2] !== 0x00 || data[3] !== 0x00) return;
+
+  const cmd = data[4];
+  const store = useOrbitBridgeDeckStore.getState();
+
+  if (cmd === 0x01) {
+    // Button config reply: <idx> <ch_0idx> <cc>
+    if (data.length < 9) return;
+    const idx     = data[5];
+    const channel = data[6] + 1;  // 0-indexed → 1-indexed for display
+    const cc      = data[7];
+    if (idx < 6) store.updateButton(idx, { channel, cc });
+
+  } else if (cmd === 0x02) {
+    // Slider config reply: <idx> <ch_0idx> <cc> <min> <max> <inv>
+    if (data.length < 12) return;
+    const idx    = data[5];
+    const channel = data[6] + 1;
+    const cc     = data[7];
+    const minVal = data[8];
+    const maxVal = data[9];
+    const invert = data[10] !== 0;
+    if (idx < 2) store.updateSlider(idx, { channel, cc, minVal, maxVal, invert });
+
+  } else if (cmd === 0x7F) {
+    // ACK — loading complete after GET_ALL response triggers this
+    store.setIsLoading(false);
+  }
+}
+
+/**
  * Process an incoming MIDI message.
- * We only care about Control Change messages (status 0xB0–0xBF).
+ * Handles: System Real-Time, SysEx replies from OrbitBridgeDeck, CC messages.
  */
 function handleMidiMessage(event: WebMidi.MIDIMessageEvent, deviceName: string) {
   const data = event.data;
@@ -170,27 +254,22 @@ function handleMidiMessage(event: WebMidi.MIDIMessageEvent, deviceName: string) 
 
   const status = data[0];
 
-  // ── System Real-Time messages (single byte, no channel/data bytes) ────
-  // These arrive on any device and must be handled before the CC range check.
+  // ── System Real-Time messages (single byte) ───────────────────────────
   if (status === 0xF8) {
-    // MIDI Timing Clock — fires 24 times per quarter note at the sender's BPM
     useTempoStore.getState().handleMidiClock();
     return;
   }
-  if (status === 0xFA || status === 0xFB) {
-    // Start (0xFA) or Continue (0xFB) — reset accumulator for a clean lock
-    // We treat both as a "sync start" signal; the next clocks will build BPM
-    return;
-  }
-  if (status === 0xFC) {
-    // Stop (0xFC) — optionally pause; we don't stop playback, just ignore
+  if (status === 0xFA || status === 0xFB || status === 0xFC) return;
+
+  // ── SysEx messages from OrbitBridgeDeck ──────────────────────────────
+  if (status === 0xF0) {
+    handleSysExMessage(data);
     return;
   }
 
   // ── Channel Voice messages ────────────────────────────────────────────
   if (data.length < 3) return;
-
-  // CC messages: 0xB0 (channel 1) through 0xBF (channel 16)
+  // CC messages only: 0xB0–0xBF
   if (status < 0xB0 || status > 0xBF) return;
 
   const channel = (status - 0xB0) + 1;  // 1–16

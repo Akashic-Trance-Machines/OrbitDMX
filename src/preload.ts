@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { IPC } from './shared/ipcChannels';
-import type { Scene, SerialPortInfo, SerialStatus, RunnerStatus, ChannelDefinition, FxConfig, LedAddress, RoomFile, FixtureProfile, ShowFile } from './shared/types';
+import type { Scene, SerialPortInfo, SerialStatus, RunnerStatus, ChannelDefinition, FxConfig, LedAddress, RoomFile, FixtureProfile, ShowFile, ObdProgress } from './shared/types';
 import type { IpcResponse } from './shared/types';
 
 /**
@@ -130,6 +130,13 @@ contextBridge.exposeInMainWorld('dmx', {
   importShow: (): Promise<IpcResponse<ShowFile | null>> =>
     ipcRenderer.invoke(IPC.SHOW_FILE_IMPORT),
 
+  // ── OBD standalone push ────────────────────────────────────────────────
+  pushToObd: (roomData: RoomFile, fixtureProfiles: FixtureProfile[], bpm: number): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.OBD_PUSH_SHOW, roomData, fixtureProfiles, bpm),
+
+  queryObdShow: (): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.OBD_QUERY_SHOW),
+
   // ── Push subscriptions (main → renderer) ──────────────────────────────────
   // Each returns a cleanup function that removes only THIS listener,
   // so multiple concurrent subscribers don't clobber each other.
@@ -150,6 +157,12 @@ contextBridge.exposeInMainWorld('dmx', {
     const handler = (_event: Electron.IpcRendererEvent, status: RunnerStatus) => cb(status);
     ipcRenderer.on(IPC.PUSH_RUNNER_STATE, handler);
     return () => ipcRenderer.removeListener(IPC.PUSH_RUNNER_STATE, handler);
+  },
+
+  onObdProgress: (cb: (progress: ObdProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, progress: ObdProgress) => cb(progress);
+    ipcRenderer.on(IPC.PUSH_OBD_PROGRESS, handler);
+    return () => ipcRenderer.removeListener(IPC.PUSH_OBD_PROGRESS, handler);
   },
 });
 

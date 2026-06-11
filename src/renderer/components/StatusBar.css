@@ -81,6 +81,21 @@
   padding-left: 16px;
 }
 
+/* Clickable status pills */
+.status-indicator.clickable {
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  border-radius: 6px;
+  padding: 2px 6px;
+  margin: 0 -6px;
+}
+.status-indicator.clickable:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+.status-indicator.clickable:active {
+  opacity: 0.7;
+}
+
 .status-fx .status-label {
   color: var(--color-accent);
 }

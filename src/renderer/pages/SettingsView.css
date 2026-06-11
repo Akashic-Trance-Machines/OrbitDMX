@@ -253,4 +253,72 @@
   box-sizing: border-box;
 }
 
+/* ── OBD Push Section ──────────────────────────────────────────────────────── */
 
+.obd-stored-show {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-dim);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+}
+
+.obd-stored-label {
+  color: var(--color-text-muted);
+}
+
+.obd-stored-name {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.obd-stored-size {
+  color: var(--color-text-dim);
+  font-size: 12px;
+}
+
+.obd-progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.obd-progress-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-surface-3);
+  overflow: hidden;
+}
+
+.obd-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-success));
+  transition: width 0.2s ease;
+}
+
+.obd-progress-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.obd-status {
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+}
+
+.obd-status-success {
+  color: var(--color-success);
+  background: rgba(79, 217, 122, 0.08);
+  border: 1px solid rgba(79, 217, 122, 0.15);
+}
+
+.obd-status-error {
+  color: var(--color-danger);
+  background: rgba(247, 79, 79, 0.08);
+  border: 1px solid rgba(247, 79, 79, 0.15);
+}

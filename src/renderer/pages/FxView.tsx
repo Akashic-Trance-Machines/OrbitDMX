@@ -4,6 +4,7 @@ import { useRoomStore } from '../store/useRoomStore';
 import { useTempoStore } from '../store/useTempoStore';
 import { collectFilteredLedAddresses } from '../utils/ledAddresses';
 import FixtureTargetSelector from '../components/FixtureTargetSelector';
+import { HtsColorPicker } from '../components/HtsColorPicker';
 import type { FxType, FixtureTarget } from '../../shared/types';
 import './FxView.css';
 
@@ -69,7 +70,7 @@ const FX_DEFS: FxDef[] = [
   { type: 'breath',      label: 'Breath',        icon: String.fromCodePoint(0x1FAB4), description: 'Ease dimmer up/down sinusoidally' },
   { type: 'fire',        label: 'Fire',          icon: String.fromCodePoint(0x1F525), description: 'Sudden random per-LED flicker' },
   { type: 'candle',      label: 'Candle',        icon: String.fromCodePoint(0x1F56F, 0xFE0F), description: 'Smooth random per-LED flicker' },
-  { type: 'twinkle',     label: 'Twinkle',       icon: String.fromCodePoint(0x2728), description: 'Random white sparkles with fade-out', hasTwinkleParams: true },
+  { type: 'twinkle',     label: 'Twinkle',       icon: String.fromCodePoint(0x2728), description: 'Random white sparkles with fade-out', hasTwinkleParams: true, hasColor: true },
   { type: 'hueRotator',  label: 'Hue Rotator',   icon: null, description: "Continuously rotate hue of each spot's colour", hasRotateParams: true, hideIntensity: true },
 ];
 
@@ -125,14 +126,10 @@ function FxPanel({ def, onClose }: FxPanelProps) {
   const quantisedLabel = fmtMs(quantisedPeriodMs);
 
   // ── Color picker helper ────────────────────────────────────────────────────
-  const colorHex = `#${color.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
-  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const hex = e.target.value;
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
+  const [colorR, colorG, colorB] = color;
+  const handleColorChange = useCallback((r: number, g: number, b: number) => {
     setFxParam(type, 'color', [r, g, b]);
-  };
+  }, [type, setFxParam]);
 
   // ── Target change → re-sync LED addresses ─────────────────────────────────
   const handleTargetChange = useCallback((t: FixtureTarget) => {
@@ -348,22 +345,20 @@ function FxPanel({ def, onClose }: FxPanelProps) {
             </div>
           )}
 
-          {/* Color picker (strobeColor only) */}
+          {/* Color picker — strobeColor and twinkle */}
           {def.hasColor && (
-            <div className="fx-slider-row">
-              <label className="fx-slider-label">Color</label>
-              <div className="fx-color-picker">
-                <input
-                  type="color"
-                  className="fx-color-input"
-                  value={colorHex}
-                  onChange={handleColorChange}
-                />
-                <span className="fx-color-swatch" style={{ background: colorHex }} />
-                <span className="fx-slider-value mono">{colorHex.toUpperCase()}</span>
-              </div>
+            <div className="fx-color-picker-wrap">
+              <HtsColorPicker
+                r={colorR}
+                g={colorG}
+                b={colorB}
+                onChange={handleColorChange}
+                label="Color"
+                size={160}
+              />
             </div>
           )}
+
 
           {/* Twinkle extras */}
           {def.hasTwinkleParams && (

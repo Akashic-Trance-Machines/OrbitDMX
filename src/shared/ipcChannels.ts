@@ -61,10 +61,15 @@ export const IPC = {
   SHOW_FILE_EXPORT: 'show-file:export',
   SHOW_FILE_IMPORT: 'show-file:import',
 
+  // OBD standalone show push
+  OBD_PUSH_SHOW:  'obd:push-show',
+  OBD_QUERY_SHOW: 'obd:query-show',
+
   // Main → Renderer (push events via webContents.send)
   PUSH_UNIVERSE_UPDATE: 'push:universe-update',
   PUSH_SERIAL_STATUS: 'push:serial-status',
   PUSH_RUNNER_STATE: 'push:runner-state',
+  PUSH_OBD_PROGRESS: 'push:obd-progress',
 } as const;
 
 export type IpcChannel = (typeof IPC)[keyof typeof IPC];

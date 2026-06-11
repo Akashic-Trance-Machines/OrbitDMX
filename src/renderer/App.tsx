@@ -8,6 +8,7 @@ import ControlsView from './pages/ControlsView';
 import FxView from './pages/FxView';
 import SettingsView from './pages/SettingsView';
 import ColoursView from './pages/ColoursView';
+import OrbitBridgeDeckView from './pages/OrbitBridgeDeckView';
 import StatusBar from './components/StatusBar';
 import { useSerialStore } from './store/useSerialStore';
 import { useRoomStore } from './store/useRoomStore';
@@ -15,6 +16,7 @@ import { useRoomFileStore } from './store/useRoomFileStore';
 import { useHistoryStore } from './store/useHistoryStore';
 import { useSceneStore } from './store/useSceneStore';
 import { usePlaylistStore } from './store/usePlaylistStore';
+import { useMidiStore } from './store/useMidiStore';
 import { usePlaylistRunner } from './hooks/usePlaylistRunner';
 import { usePalettePlaylistRunner } from './hooks/usePalettePlaylistRunner';
 import { useHsbPlaylistRunner } from './hooks/useHsbPlaylistRunner';
@@ -23,7 +25,7 @@ import { useAutosave, loadRoomFromFile, newRoom, buildCurrentRoomFile } from './
 import type { FixtureInstance } from '../shared/types';
 import './styles/app.css';
 
-export type AppView = 'room' | 'scenes' | 'playlists' | 'controls' | 'fx' | 'colours' | 'settings';
+export type AppView = 'room' | 'scenes' | 'playlists' | 'controls' | 'orbit-bridge-deck' | 'fx' | 'colours' | 'settings';
 
 import { useFxStore } from './store/useFxStore';
 
@@ -34,6 +36,7 @@ export default function App() {
   const fixtures = useRoomStore((s) => s.fixtures);
   const roomFileName = useRoomFileStore((s) => s.fileName);
   const isDirty = useRoomFileStore((s) => s.isDirty);
+  const isOrbitBridgeDeckConnected = useMidiStore((s) => s.isOrbitBridgeDeckConnected);
 
   // ── App-level playlist runner (survives page navigation) ──────────────
   usePlaylistRunner();
@@ -174,17 +177,19 @@ export default function App() {
         roomFileName={roomFileName}
         isDirty={isDirty}
         onOpenRoomPicker={() => setShowRoomPicker(true)}
+        isOrbitBridgeDeckConnected={isOrbitBridgeDeckConnected}
       />
       <main className="app-main">
-        {activeView === 'room'      && <RoomView />}
-        {activeView === 'scenes'    && <SceneView />}
-        {activeView === 'playlists' && <PlaylistView />}
-        {activeView === 'controls'  && <ControlsView />}
-        {activeView === 'fx'        && <FxView />}
-        {activeView === 'colours'   && <ColoursView />}
-        {activeView === 'settings'  && <SettingsView />}
+        {activeView === 'room'               && <RoomView />}
+        {activeView === 'scenes'              && <SceneView />}
+        {activeView === 'playlists'           && <PlaylistView />}
+        {activeView === 'controls'            && <ControlsView />}
+        {activeView === 'orbit-bridge-deck'   && <OrbitBridgeDeckView />}
+        {activeView === 'fx'                  && <FxView />}
+        {activeView === 'colours'             && <ColoursView />}
+        {activeView === 'settings'            && <SettingsView />}
       </main>
-      <StatusBar />
+      <StatusBar onNavigate={setActiveView} />
       {showRoomPicker && (
         <RoomPickerModal onClose={() => setShowRoomPicker(false)} />
       )}

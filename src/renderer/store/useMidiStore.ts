@@ -16,6 +16,8 @@ interface MidiStore {
   learnTargetId: string | null;
   /** Last received MIDI message (for visual feedback). */
   lastMessage: { channel: number; cc: number; value: number } | null;
+  /** True when the connected device is an OrbitBridgeDeck (name contains 'OrbitBridgeDeck'). */
+  isOrbitBridgeDeckConnected: boolean;
 
   setDevices: (devices: MidiDevice[]) => void;
   setIsListening: (listening: boolean) => void;
@@ -25,6 +27,7 @@ interface MidiStore {
   disconnectDevice: () => void;
   setLearnTarget: (controlId: string | null) => void;
   setLastMessage: (msg: { channel: number; cc: number; value: number } | null) => void;
+  setIsOrbitBridgeDeckConnected: (v: boolean) => void;
 }
 
 export const useMidiStore = create<MidiStore>()((set) => ({
@@ -35,6 +38,7 @@ export const useMidiStore = create<MidiStore>()((set) => ({
   connectedDeviceId: localStorage.getItem(LS_KEY) ?? null,
   learnTargetId: null,
   lastMessage: null,
+  isOrbitBridgeDeckConnected: false,
 
   setDevices: (devices) => set({ devices }),
   setIsListening: (isListening) => set({ isListening }),
@@ -51,4 +55,5 @@ export const useMidiStore = create<MidiStore>()((set) => ({
 
   setLearnTarget: (learnTargetId) => set({ learnTargetId }),
   setLastMessage: (lastMessage) => set({ lastMessage }),
+  setIsOrbitBridgeDeckConnected: (v) => set({ isOrbitBridgeDeckConnected: v }),
 }));

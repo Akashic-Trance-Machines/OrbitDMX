@@ -8,6 +8,8 @@ interface SidebarProps {
   roomFileName?: string;
   isDirty?: boolean;
   onOpenRoomPicker?: () => void;
+  /** Show the OrbitBridgeDeck nav entry under Controls. */
+  isOrbitBridgeDeckConnected?: boolean;
 }
 
 const NAV_ITEMS: { id: AppView; label: string; icon: string }[] = [
@@ -19,7 +21,7 @@ const NAV_ITEMS: { id: AppView; label: string; icon: string }[] = [
   { id: 'colours',   label: 'Colours',   icon: '◉' },
 ];
 
-export default function Sidebar({ activeView, onNavigate, roomFileName, isDirty, onOpenRoomPicker }: SidebarProps) {
+export default function Sidebar({ activeView, onNavigate, roomFileName, isDirty, onOpenRoomPicker, isOrbitBridgeDeckConnected }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
@@ -43,15 +45,32 @@ export default function Sidebar({ activeView, onNavigate, roomFileName, isDirty,
 
       <nav className="sidebar-nav">
         {NAV_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            id={`nav-${item.id}`}
-            className={`sidebar-nav-item ${activeView === item.id ? 'active' : ''}`}
-            onClick={() => onNavigate(item.id)}
-          >
-            <span className="sidebar-nav-icon">{item.icon}</span>
-            <span className="sidebar-nav-label">{item.label}</span>
-          </button>
+          <React.Fragment key={item.id}>
+            <button
+              id={`nav-${item.id}`}
+              className={`sidebar-nav-item ${activeView === item.id ? 'active' : ''}`}
+              onClick={() => onNavigate(item.id)}
+            >
+              <span className="sidebar-nav-icon">{item.icon}</span>
+              <span className="sidebar-nav-label">{item.label}</span>
+            </button>
+
+            {/* OrbitBridgeDeck appears right after Controls when connected */}
+            {item.id === 'controls' && isOrbitBridgeDeckConnected && (
+              <button
+                id="nav-orbit-bridge-deck"
+                className={`sidebar-nav-item sidebar-nav-sub ${activeView === 'orbit-bridge-deck' ? 'active' : ''}`}
+                onClick={() => onNavigate('orbit-bridge-deck')}
+                title="OrbitBridgeDeck MIDI configuration"
+              >
+                <span className="sidebar-nav-icon sidebar-nav-icon-hw">◎</span>
+                <span className="sidebar-nav-label">
+                  OrbitBridgeDeck
+                  <span className="sidebar-hw-dot" />
+                </span>
+              </button>
+            )}
+          </React.Fragment>
         ))}
       </nav>
 

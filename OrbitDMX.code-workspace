@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../OrbitBridgeDeck-Hardware"
+		},
+		{
+			"path": "../OrbitBridgeDeck"
 		}
 	],
 	"settings": {}

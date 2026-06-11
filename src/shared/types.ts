@@ -403,3 +403,11 @@ export interface ShowFile {
   room: RoomFile['room'];
   fixtureProfiles: FixtureProfile[];                 // embedded copies of all referenced fixture profiles
 }
+
+// ─── OBD push progress ────────────────────────────────────────────────────────
+
+export interface ObdProgress {
+  phase: 'compiled' | 'uploading' | 'done' | 'error';
+  progress: number;  // 0.0–1.0
+  error?: string;
+}

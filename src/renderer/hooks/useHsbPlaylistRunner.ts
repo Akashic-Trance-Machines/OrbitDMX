@@ -100,7 +100,7 @@ export function useHsbPlaylistRunner() {
   }, []);
 
   const clearFadeRaf = useCallback(() => {
-    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    if (rafRef.current) { clearTimeout(rafRef.current); rafRef.current = null; }
   }, []);
 
   const cleanupAudio = useCallback(() => {
@@ -187,11 +187,11 @@ export function useHsbPlaylistRunner() {
           }
           void window.dmx.setChannelBatch(updates);
 
-          if (t < 1) { rafRef.current = requestAnimationFrame(tick); }
+          if (t < 1) { rafRef.current = setTimeout(() => tick(performance.now()), 16) as unknown as number; }
           else { rafRef.current = null; resolve(); }
         };
 
-        rafRef.current = requestAnimationFrame(tick);
+        rafRef.current = setTimeout(() => tick(performance.now()), 16) as unknown as number;
       }),
     [clearFadeRaf, writeSpots],
   );
@@ -262,10 +262,10 @@ export function useHsbPlaylistRunner() {
           void doStep(pl, addresses);
         }
 
-        audioRafRef.current = requestAnimationFrame(detect);
+        audioRafRef.current = setTimeout(() => detect(), 16) as unknown as number;
       };
 
-      audioRafRef.current = requestAnimationFrame(detect);
+      audioRafRef.current = setTimeout(() => detect(), 16) as unknown as number;
     } catch (err) {
       console.error('[HsbPlaylistRunner] Mic error:', err);
     }

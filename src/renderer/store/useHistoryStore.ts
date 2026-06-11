@@ -1,11 +1,13 @@
 import { create } from 'zustand';
-import type { FixtureInstance, Scene, Playlist, FloorPlanDimensions, ControlWidget } from '../../shared/types';
+import type { FixtureInstance, Scene, Playlist, PalettePlaylist, HsbPlaylist, FloorPlanDimensions, ControlWidget } from '../../shared/types';
 
 /** A serializable snapshot of the room state for undo/redo. */
 export interface RoomSnapshot {
   fixtures: FixtureInstance[];
   scenes: Scene[];
   playlists: Playlist[];
+  palettePlayists?: PalettePlaylist[];  // optional: added in v1.3
+  hsbPlaylists?: HsbPlaylist[];         // optional: added in v1.3
   floorPlan: FloorPlanDimensions;
   controls?: ControlWidget[];
 }
