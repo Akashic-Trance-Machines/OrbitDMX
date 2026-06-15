@@ -131,8 +131,13 @@ contextBridge.exposeInMainWorld('dmx', {
     ipcRenderer.invoke(IPC.SHOW_FILE_IMPORT),
 
   // ── OBD standalone push ────────────────────────────────────────────────
-  pushToObd: (roomData: RoomFile, fixtureProfiles: FixtureProfile[], bpm: number): Promise<IpcResponse> =>
-    ipcRenderer.invoke(IPC.OBD_PUSH_SHOW, roomData, fixtureProfiles, bpm),
+  pushToObd: (
+    roomData: RoomFile, fixtureProfiles: FixtureProfile[], bpm: number,
+    baseSceneId?: string | null,
+    fxConfigs?: any[], fxTargets?: Record<string, any>,
+  ): Promise<IpcResponse> =>
+    ipcRenderer.invoke(IPC.OBD_PUSH_SHOW, roomData, fixtureProfiles, bpm,
+      baseSceneId ?? null, fxConfigs ?? [], fxTargets ?? {}),
 
   queryObdShow: (): Promise<IpcResponse> =>
     ipcRenderer.invoke(IPC.OBD_QUERY_SHOW),

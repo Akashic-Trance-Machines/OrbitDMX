@@ -70,6 +70,17 @@ export default function Sidebar({ activeView, onNavigate, roomFileName, isDirty,
                 </span>
               </button>
             )}
+            {item.id === 'controls' && (
+              <button
+                id="nav-obd-standalone"
+                className={`sidebar-nav-item sidebar-nav-sub ${activeView === 'obd-standalone' ? 'active' : ''}`}
+                onClick={() => onNavigate('obd-standalone')}
+                title="OBD standalone control configuration"
+              >
+                <span className="sidebar-nav-icon sidebar-nav-icon-hw">⬡</span>
+                <span className="sidebar-nav-label">OBD Standalone</span>
+              </button>
+            )}
           </React.Fragment>
         ))}
       </nav>

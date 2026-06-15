@@ -9,6 +9,7 @@ import FxView from './pages/FxView';
 import SettingsView from './pages/SettingsView';
 import ColoursView from './pages/ColoursView';
 import OrbitBridgeDeckView from './pages/OrbitBridgeDeckView';
+import ObdStandaloneView from './pages/ObdStandaloneView';
 import StatusBar from './components/StatusBar';
 import { useSerialStore } from './store/useSerialStore';
 import { useRoomStore } from './store/useRoomStore';
@@ -25,7 +26,7 @@ import { useAutosave, loadRoomFromFile, newRoom, buildCurrentRoomFile } from './
 import type { FixtureInstance } from '../shared/types';
 import './styles/app.css';
 
-export type AppView = 'room' | 'scenes' | 'playlists' | 'controls' | 'orbit-bridge-deck' | 'fx' | 'colours' | 'settings';
+export type AppView = 'room' | 'scenes' | 'playlists' | 'controls' | 'orbit-bridge-deck' | 'obd-standalone' | 'fx' | 'colours' | 'settings';
 
 import { useFxStore } from './store/useFxStore';
 
@@ -185,6 +186,7 @@ export default function App() {
         {activeView === 'playlists'           && <PlaylistView />}
         {activeView === 'controls'            && <ControlsView />}
         {activeView === 'orbit-bridge-deck'   && <OrbitBridgeDeckView />}
+        {activeView === 'obd-standalone'       && <ObdStandaloneView />}
         {activeView === 'fx'                  && <FxView />}
         {activeView === 'colours'             && <ColoursView />}
         {activeView === 'settings'            && <SettingsView />}

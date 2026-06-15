@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-06-15
+
+### Added
+- **OBD Standalone Page**: New dedicated page for OrbitBridgeDeck standalone configuration — visual 2×3 button grid + 2 sliders matching the physical hardware, with slide-out config panels for each control.
+- **Control Binding System**: 8-slot binding editor (6 buttons + 2 sliders) with action picker, FX type selector, and LED colour picker. Button actions: blackout, playlist start/stop, cue next/prev, tap tempo, FX toggle, FX momentary. Slider actions: master dimmer, hue shift, playlist speed/fade, FX intensity/speed.
+- **Push-to-OBD (Standalone)**: Moved the push workflow to the standalone page. Exports the full show including scenes, playlists, palette/HSB generators, FX configs, control bindings, and base scene as a single `.osb` binary.
+- **Test Controls**: SysEx-based test buttons and sliders in the config panel sidebar, allowing live testing of control bindings over USB without physical hardware.
+- **Duplicate FX Guard**: FX type dropdown disables types already assigned to another toggle/momentary button (shows "already assigned"). Intensity/speed sliders can still target any FX type.
+- **Push-Needed Warning**: After a successful push, changing any binding, playlist, or base scene shows an amber "⚠️ Settings changed — push again to apply" warning in place of the success message.
+
+### Changed
+- **FX Export**: All configured FX types are now exported to the `.osb` binary regardless of active state (previously only active FX were included). This allows FX to be toggled on/off via standalone control buttons.
+- **FX Type Auto-Default**: When selecting an FX action, the FX type is automatically set to the first available option instead of silently defaulting to strobe.
+
+### Fixed
+- **Scene Playlist Live Updates**: Changes to hold duration, BPM sync, and tempo divider now take effect immediately during playback (no restart needed). Fixed stale closure in `scheduleAutoAdvance` and added timing properties to `useEffect` dependencies.
+- **Palette/HSB Last State**: Stop-toggling palette and HSB playlists now correctly freezes on the last rendered colour instead of reverting to the base scene.
+
 ## [1.4.0] - 2026-06-06
 
 ### Added

@@ -6,6 +6,7 @@ import { useControlsStore } from '../store/useControlsStore';
 import { useHistoryStore, type RoomSnapshot } from '../store/useHistoryStore';
 import { useRoomFileStore } from '../store/useRoomFileStore';
 import { useColourStore, DEFAULT_PRESETS } from '../store/useColourStore';
+import { useObdStandaloneStore } from '../store/useObdStandaloneStore';
 import type { RoomFile } from '../../shared/types';
 
 const AUTOSAVE_DEBOUNCE_MS = 500;
@@ -33,6 +34,7 @@ function buildRoomFile(): RoomFile {
       colourPalettes:     palettes,
       paletteGenerators:  palettePlayists,
       hsbGenerators:      hsbPlaylists,
+      obdStandalone:      useObdStandaloneStore.getState().toRoomData(),
     },
   };
 }
@@ -126,6 +128,7 @@ export function useAutosave() {
             roomFile.room.colourPresets ?? DEFAULT_PRESETS,
             roomFile.room.colourPalettes ?? [],
           );
+          useObdStandaloneStore.getState().loadFromRoom(roomFile.room.obdStandalone);
 
           const fileName = lastPath.split('/').pop()?.replace('.orbitdmx', '') ?? 'Untitled Room';
           useRoomFileStore.getState().setFilePath(lastPath);
@@ -298,6 +301,7 @@ export async function loadRoomFromFile(filePath: string): Promise<boolean> {
     roomFile.room.colourPresets ?? DEFAULT_PRESETS,
     roomFile.room.colourPalettes ?? [],
   );
+  useObdStandaloneStore.getState().loadFromRoom(roomFile.room.obdStandalone);
 
   const fileName = filePath.split('/').pop()?.replace('.orbitdmx', '') ?? 'Untitled Room';
   useRoomFileStore.getState().setFilePath(filePath);

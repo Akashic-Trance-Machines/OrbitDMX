@@ -22,6 +22,8 @@ import type {
   FxType,
   FixtureTarget,
   ColourPalette,
+  ObdControlBinding,
+  ObdActionType,
 } from './types';
 
 // ============================================================================
@@ -68,6 +70,23 @@ const DIRECTION_MAP: Record<string, number> = {
 
 const TARGET_MODE_MAP: Record<string, number> = {
   'all': 0, 'include': 1, 'exclude': 2,
+};
+
+const ACTION_MAP: Record<ObdActionType, number> = {
+  'none':                0,
+  'master-dimmer':       1,
+  'hue-shift':           2,
+  'blackout-momentary':  3,
+  'playlist-startstop':  5,
+  'cue-next':            6,
+  'cue-prev':            7,
+  'tap-tempo':           8,
+  'fx-toggle':           9,
+  'playlist-speed':      14,
+  'playlist-fade':       15,
+  'fx-intensity':        16,
+  'fx-momentary':        17,
+  'fx-speed':            18,
 };
 
 // ============================================================================
@@ -396,6 +415,44 @@ function serializeFx(
     serializeFixtureTarget(w, target, fixtureIdToIndex);
   }
 }
+// ============================================================================
+// Control Bindings (section 0x0080)
+// ============================================================================
+
+/**
+ * Serialize OBD control bindings to binary.
+ * Per binding (8 bytes):
+ *   physical_control: u8   (0–5 = button, 6–7 = slider)
+ *   action:           u8   (osb_action_t enum value)
+ *   param_a:          u16  (FX type index for fx-toggle/fx-intensity, 0 otherwise)
+ *   flags:            u8   (reserved)
+ *   led_r:            u8
+ *   led_g:            u8
+ *   led_b:            u8
+ */
+function serializeControlBindings(
+  w: BinaryWriter,
+  bindings: ObdControlBinding[],
+): void {
+  w.u8(bindings.length);  // binding_count
+  for (const b of bindings) {
+    w.u8(b.physicalControl);
+    w.u8(ACTION_MAP[b.action] ?? 0);
+    // param_a: FX type index for FX-related actions
+    const isFxAction = b.action === 'fx-toggle' || b.action === 'fx-momentary'
+      || b.action === 'fx-intensity' || b.action === 'fx-speed';
+    const paramA = isFxAction
+      ? (FX_TYPE_MAP[b.fxType ?? 'strobe'] ?? 0)
+      : 0;
+    w.u16(paramA);
+    w.u8(0);  // flags (reserved)
+    // LED colour
+    const led = b.ledColor ?? [0, 0, 0];
+    w.u8(led[0]);
+    w.u8(led[1]);
+    w.u8(led[2]);
+  }
+}
 
 // ============================================================================
 // Main export function
@@ -410,6 +467,8 @@ export interface CompileOptions {
   fxConfigs?: FxConfig[];
   /** Per-FX fixture targets. */
   fxTargets?: Map<FxType, FixtureTarget>;
+  /** Base scene ID (background scene for non-targeted spots). null/undefined = none. */
+  baseSceneId?: string | null;
 }
 
 /**
@@ -457,30 +516,61 @@ export function compileShow(show: ShowFile, options: CompileOptions): Uint8Array
   }
 
   // SCENE_PLAYLISTS
-  if (room.playlists.length > 0) {
+  // Reorder so the selected standalone playlist (if any) is at index 0
+  let playlists = [...room.playlists];
+  const selectedPlId = room.obdStandalone?.selectedPlaylistId;
+  let isSelectedAGenPlaylist = false;
+  if (selectedPlId) {
+    const selIdx = playlists.findIndex(p => p.id === selectedPlId);
+    if (selIdx > 0) {
+      const [selected] = playlists.splice(selIdx, 1);
+      playlists.unshift(selected);
+    } else if (selIdx < 0) {
+      // Selected playlist not found in scene playlists — it's a generator playlist
+      isSelectedAGenPlaylist = true;
+    }
+  }
+  // When a gen is the selected playlist, omit scene playlists from the binary
+  // so the firmware has playlist_count=0 and only the base scene plays.
+  if (playlists.length > 0 && !isSelectedAGenPlaylist) {
     const plWriter = new BinaryWriter();
-    serializeScenePlaylists(plWriter, room.playlists, sceneIdToIndex);
+    serializeScenePlaylists(plWriter, playlists, sceneIdToIndex);
     sections.push({ type: SECTION_SCENE_PLAYLISTS, data: plWriter.toUint8Array() });
   }
 
-  // PALETTES
+  // PALETTES — always include (needed by palette generators)
   if (room.colourPalettes && room.colourPalettes.length > 0) {
     const palWriter = new BinaryWriter();
     serializePalettes(palWriter, room.colourPalettes);
     sections.push({ type: SECTION_PALETTES, data: palWriter.toUint8Array() });
   }
 
+  // When a generator is the selected playlist, only include THAT generator.
+  // Otherwise both run and the last one overwrites the other.
+  const selectedPalGen = isSelectedAGenPlaylist
+    ? (room.paletteGenerators ?? []).find(g => g.id === selectedPlId)
+    : undefined;
+  const selectedHsbGen = isSelectedAGenPlaylist
+    ? (room.hsbGenerators ?? []).find(g => g.id === selectedPlId)
+    : undefined;
+
   // PALETTE_GENERATORS
-  if (room.paletteGenerators && room.paletteGenerators.length > 0) {
+  const palGensToExport = selectedPalGen ? [selectedPalGen]
+    : (!isSelectedAGenPlaylist && room.paletteGenerators?.length) ? room.paletteGenerators
+    : [];
+  if (palGensToExport.length > 0) {
     const pgWriter = new BinaryWriter();
-    serializePaletteGenerators(pgWriter, room.paletteGenerators, paletteIdToIndex, fixtureIdToIndex);
+    serializePaletteGenerators(pgWriter, palGensToExport, paletteIdToIndex, fixtureIdToIndex);
     sections.push({ type: SECTION_PALETTE_GENERATORS, data: pgWriter.toUint8Array() });
   }
 
   // HSB_GENERATORS
-  if (room.hsbGenerators && room.hsbGenerators.length > 0) {
+  const hsbGensToExport = selectedHsbGen ? [selectedHsbGen]
+    : (!isSelectedAGenPlaylist && room.hsbGenerators?.length) ? room.hsbGenerators
+    : [];
+  if (hsbGensToExport.length > 0) {
     const hgWriter = new BinaryWriter();
-    serializeHsbGenerators(hgWriter, room.hsbGenerators, fixtureIdToIndex);
+    serializeHsbGenerators(hgWriter, hsbGensToExport, fixtureIdToIndex);
     sections.push({ type: SECTION_HSB_GENERATORS, data: hgWriter.toUint8Array() });
   }
 
@@ -491,8 +581,13 @@ export function compileShow(show: ShowFile, options: CompileOptions): Uint8Array
     sections.push({ type: SECTION_FX, data: fxWriter.toUint8Array() });
   }
 
-  // CONTROL_BINDINGS — deferred to OBD config panel (P3+)
-  // sections.push({ type: SECTION_CONTROL_BINDINGS, data: ... });
+  // CONTROL_BINDINGS
+  const obdConfig = show.room.obdStandalone;
+  if (obdConfig && obdConfig.bindings.some(b => b.action !== 'none')) {
+    const cbWriter = new BinaryWriter();
+    serializeControlBindings(cbWriter, obdConfig.bindings);
+    sections.push({ type: SECTION_CONTROL_BINDINGS, data: cbWriter.toUint8Array() });
+  }
 
   // --- Compute section directory ---
   const dirSize = sections.length * 10;
@@ -512,9 +607,19 @@ export function compileShow(show: ShowFile, options: CompileOptions): Uint8Array
   out.u32(OSB_MAGIC);
   out.u8(OSB_VERSION_MAJOR);
   out.u8(OSB_VERSION_MINOR);
-  out.u16(0);  // flags (reserved)
+  // Flags
+  let headerFlags = 0;
+  if (isSelectedAGenPlaylist) {
+    headerFlags |= 0x0002;  // NO_AUTO_PLAYLIST — don't auto-start scene playlist 0
+    headerFlags |= 0x0004;  // GENS_ACTIVE — run palette/HSB generators
+  }
+  out.u16(headerFlags);
   out.u16(Math.round(options.bpm * 100));  // bpm_centi
-  out.u16(0);  // reserved0
+  // base_scene_index: resolve scene ID to index, 0xFFFF = none
+  const baseSceneIndex = options.baseSceneId
+    ? sceneIdToIndex.get(options.baseSceneId) ?? 0xFFFF
+    : 0xFFFF;
+  out.u16(baseSceneIndex);  // base_scene_index
   out.fixedString(options.name, 32);
   out.u16(sections.length);  // section_count
   out.u16(0);  // reserved1

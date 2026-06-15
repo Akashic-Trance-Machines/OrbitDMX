@@ -1,7 +1,7 @@
 {
   "name": "orbit-dmx",
   "productName": "OrbitDMX",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "A modern, open-source stage lighting DMX controller",
   "main": ".vite/build/main.js",
   "private": true,

@@ -393,6 +393,7 @@ export interface RoomFile {
     colourPalettes?: ColourPalette[];    // v1.3: named colour palettes
     paletteGenerators?: PalettePlaylist[]; // v1.3: palette generator playlists
     hsbGenerators?: HsbPlaylist[];        // v1.3: HSB generator playlists
+    obdStandalone?: ObdStandaloneConfig;   // v1.4: standalone control bindings
   };
 }
 
@@ -402,6 +403,70 @@ export interface ShowFile {
   orbitshow: string;           // schema version, e.g. "1.0"
   room: RoomFile['room'];
   fixtureProfiles: FixtureProfile[];                 // embedded copies of all referenced fixture profiles
+}
+
+// ─── OBD standalone control bindings ──────────────────────────────────────────
+
+/**
+ * Actions assignable to physical OBD controls in standalone mode.
+ * Button actions are toggle/momentary; slider actions are continuous.
+ */
+export type ObdActionType =
+  // Button actions
+  | 'none'
+  | 'blackout-momentary'  // momentary: hold for blackout, release to restore
+  | 'playlist-startstop'  // toggle: start/stop the selected playlist
+  | 'cue-next'            // advance to next cue
+  | 'cue-prev'            // go back one cue
+  | 'tap-tempo'           // tap rhythm to set BPM
+  | 'fx-toggle'           // toggle a specific FX type (on/off)
+  | 'fx-momentary'        // momentary: hold to activate FX, release to stop
+  // Slider actions
+  | 'master-dimmer'       // scale all output 0–100%
+  | 'hue-shift'           // rotate all RGB colours 0–360°
+  | 'playlist-speed'      // adjust playlist hold duration
+  | 'playlist-fade'       // adjust playlist crossfade duration
+  | 'fx-intensity'        // adjust FX intensity
+  | 'fx-speed';           // adjust FX speed
+
+export const OBD_BUTTON_ACTIONS: ObdActionType[] = [
+  'none', 'blackout-momentary', 'playlist-startstop', 'cue-next',
+  'cue-prev', 'tap-tempo', 'fx-toggle', 'fx-momentary',
+];
+
+export const OBD_SLIDER_ACTIONS: ObdActionType[] = [
+  'none', 'master-dimmer', 'hue-shift', 'playlist-speed',
+  'playlist-fade', 'fx-intensity', 'fx-speed',
+];
+
+export const OBD_ACTION_LABELS: Record<ObdActionType, string> = {
+  'none':                '—',
+  'blackout-momentary':  'Blackout',
+  'playlist-startstop':  'Play / Stop',
+  'cue-next':            'Cue →',
+  'cue-prev':            '← Cue',
+  'tap-tempo':           'Tap Tempo',
+  'fx-toggle':           'FX Toggle',
+  'fx-momentary':        'FX Momentary',
+  'master-dimmer':       'Master Dimmer',
+  'hue-shift':           'Hue Shift',
+  'playlist-speed':      'Playlist Speed',
+  'playlist-fade':       'Playlist Fade',
+  'fx-intensity':        'FX Intensity',
+  'fx-speed':            'FX Speed',
+};
+
+export interface ObdControlBinding {
+  physicalControl: number;             // 0–5 = button, 6–7 = slider
+  action: ObdActionType;
+  fxType?: FxType;                     // for fx-toggle, fx-momentary, fx-intensity, fx-speed
+  ledColor?: [number, number, number]; // button LED RGB (0–255)
+}
+
+export interface ObdStandaloneConfig {
+  selectedPlaylistId?: string;         // which playlist OBD will play
+  baseSceneId?: string;                // background scene for non-targeted spots (undefined = none)
+  bindings: ObdControlBinding[];       // 8 entries (6 buttons + 2 sliders)
 }
 
 // ─── OBD push progress ────────────────────────────────────────────────────────

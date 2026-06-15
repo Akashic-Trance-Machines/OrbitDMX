@@ -1,0 +1,579 @@
+/* ── ObdStandaloneView.css ──────────────────────────────────────────────────── */
+/* OBD Standalone configuration page — control grid + config panel            */
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+
+.osd-view {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.osd-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 40px;
+  min-width: 0;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+.osd-header {
+  margin-bottom: 24px;
+}
+
+.osd-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #e8e8ef);
+  margin: 0;
+}
+
+.osd-subtitle {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #8888a0);
+  margin: 4px 0 0;
+}
+
+/* ── Push Section ────────────────────────────────────────────────────────── */
+
+.osd-push-section {
+  background: var(--color-surface-1, #14142a);
+  border: 1px solid var(--color-border, #2a2a44);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.osd-push-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.osd-push-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.osd-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.osd-status-dot.connected {
+  background: #4ade80;
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.5);
+}
+
+.osd-status-dot.disconnected {
+  background: #666;
+}
+
+.osd-status-label {
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #8888a0);
+}
+
+.osd-stored-show {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #8888a0);
+}
+
+.osd-stored-icon {
+  font-size: 0.85rem;
+}
+
+.osd-stored-name {
+  color: var(--color-text-primary, #e8e8ef);
+  font-weight: 500;
+}
+
+.osd-stored-size {
+  opacity: 0.6;
+}
+
+/* Progress */
+.osd-progress {
+  margin-bottom: 12px;
+}
+
+.osd-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--color-surface-2, #1a1a2e);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.osd-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c5bf5, #a78bfa);
+  border-radius: 2px;
+  transition: width 0.2s ease;
+}
+
+.osd-progress-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #8888a0);
+}
+
+.osd-flash-msg {
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.osd-flash-success {
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+}
+
+.osd-flash-error {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+}
+
+.osd-flash-warning {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+}
+
+.osd-push-btn {
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #7c5bf5, #6d28d9);
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+.osd-push-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(124, 91, 245, 0.3);
+}
+
+.osd-push-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ── Playlist Selector ───────────────────────────────────────────────────── */
+
+.osd-playlist-selector {
+  background: var(--color-surface-1, #14142a);
+  border: 1px solid var(--color-border, #2a2a44);
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.osd-playlist-label {
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #8888a0);
+  white-space: nowrap;
+}
+
+.osd-playlist-hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #8888a0);
+  font-style: italic;
+}
+
+.osd-select {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border, #2a2a44);
+  border-radius: 6px;
+  background: var(--color-surface-2, #1a1a2e);
+  color: var(--color-text-primary, #e8e8ef);
+  font-size: 0.82rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.osd-select:focus {
+  border-color: #7c5bf5;
+}
+
+/* ── Controls Section ────────────────────────────────────────────────────── */
+
+.osd-controls-section {
+  margin-top: 8px;
+}
+
+.osd-section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #8888a0);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 12px;
+}
+
+/* ── Button Grid (2×3) ───────────────────────────────────────────────────── */
+
+.osd-button-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-width: 480px;
+}
+
+.osd-control-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 12px 14px;
+  border: 1px solid var(--color-border, #2a2a44);
+  border-radius: 12px;
+  background: var(--color-surface-1, #14142a);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  min-height: 90px;
+}
+
+.osd-control-btn:hover {
+  border-color: var(--color-border-hover, #3a3a54);
+  background: var(--color-surface-2, #1a1a2e);
+}
+
+.osd-control-btn.selected {
+  border-color: #7c5bf5;
+  box-shadow: 0 0 0 1px #7c5bf5, 0 4px 16px rgba(124, 91, 245, 0.15);
+}
+
+.osd-control-btn.assigned {
+  border-color: var(--color-border-hover, #3a3a54);
+}
+
+/* LED dot */
+.osd-led-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+  transition: background-color 0.2s ease;
+}
+
+.osd-control-btn.assigned .osd-led-dot {
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+/* Button index */
+.osd-control-index {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #8888a0);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Action label */
+.osd-control-action {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #e8e8ef);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.osd-control-btn:not(.assigned) .osd-control-action {
+  color: var(--color-text-muted, #8888a0);
+  opacity: 0.5;
+}
+
+.osd-control-param {
+  font-size: 0.68rem;
+  color: var(--color-text-muted, #8888a0);
+  font-style: italic;
+}
+
+/* ── Slider Grid ─────────────────────────────────────────────────────────── */
+
+.osd-slider-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 480px;
+}
+
+.osd-control-slider {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--color-border, #2a2a44);
+  border-radius: 12px;
+  background: var(--color-surface-1, #14142a);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.osd-control-slider:hover {
+  border-color: var(--color-border-hover, #3a3a54);
+  background: var(--color-surface-2, #1a1a2e);
+}
+
+.osd-control-slider.selected {
+  border-color: #7c5bf5;
+  box-shadow: 0 0 0 1px #7c5bf5, 0 4px 16px rgba(124, 91, 245, 0.15);
+}
+
+.osd-slider-track {
+  width: 100%;
+  height: 6px;
+  background: var(--color-surface-3, #262640);
+  border-radius: 3px;
+  position: relative;
+}
+
+.osd-slider-thumb {
+  position: absolute;
+  left: 40%;
+  top: -4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #7c5bf5;
+  border: 2px solid var(--color-surface-1, #14142a);
+  box-shadow: 0 0 4px rgba(124, 91, 245, 0.5);
+}
+
+.osd-slider-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #8888a0);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.osd-control-slider .osd-control-action {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-text-primary, #e8e8ef);
+}
+
+.osd-control-slider:not(.assigned) .osd-control-action {
+  color: var(--color-text-muted, #8888a0);
+  opacity: 0.5;
+}
+
+.osd-control-slider .osd-control-param {
+  font-size: 0.68rem;
+  color: var(--color-text-muted, #8888a0);
+  font-style: italic;
+}
+
+/* ── Config Panel (slide-out right drawer) ────────────────────────────────── */
+
+.osd-config-panel {
+  width: 300px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--color-border, #2a2a44);
+  background: var(--color-surface-1, #14142a);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.2s ease-out;
+  overflow-y: auto;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.osd-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--color-border, #2a2a44);
+}
+
+.osd-panel-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #e8e8ef);
+  margin: 0;
+}
+
+.osd-panel-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-muted, #8888a0);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.osd-panel-close:hover {
+  background: var(--color-surface-2, #1a1a2e);
+  color: var(--color-text-primary, #e8e8ef);
+}
+
+.osd-panel-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.osd-field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #8888a0);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: -8px;
+}
+
+/* ── Colour Picker ───────────────────────────────────────────────────────── */
+
+.osd-color-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.osd-color-input {
+  width: 40px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  padding: 0;
+}
+
+.osd-color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.osd-color-input::-webkit-color-swatch {
+  border: 1px solid var(--color-border, #2a2a44);
+  border-radius: 6px;
+}
+
+.osd-color-hex {
+  font-size: 0.78rem;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: var(--color-text-muted, #8888a0);
+}
+
+/* ── Simulate Controls ──────────────────────────────────────────────────── */
+
+.osd-sim-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 12px;
+  border: 1px solid var(--color-border, #2a2a44);
+  border-radius: 10px;
+  background: var(--color-surface-2, #1a1a2e);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 72px;
+  user-select: none;
+}
+
+.osd-sim-btn:hover {
+  border-color: #7c5bf5;
+  background: var(--color-surface-3, #262640);
+}
+
+.osd-sim-btn:active {
+  background: rgba(124, 91, 245, 0.2);
+  border-color: #a78bfa;
+  transform: scale(0.96);
+  box-shadow: 0 0 12px rgba(124, 91, 245, 0.3);
+}
+
+.osd-sim-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #e8e8ef);
+}
+
+.osd-sim-sub {
+  font-size: 0.65rem;
+  color: var(--color-text-muted, #8888a0);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.osd-sim-slider-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border, #2a2a44);
+  border-radius: 10px;
+  background: var(--color-surface-1, #14142a);
+}
+
+.osd-sim-slider-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted, #8888a0);
+}
+
+.osd-sim-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--color-surface-3, #262640);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.osd-sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #7c5bf5;
+  border: 2px solid var(--color-surface-1, #14142a);
+  box-shadow: 0 0 4px rgba(124, 91, 245, 0.5);
+  cursor: grab;
+}
+
+.osd-sim-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  box-shadow: 0 0 8px rgba(124, 91, 245, 0.8);
+}

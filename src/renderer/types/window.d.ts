@@ -56,7 +56,7 @@ declare global {
       importShow: () => Promise<IpcResponse<ShowFile | null>>;
 
       // OBD standalone push
-      pushToObd: (roomData: RoomFile, fixtureProfiles: FixtureProfile[], bpm: number) => Promise<IpcResponse>;
+      pushToObd: (roomData: RoomFile, fixtureProfiles: FixtureProfile[], bpm: number, baseSceneId?: string | null, fxConfigs?: FxConfig[], fxTargets?: Record<string, any>) => Promise<IpcResponse>;
       queryObdShow: () => Promise<IpcResponse>;
 
       onUniverseUpdate: (cb: (snapshot: number[]) => void) => () => void;

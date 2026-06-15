@@ -984,7 +984,7 @@ export class DmxEngine {
   /**
    * Query the show info stored on the connected OBD.
    */
-  async queryObdShowInfo(): Promise<{ name: string; size: number; bpmCenti: number; versionMajor: number; versionMinor: number } | null> {
+  async queryObdShowInfo(): Promise<{ name: string; size: number; bpmCenti: number; versionMajor: number; versionMinor: number; flags?: number; sectionCount?: number; baseSceneIndex?: number } | null> {
     // Pause DMX output briefly for the query
     await this.workerPauseTick();
 
@@ -1009,7 +1009,12 @@ export class DmxEngine {
 
       if (size === 0) return null;
 
-      return { name, size, bpmCenti, versionMajor: vMajor, versionMinor: vMinor };
+      // Extended fields (48-byte response from new firmware)
+      const flags = payload.length >= 42 ? view.getUint16(40, true) : undefined;
+      const sectionCount = payload.length >= 44 ? view.getUint16(42, true) : undefined;
+      const baseSceneIndex = payload.length >= 46 ? view.getUint16(44, true) : undefined;
+
+      return { name, size, bpmCenti, versionMajor: vMajor, versionMinor: vMinor, flags, sectionCount, baseSceneIndex };
     } finally {
       this.workerResumeTick();
     }

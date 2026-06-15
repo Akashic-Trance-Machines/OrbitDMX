@@ -375,9 +375,6 @@ export default function SettingsView() {
           </div>
         </section>
 
-        {/* OBD Standalone Push section */}
-        <ObdPushSection />
-
         {/* About section */}
         <section className="settings-section" id="section-about">
           <div className="settings-section-header">

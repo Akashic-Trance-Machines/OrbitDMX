@@ -138,8 +138,13 @@ export function usePlaylistRunner() {
       usePlaylistStore.getState().setHoldStartedAt(Date.now());
 
       timerRef.current = setTimeout(() => {
-        playCue(nextIdx, pl);
-        scheduleAutoAdvance(nextIdx, pl);
+        // Read CURRENT playlist state (not the stale closure) so live edits
+        // to hold duration, BPM sync, and divider take effect immediately.
+        const currentPl = usePlaylistStore.getState().playlists.find(
+          (p) => p.id === pl.id,
+        ) ?? pl;
+        playCue(nextIdx, currentPl);
+        scheduleAutoAdvance(nextIdx, currentPl);
       }, holdMs + pl.fadeDurationMs);
     },
     [clearAutoTimer, getNextIndex, playCue],
@@ -228,6 +233,10 @@ export function usePlaylistRunner() {
   // ── Effect: react to playback state / mode changes ──────────────────────
 
   const syncMode = playlist?.syncMode;
+  const holdDurationMs = playlist?.holdDurationMs;
+  const bpmSync = playlist?.bpmSync;
+  const bpmDivider = playlist?.bpmDivider;
+  const fadeDurationMs = playlist?.fadeDurationMs;
 
   useEffect(() => {
     if (!playlist || playlist.cues.length === 0) return;
@@ -249,7 +258,7 @@ export function usePlaylistRunner() {
       cleanupAudio();
       usePlaylistStore.getState().setHoldStartedAt(null);
     };
-  }, [playbackState, activePlaylistId, syncMode]);
+  }, [playbackState, activePlaylistId, syncMode, holdDurationMs, bpmSync, bpmDivider, fadeDurationMs]);
 
   // Cleanup on unmount (app shutdown)
   useEffect(() => {
