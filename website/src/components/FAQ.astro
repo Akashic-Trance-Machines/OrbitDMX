@@ -1,0 +1,93 @@
+---
+const faqs = [
+  {
+    q: 'Is it really free?',
+    a: 'Yes. OrbitDMX is MIT licensed and free to download and use. No accounts, no telemetry, no paywalls.',
+  },
+  {
+    q: 'What hardware do I need?',
+    a: 'A desktop computer and an FTDI-based USB-DMX interface. OrbitDMX drives one DMX universe over that interface.',
+  },
+  {
+    q: 'Which fixtures are supported?',
+    a: 'A built-in library covers many AYRA fixtures plus generic RGB / RGBW / moving-head types. More profiles can be added.',
+  },
+  {
+    q: 'Does it need internet or an account?',
+    a: 'No. It runs fully offline. The only network call is an optional check for the latest version on this download page.',
+  },
+  {
+    q: 'When can I buy an OrbitBridgeDeck?',
+    a: 'It is still in development. The firmware is open source — follow the GitHub repo for progress.',
+  },
+];
+---
+
+<section id="faq" aria-labelledby="faq-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">FAQ</span>
+      <hr class="divider" />
+      <h2 id="faq-title">Questions</h2>
+    </div>
+
+    <div class="faq-list">
+      {faqs.map((f) => (
+        <details class="faq-item reveal">
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-list {
+    max-width: 760px;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .faq-item {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0 1.25rem;
+  }
+
+  summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 1.1rem 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  summary::-webkit-details-marker { display: none; }
+
+  summary::after {
+    content: '+';
+    color: var(--accent-2);
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: 1;
+    transition: transform 0.2s ease;
+  }
+
+  .faq-item[open] summary::after { transform: rotate(45deg); }
+
+  .faq-item p {
+    margin: 0;
+    padding: 0 0 1.2rem;
+    color: var(--text-muted);
+    font-size: 0.96rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    summary::after { transition: none; }
+  }
+</style>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://akashic-trance-machines.github.io/OrbitDMX/sitemap-index.xml
