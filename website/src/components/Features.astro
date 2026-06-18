@@ -1,0 +1,30 @@
+---
+import { features } from '../data/features';
+import FeatureCard from './FeatureCard.astro';
+---
+
+<section id="features" aria-labelledby="features-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Features</span>
+      <hr class="divider" />
+      <h2 id="features-title">Everything to run a small rig well</h2>
+      <p>
+        Patch your fixtures, build looks, and drive them live — from a single
+        desktop app. No console, no subscriptions, no fuss.
+      </p>
+    </div>
+
+    <div class="feature-grid">
+      {features.map((f) => <FeatureCard {...f} />)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .feature-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+</style>

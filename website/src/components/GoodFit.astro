@@ -1,0 +1,109 @@
+---
+const greatFor = [
+  'Small to mid-size rigs on a single USB-DMX interface (one DMX universe).',
+  'AYRA fixtures and generic RGB / RGBW / moving-head types.',
+  'Scene-based shows, colour washes, FX, and BPM/MIDI-driven live control.',
+  'People who want a free, simple, modern alternative to heavyweight consoles.',
+  'macOS, Windows, and Linux desktops.',
+];
+
+const notFor = [
+  'Large multi-universe productions or Art-Net / sACN networks (single USB-DMX universe today).',
+  'Full timeline / pixel-mapping or media-server style programming.',
+  'Replacing a full-featured professional console for big touring shows.',
+];
+---
+
+<section id="good-fit" aria-labelledby="fit-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Honest scope</span>
+      <hr class="divider" />
+      <h2 id="fit-title">Is OrbitDMX right for you?</h2>
+      <p>We'd rather you know up front. Here's where it shines — and where it doesn't (yet).</p>
+    </div>
+
+    <div class="fit-grid">
+      <div class="fit-col reveal">
+        <h3 class="fit-head ok">Great for</h3>
+        <ul>
+          {greatFor.map((item) => (
+            <li>
+              <svg class="mark ok-mark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7" /></svg>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="fit-col reveal">
+        <h3 class="fit-head warn">Not (yet) for</h3>
+        <ul>
+          {notFor.map((item) => (
+            <li>
+              <svg class="mark warn-mark" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14" /></svg>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <p class="fit-closing reveal">
+      OrbitDMX aims to be the simplest way to run a small rig well — not to be
+      everything to everyone.
+    </p>
+  </div>
+</section>
+
+<style>
+  .fit-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 760px) {
+    .fit-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .fit-col {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+  }
+
+  .fit-head {
+    font-size: 1.15rem;
+    margin-bottom: 1.1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fit-head.ok { color: var(--ok); }
+  .fit-head.warn { color: var(--warn); }
+
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.9rem; }
+
+  li {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 0.7rem;
+    align-items: start;
+    color: var(--text-muted);
+    font-size: 0.97rem;
+  }
+
+  .mark { margin-top: 2px; }
+  .ok-mark { color: var(--ok); }
+  .warn-mark { color: var(--warn); }
+
+  .fit-closing {
+    margin: 1.75rem auto 0;
+    max-width: 42rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 1.02rem;
+  }
+</style>

@@ -1,0 +1,210 @@
+---
+import { site } from '../data/site';
+---
+
+<section id="download" aria-labelledby="dl-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Download</span>
+      <hr class="divider" />
+      <h2 id="dl-title">Get OrbitDMX</h2>
+      <p>Free and open source. No account required.</p>
+    </div>
+
+    <div class="dl-card reveal" id="dl-card"
+         data-api={site.releasesApi}
+         data-latest={site.releasesLatest}
+         data-all={site.releasesAll}>
+
+      <!-- Static fallback renders first; JS enhances it in place. -->
+      <div class="dl-meta">
+        <span class="dl-version" id="dl-version">Latest release</span>
+        <span class="dl-date" id="dl-date"></span>
+      </div>
+
+      <div class="dl-buttons" id="dl-buttons">
+        <a class="btn btn-primary" href={site.releasesLatest} target="_blank" rel="noopener">
+          Download from GitHub Releases
+        </a>
+      </div>
+
+      <a class="dl-all" id="dl-all" href={site.releasesAll} target="_blank" rel="noopener">
+        View all releases →
+      </a>
+
+      <p class="dl-fineprint">
+        Requires a desktop OS (macOS, Windows or Linux) and an FTDI-based USB-DMX
+        interface. MIT licensed.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .dl-card {
+    max-width: 760px;
+    margin-inline: auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+
+  .dl-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .dl-version {
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .dl-date {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+  }
+
+  .dl-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    justify-content: center;
+  }
+
+  .dl-buttons .btn { min-width: 200px; }
+
+  /* OS-detected primary vs. the rest */
+  .dl-os-others {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+    margin-top: 0.9rem;
+  }
+
+  .dl-all {
+    display: inline-block;
+    margin-top: 1.4rem;
+    color: var(--accent-2);
+    font-size: 0.92rem;
+    font-weight: 500;
+  }
+
+  .dl-all:hover { text-decoration: underline; }
+
+  .dl-fineprint {
+    margin: 1.5rem 0 0;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+  }
+</style>
+
+<script>
+  type Asset = { name: string; browser_download_url: string; size: number };
+  type OS = 'macOS' | 'Windows' | 'Linux';
+
+  const card = document.getElementById('dl-card');
+  if (card) {
+    const api = card.dataset.api!;
+
+    const detectOS = (): OS | null => {
+      const ua = navigator.userAgent.toLowerCase();
+      if (/mac|darwin|iphone|ipad/.test(ua)) return 'macOS';
+      if (/win/.test(ua)) return 'Windows';
+      if (/linux|x11/.test(ua)) return 'Linux';
+      return null;
+    };
+
+    const osOf = (name: string): OS | null => {
+      const n = name.toLowerCase();
+      if (/\.dmg$|darwin|mac|osx/.test(n)) return 'macOS';
+      if (/\.exe$|setup|win|squirrel|\.nupkg$/.test(n)) return 'Windows';
+      if (/\.deb$|\.rpm$|appimage|linux|\.zip$/.test(n)) return 'Linux';
+      return null;
+    };
+
+    const fmtSize = (b: number) =>
+      b > 0 ? ` (${(b / 1048576).toFixed(0)} MB)` : '';
+
+    const fmtDate = (iso: string) => {
+      try {
+        return new Date(iso).toLocaleDateString(undefined, {
+          year: 'numeric', month: 'short', day: 'numeric',
+        });
+      } catch { return ''; }
+    };
+
+    const mkBtn = (label: string, href: string, primary: boolean) => {
+      const a = document.createElement('a');
+      a.className = `btn ${primary ? 'btn-primary' : 'btn-ghost'}`;
+      a.href = href;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = label;
+      return a;
+    };
+
+    // Progressive enhancement: only touch the DOM once we have real data.
+    fetch(api, { headers: { Accept: 'application/vnd.github+json' } })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((rel: { tag_name?: string; published_at?: string; html_url?: string; assets?: Asset[] }) => {
+        const assets = (rel.assets ?? []).filter((a) => osOf(a.name));
+        if (!assets.length) return; // keep fallback
+
+        // Pick one asset per OS (first match wins).
+        const byOS = new Map<OS, Asset>();
+        for (const a of assets) {
+          const os = osOf(a.name)!;
+          if (!byOS.has(os)) byOS.set(os, a);
+        }
+
+        // Version + date
+        const vEl = document.getElementById('dl-version');
+        const dEl = document.getElementById('dl-date');
+        if (vEl && rel.tag_name) vEl.textContent = rel.tag_name;
+        if (dEl && rel.published_at) dEl.textContent = `· ${fmtDate(rel.published_at)}`;
+
+        // Buttons: detected OS primary, others below.
+        const detected = detectOS();
+        const order: OS[] = ['macOS', 'Windows', 'Linux'];
+        const primaryOS = detected && byOS.has(detected) ? detected : null;
+
+        const buttons = document.getElementById('dl-buttons');
+        if (!buttons) return;
+        buttons.innerHTML = '';
+
+        if (primaryOS) {
+          const a = byOS.get(primaryOS)!;
+          buttons.appendChild(
+            mkBtn(`Download for ${primaryOS}${fmtSize(a.size)}`, a.browser_download_url, true)
+          );
+          const others = document.createElement('div');
+          others.className = 'dl-os-others';
+          for (const os of order) {
+            if (os === primaryOS) continue;
+            const oa = byOS.get(os);
+            if (oa) others.appendChild(mkBtn(os, oa.browser_download_url, false));
+          }
+          if (others.childElementCount) buttons.appendChild(others);
+        } else {
+          // No detected match — show all OS buttons equally.
+          for (const os of order) {
+            const oa = byOS.get(os);
+            if (oa) buttons.appendChild(mkBtn(`Download for ${os}`, oa.browser_download_url, false));
+          }
+        }
+      })
+      .catch(() => {
+        /* network/rate-limit/offline — static fallback stays as-is */
+      });
+  }
+</script>

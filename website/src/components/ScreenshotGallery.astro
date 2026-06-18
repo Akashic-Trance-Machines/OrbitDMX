@@ -1,0 +1,69 @@
+---
+import Placeholder from './Placeholder.astro';
+
+// Each shot drops into public/images/screenshots/ later; pass `src` to swap in.
+const shots = [
+  { label: 'Scene editor', file: 'scene-editor.png', caption: 'Run a small club night', text: 'Build a few scenes, chain them into a BPM-synced playlist, and hit play.' },
+  { label: 'Playlist with crossfade', file: 'playlist.png' },
+  { label: 'FX page', file: 'fx.png' },
+  { label: 'Controls / MIDI surface', file: 'controls.png', caption: 'Control by hand', text: 'Map sliders and buttons on the Controls page to a MIDI pad and mix live.' },
+  { label: 'Floor plan view', file: 'floor-plan.png' },
+  { label: 'OBD Standalone config', file: 'obd-standalone.png', caption: 'Go computer-free', text: 'Push your show to an OrbitBridgeDeck and run it standalone — see Hardware below.' },
+];
+---
+
+<section id="screenshots" aria-labelledby="screens-title">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Screenshots</span>
+      <hr class="divider" />
+      <h2 id="screens-title">A look at the app</h2>
+      <p>Real screenshots drop in here as the app ships. Placeholders show the layout for now.</p>
+    </div>
+
+    <div class="shot-grid">
+      {shots.map((s) => (
+        <figure class="shot reveal">
+          <Placeholder label={s.label} ratio="16 / 10" hint="1600 × 1000" />
+          {s.caption ? (
+            <figcaption>
+              <strong>{s.caption}</strong>
+              <span>{s.text}</span>
+            </figcaption>
+          ) : (
+            <figcaption class="plain">{s.label}</figcaption>
+          )}
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .shot-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .shot { margin: 0; }
+
+  figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding-top: 0.85rem;
+  }
+
+  figcaption strong { font-size: 1rem; }
+
+  figcaption span {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  figcaption.plain {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+</style>
